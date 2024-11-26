@@ -1,7 +1,11 @@
+import Button from '../../components/button/Button';
+import * as styled from './Home.style';
+
 export default function Home() {
   return (
-    <div>
+    <styled.HomeWrapper>
       <h1>Home</h1>
-    </div>
+      <Button text="Game Start" />
+    </styled.HomeWrapper>
   );
 }
