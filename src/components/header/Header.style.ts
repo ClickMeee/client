@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
 export const HeaderWrapper = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
-  height: 80px;
   background-color: #333;
   color: #fff;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8vh;
+  z-index: 100;
 `;
