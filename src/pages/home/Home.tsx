@@ -20,7 +20,7 @@ export default function Home() {
       gameTime: 10,
       gameType: 'ONE_TO_ONE',
       roomChief: {
-        nickname: 'jihu',
+        nickname: window.location.hostname, // 현재 로컬 주소를 nickname으로 사용
       },
     };
 

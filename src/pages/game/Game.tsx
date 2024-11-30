@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Button, { ButtonType } from '../../components/button/Button';
 import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
@@ -6,22 +7,32 @@ import * as styled from './Game.style';
 
 export default function Game() {
   const { roomId } = useParams<{ roomId: string }>(); // URL에서 roomId를 받아옵니다
-  const nickName = 'playerName'; // 예시: 플레이어 닉네임 (실제 앱에서는 로그인 정보 등을 통해 가져옴)
+  const nickName = window.location.hostname; // 현재 로컬 주소를 nickname으로 사용
 
-  const requestBody: RoomClientProps = {
-    roomId: roomId || '',
-    nickName: nickName,
-  };
+  useEffect(() => {
+    // WebSocket 연결
+    oneVsOneWebSocket.connect();
 
-  // WebSocket 연결
-  oneVsOneWebSocket.connect();
+    if (roomId) {
+      const requestBody: RoomClientProps = { roomId, nickName };
 
-  // WebSocket 구독 및 방 입장
-  if (roomId) {
-    oneVsOneWebSocket.enterRoom(requestBody);
-  } else {
-    console.error('Room ID is undefined');
-  }
+      // 방 입장 요청 (연결 후 처리됨)
+      oneVsOneWebSocket.enterRoom(requestBody);
+
+      // WebSocket 메시지 구독
+      oneVsOneWebSocket.subscribe(`/topic/room/${roomId}`, (message) => {
+        console.log('WebSocket Message:', message);
+        // 메시지 처리 로직 추가 가능
+      });
+
+      // 컴포넌트 언마운트 시 WebSocket 연결 해제
+      return () => {
+        oneVsOneWebSocket.disconnect();
+      };
+    } else {
+      console.error('Room ID is undefined');
+    }
+  }, [roomId, nickName]); // roomId와 nickName에 따라 effect 실행
 
   type ButtonProps = {
     text: string;

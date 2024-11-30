@@ -6,6 +6,14 @@ class OneVsOneWebSocket extends WebSocketManager {
   onConnect(frame: IFrame): void {
     // 닉네임 보내기
     console.log('WebSocket connected:', frame);
+
+    // stompClient.send(import.meta.env.VITE_API_URL + '/room/enter', {}, JSON.stringify({ roomId: roomId, nickName: nickName }));
+
+    // 대기 중인 방 입장 요청 처리
+    if (this.roomRequest) {
+      this.enterRoom(this.roomRequest);
+      this.roomRequest = null;
+    }
   }
 
   onDisconnect(): void {
@@ -18,18 +26,24 @@ class OneVsOneWebSocket extends WebSocketManager {
     console.error('WebSocket error:', frame);
   }
 
-  // // 구독
-  // subscribe(destination: string, callback: (message: any) => void): void {
-  //   super.subscribe(destination, callback);
-  // }
+  // 구독
+  subscribe(destination: string, callback: (message: any) => void): void {
+    super.subscribe(destination, callback);
+  }
 
-  // 방에 입장
+  private roomRequest: RoomClientProps | null = null;
+
   enterRoom(requestBody: RoomClientProps): void {
-    // 방에 입장하는 로직을 추가합니다.
-    console.log(`User ${requestBody.nickName} is entering room ${requestBody.roomId}`);
-    this.subscribe(`/topic/room/${requestBody.roomId}`, (message) => {
-      console.log('Message received for room:', requestBody.roomId, message);
-    });
+    if (this.getClient()?.connected) {
+      this.getClient()?.publish({
+        destination: import.meta.env.VITE_API_URL + '/room/enter',
+        body: JSON.stringify(requestBody),
+      });
+      console.log(`Entered room: ${requestBody.roomId} as ${requestBody.nickName}`);
+    } else {
+      console.error('WebSocket is not connected. Saving request for later.');
+      this.roomRequest = requestBody; // 연결 후 처리
+    }
   }
 }
 

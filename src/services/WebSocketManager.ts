@@ -27,8 +27,8 @@ export abstract class WebSocketManager {
   }
 
   abstract onConnect(frame: IFrame): void;
-  abstract onDisconnect(): void;
   abstract onError(frame: IFrame): void;
+  abstract onDisconnect(): void;
 
   // 웹 소켓 연결 종료
   disconnect(): void {
