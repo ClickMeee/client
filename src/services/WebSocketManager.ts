@@ -1,4 +1,4 @@
-import { Client, IMessage, IFrame } from '@stomp/stompjs';
+import { Client, IFrame, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 export abstract class WebSocketManager {
@@ -15,7 +15,7 @@ export abstract class WebSocketManager {
   // 웹 소켓 연결
   connect(): void {
     this.client = new Client({
-      webSocketFactory: () => new SockJS(process.env.REACT_APP_WEBSOCKET_URL),
+      webSocketFactory: () => new SockJS(import.meta.env.VITE_API_URL + '/connect'), // /connect 엔드포인트로 연결
       debug: (str) => console.log(`[STOMP Debug] ${str}`), // 후에 삭제
       reconnectDelay: 5000,
       onConnect: this.onConnect.bind(this),
@@ -50,5 +50,10 @@ export abstract class WebSocketManager {
     });
 
     console.log(`Subscribed to ${destination}`); // 후에 삭제
+  }
+
+  // Optional getter for `client` (if needed)
+  getClient(): Client | null {
+    return this.client;
   }
 }
