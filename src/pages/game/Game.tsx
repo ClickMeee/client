@@ -7,32 +7,48 @@ import * as styled from './Game.style';
 
 export default function Game() {
   const { roomId } = useParams<{ roomId: string }>(); // URL에서 roomId를 받아옵니다
-  const nickName = window.location.hostname; // 현재 로컬 주소를 nickname으로 사용
+  const nickName = 'player'; // 현재 로컬 주소를 nickname으로 사용
 
   useEffect(() => {
+    if (!roomId) {
+      console.error('Room ID is undefined');
+      return;
+    }
+
+    const requestBody: RoomClientProps = {
+      roomId: roomId,
+      nickName: nickName,
+    };
+
     // WebSocket 연결
     oneVsOneWebSocket.connect();
 
-    if (roomId) {
-      const requestBody: RoomClientProps = { roomId, nickName };
+    // 연결 상태 확인 및 메시지 전송
+    const checkConnection = setInterval(() => {
+      if (oneVsOneWebSocket.getClient()?.connected) {
+        oneVsOneWebSocket.sendMessage('/room/enter', requestBody);
 
-      // 방 입장 요청 (연결 후 처리됨)
-      oneVsOneWebSocket.enterRoom(requestBody);
+        // 메시지 구독
+        oneVsOneWebSocket.subscribe(`/topic/room/${roomId}`, (message) => {
+          console.log('WebSocket Message:', message);
+          // 메시지 처리 로직 추가 가능
+          // JSON 데이터를 처리
+          const roomData = JSON.parse(message.body);
+          console.log('Parsed Room Data:', roomData);
+        });
 
-      // WebSocket 메시지 구독
-      oneVsOneWebSocket.subscribe(`/topic/room/${roomId}`, (message) => {
-        console.log('WebSocket Message:', message);
-        // 메시지 처리 로직 추가 가능
-      });
+        clearInterval(checkConnection); // 연결 완료 후 대기 중단
+      } else {
+        console.log('Waiting for WebSocket connection...');
+      }
+    }, 500);
 
-      // 컴포넌트 언마운트 시 WebSocket 연결 해제
-      return () => {
-        oneVsOneWebSocket.disconnect();
-      };
-    } else {
-      console.error('Room ID is undefined');
-    }
-  }, [roomId, nickName]); // roomId와 nickName에 따라 effect 실행
+    // 컴포넌트 언마운트 시 WebSocket 연결 해제
+    return () => {
+      clearInterval(checkConnection);
+      oneVsOneWebSocket.disconnect();
+    };
+  }, [roomId, nickName]);
 
   type ButtonProps = {
     text: string;
