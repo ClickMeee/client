@@ -7,6 +7,6 @@ export default defineConfig({
 
   // global 객체에 의존하는 라이브러리 사용시 발생하는 오류 해결
   define: {
-    global: {},
+    global: 'window',
   },
 });
