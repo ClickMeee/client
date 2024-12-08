@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from "./axiosInstance.ts";
 import { CreateRoomProps } from '../types/CreateRoom.type';
 
 interface CreateRoomResponse {
@@ -7,19 +7,14 @@ interface CreateRoomResponse {
 
 export const createRoom = async (data: CreateRoomProps): Promise<string> => {
   try {
-    const response = await axios.post<CreateRoomResponse>(
-      import.meta.env.VITE_API_URL + '/room',
+    const response = await axiosInstance.post<CreateRoomResponse>(
+      '/room',
       data,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
     );
     console.log('Room created successfully:', response.data);
 
     return response.data.roomId; // 서버에서 반환된 roomId를 사용
-  } catch (error: any) {
+  } catch (error) {
     const errorMessage = error.response?.data?.message || 'Room creation failed';
     console.error('Failed to create room:', errorMessage);
 
