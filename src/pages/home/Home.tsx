@@ -64,6 +64,11 @@ export default function Home() {
           maxUserCount: 1,
           clickCountScale: 1.0,
         },
+        {
+          teamName: 'Team 2',
+          maxUserCount: 1,
+          clickCountScale: 1.0,
+        },
       ],
       gameTime,
       gameType,

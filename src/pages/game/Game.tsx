@@ -8,7 +8,7 @@ import { RoomClientProps } from '../../types/RoomClient.type';
 import * as styled from './Game.style';
 
 export default function Game() {
-  const { roomId } = useParams<{ roomId: string }>(); // URL에서 roomId를 받아옵니다
+  const { roomId } = useParams<{ roomId: string }>();
   const [nickname, setNickname] = useState<string>(''); // 닉네임 상태
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
   const [isDuplicate, setIsDuplicate] = useState<boolean>(false); // 닉네임 중복 상태
@@ -49,7 +49,7 @@ export default function Game() {
       setIsDuplicate(false);
 
       // 방 입장
-      enterRoom();
+      await enterRoom();
     } catch (error) {
       console.error(error.message);
       alert('닉네임 중복 검사에 실패했습니다.');
@@ -70,28 +70,26 @@ export default function Game() {
       nickname: nickname,
     };
 
-    // WebSocket 연결
-    oneVsOneWebSocket.connect();
+    try {
+      // WebSocket 연결
+      await oneVsOneWebSocket.connect();
 
-    // 연결 상태 확인 및 메시지 전송
-    const checkConnection = setInterval(() => {
-      if (oneVsOneWebSocket.getClient()?.connected) {
-        // 메시지 구독
-        oneVsOneWebSocket.subscribe(`/topic/room/${roomId}`, (message) => {
-          console.log('WebSocket Message:', message);
-          // 메시지 처리 로직 추가 가능
-          // JSON 데이터를 처리
-          setRoomData(JSON.parse(message.body));
-          console.log('Parsed Room Data:', roomData);
-        });
+      // 메시지 구독
+      oneVsOneWebSocket.subscribe(`/topic/room/${roomId}`, (message) => {
+        const parsedData = JSON.parse(message.body);
+        setRoomData(parsedData);
+        console.log('Parsed Room Data:', parsedData);
+      });
 
-        oneVsOneWebSocket.sendMessage('/app/room/enter', requestBody);
+      // 방 입장 메시지 전송
+      oneVsOneWebSocket.sendMessage('/app/room/enter', requestBody);
 
-        clearInterval(checkConnection); // 연결 완료 후 대기 중단
-      } else {
-        console.log('Waiting for WebSocket connection...');
-      }
-    }, 500);
+      // 연결 상태 업데이트
+      setIsConnected(true);
+    } catch (error) {
+      console.error('Error entering room:', error);
+      alert('방 입장 중 문제가 발생했습니다.');
+    }
   };
 
   return (
