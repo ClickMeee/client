@@ -1,11 +1,21 @@
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 export const HeaderWrapper = styled.header`
-  display: flex;
-  justify-content: space-between;
+  background-color: purple;
   align-items: center;
-  padding: 0 20px;
-  height: 80px;
-  background-color: #333;
-  color: #fff;
+  min-height: 7vh;
+  z-index: 100;
+`;
+
+export const HeaderLink = styled(Link)`
+  text-decoration: none;
+  color: white;
+  font-size: 30px;
+  font-weight: bold;
+
+  &:focus,
+  &:hover {
+    color: black;
+  }
 `;
