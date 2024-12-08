@@ -26,8 +26,6 @@ export default function Game() {
     // 연결 상태 확인 및 메시지 전송
     const checkConnection = setInterval(() => {
       if (oneVsOneWebSocket.getClient()?.connected) {
-        oneVsOneWebSocket.sendMessage('/room/enter', requestBody);
-
         // 메시지 구독
         oneVsOneWebSocket.subscribe(`/topic/room/${roomId}`, (message) => {
           console.log('WebSocket Message:', message);
@@ -36,6 +34,8 @@ export default function Game() {
           const roomData = JSON.parse(message.body);
           console.log('Parsed Room Data:', roomData);
         });
+
+        oneVsOneWebSocket.sendMessage('/app/room/enter', requestBody);
 
         clearInterval(checkConnection); // 연결 완료 후 대기 중단
       } else {
