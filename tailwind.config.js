@@ -9,7 +9,6 @@ export default {
         'floating': '0 10px 15px rgba(0, 0, 0, 0.1), 10px 8px 5px rgba(0, 0, 0, 0.5)',
       },
 
-
       animation: {
         'move-bg': 'moveBackground 5s linear infinite', // 사용자 정의 애니메이션
       },
@@ -19,6 +18,7 @@ export default {
           '100%': { transform: 'translate(-60px, -60px)' },
         },
       },
+      
       backgroundSize: {
         'pattern': '60px 60px', // 패턴 크기
       },
