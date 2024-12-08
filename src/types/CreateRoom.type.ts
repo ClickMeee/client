@@ -8,7 +8,7 @@ type RoomChief = {
   nickname: string; // 방장의 닉네임
 };
 
-type GameType = 'ONE_TO_ONE' | 'TEAM_VS_TEAM'; // 게임 유형
+type GameType = 'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'; // 게임 유형
 
 export interface CreateRoomProps {
   teams: Team[]; // 팀 목록

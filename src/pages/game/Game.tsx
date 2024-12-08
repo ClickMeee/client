@@ -1,15 +1,65 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import Button, { ButtonType } from '../../components/button/Button';
+import { CheckNicknameDuplicate } from '../../api/CheckNickname';
+import Button from '../../components/button/Button';
 import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
+import { CreateRoomProps } from '../../types/CreateRoom.type';
 import { RoomClientProps } from '../../types/RoomClient.type';
 import * as styled from './Game.style';
 
 export default function Game() {
   const { roomId } = useParams<{ roomId: string }>(); // URL에서 roomId를 받아옵니다
-  const nickName = 'player'; // 현재 로컬 주소를 nickname으로 사용
+  const [nickname, setNickname] = useState<string>(''); // 닉네임 상태
+  const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
+  const [isDuplicate, setIsDuplicate] = useState<boolean>(false); // 닉네임 중복 상태
+  const [loading, setLoading] = useState<boolean>(false); // 로딩 상태
+  const [roomData, setRoomData] = useState<CreateRoomProps | null>(null); // 방 정보 상태
 
   useEffect(() => {
+    const client = oneVsOneWebSocket.getClient();
+
+    if (client?.connected) {
+      setIsConnected(true);
+    } else {
+      setIsConnected(false);
+    }
+  }, [roomId]);
+
+  const handleNicknameSubmit = async () => {
+    if (!roomId) {
+      console.error('Room ID is undefined');
+      return;
+    }
+
+    if (!nickname.trim()) {
+      alert('닉네임을 입력해주세요.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // 닉네임 중복 검사
+      const isDuplicateNickname = await CheckNicknameDuplicate(roomId, nickname);
+      if (isDuplicateNickname) {
+        setIsDuplicate(true);
+        setLoading(false);
+        return;
+      }
+      setIsDuplicate(false);
+
+      // 방 입장
+      enterRoom();
+    } catch (error) {
+      console.error(error.message);
+      alert('닉네임 중복 검사에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 방 입장 함수
+  const enterRoom = async () => {
     if (!roomId) {
       console.error('Room ID is undefined');
       return;
@@ -17,7 +67,7 @@ export default function Game() {
 
     const requestBody: RoomClientProps = {
       roomId: roomId,
-      nickName: nickName,
+      nickname: nickname,
     };
 
     // WebSocket 연결
@@ -31,7 +81,7 @@ export default function Game() {
           console.log('WebSocket Message:', message);
           // 메시지 처리 로직 추가 가능
           // JSON 데이터를 처리
-          const roomData = JSON.parse(message.body);
+          setRoomData(JSON.parse(message.body));
           console.log('Parsed Room Data:', roomData);
         });
 
@@ -42,31 +92,41 @@ export default function Game() {
         console.log('Waiting for WebSocket connection...');
       }
     }, 500);
-
-    // 컴포넌트 언마운트 시 WebSocket 연결 해제
-    return () => {
-      clearInterval(checkConnection);
-      oneVsOneWebSocket.disconnect();
-    };
-  }, [roomId, nickName]);
-
-  type ButtonProps = {
-    text: string;
-    type: ButtonType;
-    onClick: () => void;
-  };
-
-  const buttonProps: ButtonProps = {
-    text: 'Click me',
-    type: 'click',
-    onClick: () => console.log('Button clicked'),
   };
 
   return (
     <styled.GameWrapper>
-      <h1>Game</h1>
-
-      <Button {...buttonProps} />
+      {!isConnected ? (
+        <styled.NicknameForm>
+          <label htmlFor="nickname">닉네임 입력:</label>
+          <input
+            id="nickname"
+            type="text"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            disabled={loading} // 로딩 중 입력 비활성화
+          />
+          <button onClick={handleNicknameSubmit} disabled={loading}>
+            {loading ? '확인 중...' : '입장'}
+          </button>
+          {isDuplicate && <p style={{ color: 'red' }}>중복된 닉네임입니다.</p>}
+        </styled.NicknameForm>
+      ) : (
+        <>
+          <h1>Game</h1>
+          <p>참가자 수: {roomData?.teams.length || 0}</p>
+          <styled.ButtonContainer>
+            {roomData?.teams.map((team, index) => (
+              <Button
+                key={index}
+                text={`Button ${index + 1} - ${team.teamName}`}
+                type="click"
+                onClick={() => console.log(`${team.teamName} 버튼 클릭`)}
+              />
+            ))}
+          </styled.ButtonContainer>
+        </>
+      )}
     </styled.GameWrapper>
   );
 }

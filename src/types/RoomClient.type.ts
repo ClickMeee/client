@@ -1,4 +1,4 @@
 export interface RoomClientProps {
   roomId: string;
-  nickName: string;
+  nickname: string;
 }

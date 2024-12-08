@@ -13,23 +13,33 @@ export abstract class WebSocketManager {
   }
 
   // 웹 소켓 연결
-  connect(): void {
+  connect(): Promise<void> {
     if (this.client && this.client.connected) {
       console.log('WebSocket is already connected.');
-      return;
+      return Promise.resolve(); // 이미 연결되어 있으면 바로 성공 처리
     }
 
-    this.client = new Client({
-      webSocketFactory: () => new SockJS(import.meta.env.VITE_API_URL + '/connect'),
-      debug: (str: string) => console.log(`[STOMP Debug] ${str}`),
-      reconnectDelay: 5000,
-      onConnect: this.onConnect.bind(this),
-      onStompError: this.onStompError.bind(this),
-      onDisconnect: this.onDisconnect.bind(this),
-    });
+    return new Promise((resolve, reject) => {
+      this.client = new Client({
+        webSocketFactory: () => new SockJS(import.meta.env.VITE_API_URL + '/connect'),
+        debug: (str: string) => console.log(`[STOMP Debug] ${str}`),
+        reconnectDelay: 5000,
+        onConnect: () => {
+          console.log('WebSocket connected successfully.');
+          resolve(); // 연결 성공 시 프라미스 해결
+        },
+        onStompError: (error: any) => {
+          console.error('WebSocket STOMP Error:', error);
+          reject(new Error('WebSocket STOMP Error')); // 에러 발생 시 프라미스 거부
+        },
+        onDisconnect: () => {
+          console.log('WebSocket disconnected.');
+        },
+      });
 
-    this.client.activate();
-    console.log('WebSocket Client activated.');
+      this.client.activate();
+      console.log('WebSocket Client activated.');
+    });
   }
 
   abstract onConnect(frame: IFrame): void;
