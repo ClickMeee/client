@@ -41,7 +41,7 @@ export default function Home() {
 
     const RoomClientRequestBody: RoomClientProps = {
       roomId: roomId,
-      nickName: nickname,
+      nickname: nickname,
     };
 
     oneVsOneWebSocket.sendMessage('/app/room/enter', RoomClientRequestBody);
