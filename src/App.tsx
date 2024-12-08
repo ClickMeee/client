@@ -1,12 +1,15 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 import './App.css';
 import Layout from './layout/Layout';
+import { RecoilRoot } from 'recoil';
 
 function App() {
   return (
-    <Router>
-      <Layout />
-    </Router>
+    <RecoilRoot>
+      <Router>
+        <Layout />
+      </Router>
+    </RecoilRoot>
   );
 }
 
