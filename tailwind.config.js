@@ -23,8 +23,10 @@ export default {
         'pattern': '60px 60px', // 패턴 크기
       },
       backgroundImage: {
-        // 'cursor-pattern': 'radial-gradient(circle, rgba(0, 0, 0, 0.1) 25%, transparent 25%)', // 마우스 커서 모양
-        'cursor-pattern': "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><text x=\"10\" y=\"50\" font-size=\"50\">🐹</text></svg>')",
+        'background-pattern': "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><text x=\"10\" y=\"50\" font-size=\"50\">🐹</text></svg>')",
+      },
+      cursor: {
+        'snow': "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><text x=\"3\" y=\"12\" font-size=\"10\">❄️</text></svg>') 8 8, auto",
       },
     },
   },

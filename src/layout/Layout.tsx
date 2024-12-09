@@ -6,7 +6,7 @@ import * as styled from './Layout.style';
 export default function Layout() {
   return (
     <div>
-      <styled.LayoutWrapper>
+      <styled.LayoutWrapper className='cursor-snow'>
         <Header />
         <HamsterBackground></HamsterBackground>
         <styled.ContentWrapper>
