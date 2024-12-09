@@ -1,11 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createRoom } from '../../api/CreateRoom';
-<<<<<<< HEAD
-=======
 import { enterRoom } from '../../api/EnterRoom';
 import Modal from '../../components/modal/Modal';
->>>>>>> feature/style
 
 const Home = () => {
   const navigate = useNavigate();
@@ -69,16 +66,10 @@ const Home = () => {
 
   return (
     <>
-<<<<<<< HEAD
-      <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
-        <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
-          <div className="flex justify-center">
-=======
       <Modal messages={messages}></Modal>
       <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
           <div className='flex justify-center'>
->>>>>>> feature/style
             <span className="text-2xl text-white font-bold mb-6">⚙️ 게임 설정</span>
           </div>
 
@@ -92,11 +83,7 @@ const Home = () => {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="닉네임을 입력하세요"
-<<<<<<< HEAD
-              className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-=======
               className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
->>>>>>> feature/style
             />
           </div>
           {/* 게임 유형 선택 */}
@@ -110,15 +97,9 @@ const Home = () => {
                   value={type}
                   checked={gameType === type}
                   onChange={() => setGameType(type as any)}
-<<<<<<< HEAD
-                  className="mr-2"
-                />
-                <label htmlFor={type} className="text-lg">
-=======
                   className="mr-2 hover:-translate-y-0.5 hover:-translate-x-0.5"
                 />
                 <label htmlFor={type} className="text-lg hover:-translate-y-0.5 hover:-translate-x-0.5 hover:text-orange-500">
->>>>>>> feature/style
                   {type === 'ONE_TO_ONE'
                     ? '1대1'
                     : type === 'ONE_TO_MANY'
@@ -137,11 +118,7 @@ const Home = () => {
             <select
               value={gameTime}
               onChange={(e) => setGameTime(Number(e.target.value))}
-<<<<<<< HEAD
-              className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-=======
               className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
->>>>>>> feature/style
             >
               <option value={10}>10초</option>
               <option value={30}>30초</option>
@@ -152,11 +129,7 @@ const Home = () => {
           {/* 방 생성 버튼 */}
           <button
             onClick={handleCreateRoom}
-<<<<<<< HEAD
-            className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition duration-300"
-=======
             className="w-full py-3 bg-orange-500 text-white rounded-md duration-300 hover:shadow-floating hover:-translate-y-1 hover:-translate-x-0.5 transition-all"
->>>>>>> feature/style
           >
             방 생성
           </button>
