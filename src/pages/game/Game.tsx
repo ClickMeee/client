@@ -60,12 +60,10 @@ export default function Game() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 bg-opacity-40 text-white">
       {!isConnected ? (
-        <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
-          <label htmlFor="nickname" className="block text-lg font-semibold mb-2">
-            닉네임 입력:
-          </label>
+        <div className="bg-gray-900 p-6 rounded-lg shadow-2xl">
+          <label htmlFor="nickname" className="block text-lg font-semibold mb-2">닉네임 입력:</label>
           <input
             id="nickname"
             type="text"
