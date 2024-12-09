@@ -60,39 +60,47 @@ export default function Game() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 bg-opacity-40 text-white">
-      {!isConnected ? (
-        <div className="bg-gray-900 p-6 rounded-lg shadow-2xl">
-          <label htmlFor="nickname" className="block text-lg font-semibold mb-2">닉네임 입력:</label>
-          <input
-            id="nickname"
-            type="text"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            className="w-full p-2 mb-4 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            onClick={handleNicknameSubmit}
-            className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition duration-300"
-          />
-        </div>
-      ) : (
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">Game</h1>
-          <p className="text-lg mb-4">참가자 수: {roomData?.teams.length || 0}</p>
-          <div className="grid grid-cols-1 gap-4">
-            {roomData?.teams.map((team, index) => (
+    <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
+      <div className="bg-gray-700 rounded-xl max-w-100 w-1/5 min-w-80 h-5/6 p-4 shadow-floating">
+      <div className='mt-4 flex justify-center'>
+      <h1 className="text-3xl font-bold mb-4">🎲 Game </h1>
+      </div>
+        <div className="flex flex-col items-center justify-center pt-24 pb-24 pl-6 pr-6 text-white">
+          {!isConnected ? (
+            <div className="bg-gray-900 pb-6 pl-6 pr-6 pt-3 rounded-lg shadow-floating">
+              <div className='flex pb-2 justify-center'>
+              <label htmlFor="nickname" className="block text-lg font-semibold mb-2">닉네임 설정</label>
+              </div>
+              <input
+                id="nickname"
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                className="w-full p-2 mb-4 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
               <button
-                key={index}
-                className="w-full py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition duration-300"
-                onClick={() => console.log(`${team.teamName} 버튼 클릭`)}
-              >
-                Button {index + 1} - {team.teamName}
-              </button>
-            ))}
-          </div>
+                onClick={handleNicknameSubmit}
+                className="w-full py-2 bg-blue-600 text-white rounded-md shadow-floating hover:bg-blue-500 transition duration-300"
+              >방 입장</button>
+            </div>
+          ) : (
+            <div className="text-center">
+              <p className="text-lg mb-4">참가자 수: {roomData?.teams.length || 0}</p>
+              <div className="grid grid-cols-1 gap-4">
+                {roomData?.teams.map((team, index) => (
+                  <button
+                    key={index}
+                    className="w-full py-2 bg-blue-600 text-white rounded-xl p-2 shadow-floating hover:bg-gray-600 transition duration-300"
+                    onClick={() => console.log(`${team.teamName} 버튼 클릭`)}
+                  >
+                    Button {index + 1} - {team.teamName}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
