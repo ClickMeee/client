@@ -85,7 +85,7 @@ const Home = () => {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="닉네임을 입력하세요"
-              className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
           {/* 게임 유형 선택 */}
@@ -99,9 +99,9 @@ const Home = () => {
                   value={type}
                   checked={gameType === type}
                   onChange={() => setGameType(type as any)}
-                  className="mr-2"
+                  className="mr-2 hover:-translate-y-0.5 hover:-translate-x-0.5"
                 />
-                <label htmlFor={type} className="text-lg">
+                <label htmlFor={type} className="text-lg hover:-translate-y-0.5 hover:-translate-x-0.5 hover:text-orange-500">
                   {type === 'ONE_TO_ONE'
                     ? '1대1'
                     : type === 'ONE_TO_MANY'
@@ -120,7 +120,7 @@ const Home = () => {
             <select
               value={gameTime}
               onChange={(e) => setGameTime(Number(e.target.value))}
-              className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value={10}>10초</option>
               <option value={30}>30초</option>
@@ -131,7 +131,7 @@ const Home = () => {
           {/* 방 생성 버튼 */}
           <button
             onClick={handleCreateRoom}
-            className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition duration-300 shadow-floating"
+            className="w-full py-3 bg-orange-500 text-white rounded-md duration-300 hover:shadow-floating hover:-translate-y-1 hover:-translate-x-0.5 transition-all"
           >
             방 생성
           </button>
