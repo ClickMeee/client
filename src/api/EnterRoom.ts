@@ -1,8 +1,12 @@
 import { oneVsOneWebSocket } from '../services/OneVsOneWebSocket';
-import { CreateRoomProps } from '../types/CreateRoom.type';
 import { RoomClientProps } from '../types/RoomClient.type';
+import { RoomDataProps } from '../types/RoomData.type';
 
-export const enterRoom = async (roomId: string, nickname: string): Promise<CreateRoomProps> => {
+export const enterRoom = async (
+  roomId: string,
+  nickname: string,
+  callback: (message: any) => void
+): Promise<RoomDataProps> => {
   if (!roomId || !nickname) {
     throw new Error('Room ID or Nickname is undefined');
   }
@@ -21,11 +25,18 @@ export const enterRoom = async (roomId: string, nickname: string): Promise<Creat
         // 메시지 구독
         oneVsOneWebSocket.subscribe(`/topic/room/${roomId}`, (message) => {
           try {
-            const parsedData = message;
-            console.log('Received Room Enter Data:', parsedData);
+            console.log('Received WebSocket Message:', message);
 
-            resolve(parsedData.data); // 방 데이터 반환
+            const parsedMessage = message; // 메시지 파싱
+            if (parsedMessage.type === 'ROOM') {
+              const roomData = parsedMessage.data;
+              callback(roomData); // Callback 호출
+              resolve(roomData); // 방 데이터 반환
+            } else {
+              console.warn('Unexpected message type:', parsedMessage.type);
+            }
           } catch (err) {
+            console.error('Failed to parse WebSocket message:', err);
             reject(new Error('Failed to parse WebSocket message'));
           }
         });
@@ -33,10 +44,12 @@ export const enterRoom = async (roomId: string, nickname: string): Promise<Creat
         // 방 입장 메시지 전송
         oneVsOneWebSocket.sendMessage('/app/room/enter', requestBody);
       } catch (err) {
+        console.error('Failed to subscribe to WebSocket:', err);
         reject(new Error('Failed to subscribe to WebSocket'));
       }
     });
   } catch (err) {
+    console.error('Failed to connect to WebSocket:', err);
     throw new Error('Failed to connect to WebSocket');
   }
 };
