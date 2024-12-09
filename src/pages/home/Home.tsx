@@ -133,10 +133,11 @@ const Home = () => {
 
   return (
       <>
-      <div className="flex z-10 flex-col justify-center items-center mt-10 mb-10 bg-slate-50 bg-opacity-0 text-white p-6">
+      <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
-        <span className="text-2xl text-amber-600 font-bold mb-6">⚙️ 게임 설정</span>
-
+        <div className='flex justify-center'>
+          <span className="text-2xl text-white font-bold mb-6">⚙️ 게임 설정</span>
+        </div>
         {/* 닉네임 설정 */}
         <div className="mb-4">
           <label htmlFor="nickname" className="block text-lg font-semibold mb-2">닉네임</label>
