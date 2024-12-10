@@ -1,12 +1,12 @@
 import {atom} from 'recoil';
 
-type MyState = {
+export type UserState = {
   nickname: string | null,
   roomId : string | null,
 }
 
-export const myState= atom<MyState>({
-  key : 'myState',
+export const userState= atom<UserState>({
+  key : 'userState',
   default: {
     nickname: null,
     roomId: null,
