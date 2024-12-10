@@ -47,7 +47,7 @@ class OneVsOneWebSocket extends WebSocketManager {
         }
         break;
       default:
-        console.log("다른 type")
+        console.log(`다른 type${message.type} ${message.data.message}`);
     }
   }
 
