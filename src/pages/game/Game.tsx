@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { CheckNicknameDuplicate } from '../../api/CheckNickname';
 import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
-import { RoomDataProps } from '../../types/RoomData.type';
+import { useRecoilState } from 'recoil';
+import { GameState, oneVsOneGameState } from "../../recoil/atoms/gameState.ts";
 
 export default function Game() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -13,10 +14,11 @@ export default function Game() {
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
   const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
 
-  const [roomData, setRoomData] = useState<RoomDataProps | null>(null); // 방 정보 상태
+  // recoil 게임 방 상태
+  const [gameState, setGameState] = useRecoilState<GameState | null>(oneVsOneGameState);
 
   // WebSocket 연결 상태 확인(닉네임 입력으로 판단하도록 수정함)
-  // WebSocket 연결 상태에 따라 roomData 설정
+  // WebSocket 연결 상태에 따라 gameState 설정
   useEffect(() => {
     const userNickname = location.state?.nickname ?? '';
     setNickname(userNickname);
@@ -26,11 +28,11 @@ export default function Game() {
         try {
           oneVsOneWebSocket.setRoomData(roomId, userNickname);
 
+          // 연결
           await oneVsOneWebSocket.connect();
 
-          oneVsOneWebSocket.setRoomDataCallback((roomData) => {
-            setRoomData(roomData);
-          });
+          // 연결 후, 업데이트에 사용될 set 함수 넘겨주기
+          oneVsOneWebSocket.setGameStateUpdater(setGameState);
 
           setIsConnected(true);
         } catch (err) {
@@ -68,9 +70,7 @@ export default function Game() {
       oneVsOneWebSocket.setRoomData(roomId, nickname);
       await oneVsOneWebSocket.connect();
 
-      oneVsOneWebSocket.setRoomDataCallback((roomData) => {
-        setRoomData(roomData);
-      });
+      oneVsOneWebSocket.setGameStateUpdater(setGameState);
 
       setIsConnected(true);
     } catch (error: any) {
@@ -81,25 +81,25 @@ export default function Game() {
 
   // 총 user 수 계산 함수
   const countTotalUsers = (): number => {
-    if (!roomData) return 0;
-    return roomData.teams.reduce((total, team) => total + team.users.length, 0);
+    if (!gameState) return 0;
+    return gameState.teams.reduce((total, team) => total + team.users.length, 0);
   };
 
   // 총 maxUserCount 계산 함수
   const countTotalMaxUserCount = (): number => {
-    if (!roomData) return 0;
-    return roomData.teams.reduce((total, team) => total + team.maxUserCount, 0);
+    if (!gameState) return 0;
+    return gameState.teams.reduce((total, team) => total + team.maxUserCount, 0);
   };
 
   // 참가자 수와 maxUserCount 비교 후 특정 요청 보내기
   useEffect(() => {
-    if (roomData) {
+    if (gameState) {
       const totalUsers = countTotalUsers();
       const totalMaxUserCount = countTotalMaxUserCount();
 
-      console.log('방장 닉네임:' + roomData.roomChief);
+      console.log('방장 닉네임:' + gameState.roomChief);
 
-      if (totalUsers === totalMaxUserCount && nickname === roomData.roomChief) {
+      if (totalUsers === totalMaxUserCount && nickname === gameState.roomChief) {
         // 요청을 보내는 코드 (예: 게임 시작 요청)
         console.log('참가자 수와 팀 최대 사용자 수가 일치합니다. 특정 요청을 보냅니다.');
         setIsGameButtonVisible(true);
@@ -107,7 +107,7 @@ export default function Game() {
         setIsGameButtonVisible(false);
       }
     }
-  }, [roomData]);
+  }, [gameState]);
 
   const handleGameStart = () => {
     console.log('게임 시작 요청을 보냅니다.');
@@ -146,8 +146,8 @@ export default function Game() {
             </div>
           ) : (
             <div className="text-center">
-              <p className="text-lg mb-4">참가팀 수: {roomData?.teams.length || 0}</p>
-              {roomData?.teams.map((team, index) => (
+              <p className="text-lg mb-4">참가팀 수: {gameState?.teams.length || 0}</p>
+              {gameState?.teams.map((team, index) => (
                 <div key={index} className="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
                   <h2 className="text-2xl font-semibold mb-2">{team.teamName}</h2>
                   <p className="text-lg">참가자 수: {team.users.length}</p>
@@ -161,7 +161,7 @@ export default function Game() {
                 </div>
               ))}
               <div className="grid grid-cols-1 gap-4">
-                {roomData?.teams.map((team, index) => (
+                {gameState?.teams.map((team, index) => (
                   <button
                     key={index}
                     className="w-full py-2 bg-blue-600 text-white rounded-xl p-2 shadow-floating hover:bg-gray-600 transition duration-300"
