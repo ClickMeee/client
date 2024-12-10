@@ -1,13 +1,15 @@
 import { IFrame } from '@stomp/stompjs';
-import { GameStateDataProps } from '../types/GameStateData.type';
-import { RoomDataProps } from '../types/RoomData.type';
 import { WebSocketManager } from './WebSocketManager';
 
 class OneVsOneWebSocket extends WebSocketManager {
   private roomId: string = '';
   private nickname: string = '';
-  private roomDataCallback: ((roomData: RoomDataProps) => void) | null = null;
-  private gameStateDataCallback: ((gameStateData: GameStateDataProps) => void) | null = null;
+  private updateGameState: ((state: any) => void) | null = null;
+
+  // 상태 업데이트 함수 설정
+  setGameStateUpdater(updaterFunc: (state: any) => void): void {
+    this.updateGameState = updaterFunc;
+  }
 
   setRoomData(roomId: string, nickname: string): void {
     this.roomId = roomId;
@@ -19,24 +21,7 @@ class OneVsOneWebSocket extends WebSocketManager {
 
     // 방 정보 구독
     this.subscribe(`/topic/room/${this.roomId}`, (message) => {
-      console.log('Received WebSocket Message:', message);
-      if (message.type === 'ROOM') {
-        const roomData = message.data;
-        console.log('Room Data:', roomData);
-        // roomData를 callback을 통해 바로 전달
-        if (this.roomDataCallback) {
-          this.roomDataCallback(roomData);
-        }
-      } else if (message.type === 'GAME_READY') {
-        const gameStateData = message.data;
-        console.log('Game State:', gameStateData);
-        // gameStateData를 callback을 통해 바로 전달
-        if (this.gameStateDataCallback) {
-          this.gameStateDataCallback(gameStateData);
-        }
-      } else {
-        console.warn('Unexpected message type:', message.type);
-      }
+      this.processData(message);
     });
 
     // 방 입장 요청
@@ -51,9 +36,18 @@ class OneVsOneWebSocket extends WebSocketManager {
     console.error('WebSocket error:', error);
   }
 
-  // 콜백 설정
-  setRoomDataCallback(callback: (roomData: RoomDataProps) => void): void {
-    this.roomDataCallback = callback;
+  // stomp 메세지 데이터 처리 함수
+  processData(message) : void {
+    switch(message.type){
+      case 'ROOM':
+        if (this.updateGameState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameState(message.data);
+        }
+        break;
+      default:
+        console.log(`다른 type${message.type} ${message.data.message}`);
+    }
   }
 
   setGameStateDataCallback(callback: (gameStateData: GameStateDataProps) => void): void {

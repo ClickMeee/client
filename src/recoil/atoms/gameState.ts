@@ -1,7 +1,7 @@
 import {atom} from 'recoil';
 
 type User = {
-  name: string;
+  nickname: string;
   clickCount: number;
 }
 
@@ -14,22 +14,16 @@ type Team ={
 }
 
 export type GameState = {
-  teams: Team[];
+  gameType : "ONE_TO_ONE";
   gameTime: number;
-  gameType : "ONE_TO_ONE"
-  roomChief : {
-    nickname : string;
-  }
+  currentTime: number;
+  startFlag: boolean;
+  teams: Team[];
+  roomChief : string
 }
 
-export const oneVsOneGameState = atom<GameState>({
-  key : 'oneVsOneGameState',
-  default: {
-    teams: [],
-    gameTime: 0,
-    gameType: "ONE_TO_ONE",
-    roomChief: {
-      nickname: "",
-    },
-  },
+// TODO: 모든 게임 상태가 이런 구조면 oneVsOneGameState 이름 변경할 것
+export const gameState = atom<GameState | null>({
+  key : 'gameState',
+  default: null,
 });
