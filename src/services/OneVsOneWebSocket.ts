@@ -1,5 +1,4 @@
 import { IFrame } from '@stomp/stompjs';
-// import { RoomDataProps } from '../types/RoomData.type';
 import { WebSocketManager } from './WebSocketManager';
 
 class OneVsOneWebSocket extends WebSocketManager {
@@ -51,6 +50,10 @@ class OneVsOneWebSocket extends WebSocketManager {
     }
   }
 
+  setGameStateDataCallback(callback: (gameStateData: GameStateDataProps) => void): void {
+    this.gameStateDataCallback = callback;
+  }
+
   // 방 입장 요청
   roomEnterRequest() {
     if (this.roomId && this.nickname) {
@@ -68,7 +71,7 @@ class OneVsOneWebSocket extends WebSocketManager {
   // 방장 게임 시작 요청
   startGameRequest() {
     if (this.roomId) {
-      this.sendMessage(`/app/room/${this.roomId}/start`);
+      this.sendMessage(`/app/start/${this.roomId}`);
     } else {
       console.error('Room ID is not set');
     }

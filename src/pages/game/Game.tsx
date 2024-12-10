@@ -21,6 +21,7 @@ export default function Game() {
 
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
   const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
+  const [countdown, setCountdown] = useState<number | null>(null); // 카운트다운 상태
 
 
 
@@ -126,10 +127,34 @@ export default function Game() {
 
     // 방장 게임 시작 요청
     oneVsOneWebSocket.startGameRequest();
+
+    setCountdown(3);
   };
+
+  // 카운트다운 로직
+  useEffect(() => {
+    if (countdown === null) return;
+
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
+    }
+
+    if (countdown === 0) {
+      console.log('카운트다운 완료! 게임을 시작합니다.');
+      setCountdown(null); // 카운트다운 종료 후 UI 숨기기
+
+      // 게임 시작 추가 로직
+    }
+  }, [countdown]);
 
   return (
     <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
+      {countdown !== null && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <h1 className="text-9xl font-bold text-red-500 animate-pulse">{countdown}</h1>
+        </div>
+      )}
       <div className="bg-gray-700 rounded-xl max-w-100 w-1/5 min-w-80 h-5/6 p-4 shadow-floating">
         <div className="mt-4 flex justify-center">
           <h1 className="text-3xl font-bold mb-4">🎲 Game </h1>
