@@ -24,8 +24,9 @@ export abstract class WebSocketManager {
         webSocketFactory: () => new SockJS(import.meta.env.VITE_API_URL + '/connect'),
         debug: (str: string) => console.log(`[STOMP Debug] ${str}`),
         reconnectDelay: 5000,
-        onConnect: () => {
+        onConnect: (frame: IFrame) => {
           console.log('WebSocket connected successfully.');
+          this.onConnect(frame); // 추상화된 onConnect 호출
           resolve(); // 연결 성공 시 프라미스 해결
         },
         onStompError: (error: any) => {
@@ -47,7 +48,7 @@ export abstract class WebSocketManager {
   abstract onDisconnect(): void;
 
   // 메시지 전송 메소드
-  sendMessage(destination: string, body: any): void {
+  sendMessage(destination: string, body: any = ''): void {
     if (!this.client || !this.client.connected) {
       console.error('Cannot send message: WebSocket is not connected.');
       return;
@@ -56,7 +57,7 @@ export abstract class WebSocketManager {
     try {
       this.client.publish({
         destination,
-        body: JSON.stringify(body),
+        body: typeof body === 'string' ? body : JSON.stringify(body),
       });
       console.log(`Message sent to ${destination}:`, body);
     } catch (error) {

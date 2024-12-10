@@ -11,10 +11,6 @@ type User = {
   clickCount: number; // 클릭 수
 };
 
-type RoomChief = {
-  nickname: string; // 방장의 닉네임
-};
-
 type GameType = 'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'; // 게임 유형
 
 export interface RoomDataProps {
@@ -25,5 +21,5 @@ export interface RoomDataProps {
 
   teams: Team[]; // 팀 목록
 
-  roomChief: RoomChief; // 방장 정보
+  roomChief: string; // 방장 닉네임
 }

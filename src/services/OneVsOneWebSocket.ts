@@ -1,25 +1,82 @@
 import { IFrame } from '@stomp/stompjs';
+import { RoomDataProps } from '../types/RoomData.type';
 import { WebSocketManager } from './WebSocketManager';
 
 class OneVsOneWebSocket extends WebSocketManager {
+  private roomId: string = '';
+  private nickname: string = '';
+  private roomDataCallback: ((roomData: RoomDataProps) => void) | null = null;
+
+  setRoomData(roomId: string, nickname: string): void {
+    this.roomId = roomId;
+    this.nickname = nickname;
+  }
+
   onConnect(frame: IFrame): void {
-    // 닉네임 보내기
     console.log('WebSocket connected:', frame);
+
+    // 방 정보 구독
+    this.subscribe(`/topic/room/${this.roomId}`, (message) => {
+      console.log('Received WebSocket Message:', message);
+      if (message.type === 'ROOM') {
+        const roomData = message.data;
+        console.log('Room Data:', roomData);
+        // roomData를 callback을 통해 바로 전달
+        if (this.roomDataCallback) {
+          this.roomDataCallback(roomData);
+        }
+      } else {
+        console.warn('Unexpected message type:', message.type);
+      }
+    });
+
+    // 방 입장 요청
+    this.roomEnterRequest();
   }
 
   onDisconnect(): void {
-    // 브라우저 측 상태 삭제
     console.log('WebSocket disconnected');
   }
 
-  onStompError(frame: IFrame): void {
-    // 에러 메세지 띄우기
-    console.error('WebSocket error:', frame);
+  onStompError(error: any): void {
+    console.error('WebSocket error:', error);
   }
 
-  // 구독
-  subscribe(destination: string, callback: (message: any) => void): void {
-    super.subscribe(destination, callback);
+  // 콜백 설정
+  setRoomDataCallback(callback: (roomData: RoomDataProps) => void): void {
+    this.roomDataCallback = callback;
+  }
+
+  // 방 입장 요청
+  roomEnterRequest() {
+    if (this.roomId && this.nickname) {
+      const requestBody = {
+        roomId: this.roomId,
+        nickname: this.nickname,
+      };
+
+      this.sendMessage('/app/room/enter', requestBody);
+    } else {
+      console.error('Room ID or Nickname is not set');
+    }
+  }
+
+  // 방장 게임 시작 요청
+  startGameRequest() {
+    if (this.roomId) {
+      this.sendMessage(`/app/room/${this.roomId}/start`);
+    } else {
+      console.error('Room ID is not set');
+    }
+  }
+
+  // 플레이어 준비 요청
+  playerReadyRequest() {
+    if (this.roomId) {
+      this.sendMessage(`/app/start/${this.roomId}/${this.nickname}`);
+    } else {
+      console.error('Room ID is not set');
+    }
   }
 }
 
