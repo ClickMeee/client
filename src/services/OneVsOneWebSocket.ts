@@ -1,4 +1,5 @@
 import { IFrame } from '@stomp/stompjs';
+import { GameStateDataProps } from '../types/GameStateData.type';
 import { RoomDataProps } from '../types/RoomData.type';
 import { WebSocketManager } from './WebSocketManager';
 
@@ -6,6 +7,7 @@ class OneVsOneWebSocket extends WebSocketManager {
   private roomId: string = '';
   private nickname: string = '';
   private roomDataCallback: ((roomData: RoomDataProps) => void) | null = null;
+  private gameStateDataCallback: ((gameStateData: GameStateDataProps) => void) | null = null;
 
   setRoomData(roomId: string, nickname: string): void {
     this.roomId = roomId;
@@ -24,6 +26,13 @@ class OneVsOneWebSocket extends WebSocketManager {
         // roomData를 callback을 통해 바로 전달
         if (this.roomDataCallback) {
           this.roomDataCallback(roomData);
+        }
+      } else if (message.type === 'GAME_READY') {
+        const gameStateData = message.data;
+        console.log('Game State:', gameStateData);
+        // gameStateData를 callback을 통해 바로 전달
+        if (this.gameStateDataCallback) {
+          this.gameStateDataCallback(gameStateData);
         }
       } else {
         console.warn('Unexpected message type:', message.type);
@@ -47,6 +56,10 @@ class OneVsOneWebSocket extends WebSocketManager {
     this.roomDataCallback = callback;
   }
 
+  setGameStateDataCallback(callback: (gameStateData: GameStateDataProps) => void): void {
+    this.gameStateDataCallback = callback;
+  }
+
   // 방 입장 요청
   roomEnterRequest() {
     if (this.roomId && this.nickname) {
@@ -64,7 +77,7 @@ class OneVsOneWebSocket extends WebSocketManager {
   // 방장 게임 시작 요청
   startGameRequest() {
     if (this.roomId) {
-      this.sendMessage(`/app/room/${this.roomId}/start`);
+      this.sendMessage(`/app/start/${this.roomId}`);
     } else {
       console.error('Room ID is not set');
     }
