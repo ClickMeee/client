@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { CheckNicknameDuplicate } from '../../api/CheckNickname';
-import { enterRoom } from '../../api/EnterRoom';
+import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
 import { RoomDataProps } from '../../types/RoomData.type';
 
 export default function Game() {
@@ -9,20 +9,29 @@ export default function Game() {
   const location = useLocation();
 
   const [nickname, setNickname] = useState<string>(''); // 닉네임 상태
+
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
+  const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
+
   const [roomData, setRoomData] = useState<RoomDataProps | null>(null); // 방 정보 상태
 
   // WebSocket 연결 상태 확인(닉네임 입력으로 판단하도록 수정함)
   // WebSocket 연결 상태에 따라 roomData 설정
   useEffect(() => {
     const userNickname = location.state?.nickname ?? '';
+    setNickname(userNickname);
 
     if (userNickname && roomId) {
       const roomChiefEnterRoom = async () => {
         try {
-          console.log('Joining room with nickname:', userNickname);
-          const enterRoomData = await enterRoom(roomId, userNickname, receiveMessage);
-          setRoomData(enterRoomData);
+          oneVsOneWebSocket.setRoomData(roomId, userNickname);
+
+          await oneVsOneWebSocket.connect();
+
+          oneVsOneWebSocket.setRoomDataCallback((roomData) => {
+            setRoomData(roomData);
+          });
+
           setIsConnected(true);
         } catch (err) {
           console.error('Failed to enter room:', err);
@@ -33,15 +42,7 @@ export default function Game() {
     } else {
       setIsConnected(false); // 닉네임이나 roomId가 없으면 연결되지 않음
     }
-  }, [location.state, roomId]);
-
-  // WebSocket 메시지 수신
-  const receiveMessage = (message: any) => {
-    if (message.type === 'ROOM') {
-      const roomData = message.data;
-      setRoomData(roomData);
-    }
-  };
+  }, [location.state]);
 
   // 닉네임 입력 + 방 입장
   const handleNicknameSubmit = async () => {
@@ -64,13 +65,55 @@ export default function Game() {
       }
 
       // 방 입장
-      const enterRoomData = await enterRoom(roomId, nickname, receiveMessage);
-      setRoomData(enterRoomData);
+      oneVsOneWebSocket.setRoomData(roomId, nickname);
+      await oneVsOneWebSocket.connect();
+
+      oneVsOneWebSocket.setRoomDataCallback((roomData) => {
+        setRoomData(roomData);
+      });
+
       setIsConnected(true);
     } catch (error: any) {
       alert('방 입장에 실패했습니다.');
       console.error(error.message);
     }
+  };
+
+  // 총 user 수 계산 함수
+  const countTotalUsers = (): number => {
+    if (!roomData) return 0;
+    return roomData.teams.reduce((total, team) => total + team.users.length, 0);
+  };
+
+  // 총 maxUserCount 계산 함수
+  const countTotalMaxUserCount = (): number => {
+    if (!roomData) return 0;
+    return roomData.teams.reduce((total, team) => total + team.maxUserCount, 0);
+  };
+
+  // 참가자 수와 maxUserCount 비교 후 특정 요청 보내기
+  useEffect(() => {
+    if (roomData) {
+      const totalUsers = countTotalUsers();
+      const totalMaxUserCount = countTotalMaxUserCount();
+
+      console.log('방장 닉네임:' + roomData.roomChief);
+
+      if (totalUsers === totalMaxUserCount && nickname === roomData.roomChief) {
+        // 요청을 보내는 코드 (예: 게임 시작 요청)
+        console.log('참가자 수와 팀 최대 사용자 수가 일치합니다. 특정 요청을 보냅니다.');
+        setIsGameButtonVisible(true);
+      } else {
+        setIsGameButtonVisible(false);
+      }
+    }
+  }, [roomData]);
+
+  const handleGameStart = () => {
+    console.log('게임 시작 요청을 보냅니다.');
+
+    // 방장 게임 시작 요청
+    oneVsOneWebSocket.startGameRequest();
   };
 
   return (
@@ -129,6 +172,16 @@ export default function Game() {
                   </button>
                 ))}
               </div>
+              {isGameButtonVisible && (
+                <div className="mt-6">
+                  <button
+                    onClick={handleGameStart}
+                    className="w-full py-2 bg-green-600 text-white rounded-md shadow-floating hover:bg-green-500 transition duration-300"
+                  >
+                    게임 시작
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
