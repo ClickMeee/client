@@ -1,11 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState } from 'recoil';
 import { createRoom } from '../../api/CreateRoom';
 import Modal from '../../components/modal/Modal';
 import { userState } from '../../recoil/atoms/userState';
 
 const Home = () => {
+  const resetUserState = useResetRecoilState(userState);
+
+  // Home 컴포넌트 진입 시 recoil 유저 상태 초기화
+  useEffect(() => {
+    resetUserState();
+    console.log('Recoil userState 초기화 완료');
+  }, []);
+
   const navigate = useNavigate();
 
   // Recoil 상태: nickname 및 roomId 관리

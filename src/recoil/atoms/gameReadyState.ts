@@ -1,14 +1,16 @@
 import { atom } from 'recoil';
 
 export type GameReadyState = {
-  nickname: string | null;
-  roomId: string | null;
+  startFlag: string | null;
+  readyUser: number | null;
+  allUser: number | null;
 };
 
 export const gameReadyState = atom<GameReadyState>({
-  key: 'userState',
+  key: 'gameReadyState',
   default: {
-    nickname: null,
-    roomId: null,
+    startFlag: null,
+    readyUser: null,
+    allUser: null,
   },
 });

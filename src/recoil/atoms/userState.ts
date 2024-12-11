@@ -1,14 +1,14 @@
-import {atom} from 'recoil';
+import { atom } from 'recoil';
 
 export type UserState = {
-  nickname: string | null,
-  roomId : string | null,
-}
+  nickname: string | null;
+  roomId: string | null | undefined;
+};
 
-export const userState= atom<UserState>({
-  key : 'userState',
+export const userState = atom<UserState>({
+  key: 'userState',
   default: {
     nickname: null,
     roomId: null,
-  }
+  },
 });

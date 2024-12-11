@@ -5,10 +5,18 @@ class OneVsOneWebSocket extends WebSocketManager {
   private roomId: string = '';
   private nickname: string = '';
   private updateGameState: ((state: any) => void) | null = null;
+  private updateGameReadyState: ((state: any) => void) | null = null;
 
   // 상태 업데이트 함수 설정
-  setGameStateUpdater(updaterFunc: (state: any) => void): void {
-    this.updateGameState = updaterFunc;
+  // setGameStateUpdater(updaterFunc: (state: any) => void): void {
+  //   this.updateGameState = updaterFunc;
+  // }
+  setGameStateUpdater(
+    gameUpdater: (state: any) => void,
+    gameReadyUpdater: (state: any) => void
+  ): void {
+    this.updateGameState = gameUpdater;
+    this.updateGameReadyState = gameReadyUpdater;
   }
 
   setRoomData(roomId: string, nickname: string): void {
@@ -46,12 +54,26 @@ class OneVsOneWebSocket extends WebSocketManager {
         }
         break;
       case 'GAME_READY':
+        if (this.updateGameReadyState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameReadyState(message.data);
+
+          // 플레이어 준비 요청
+          oneVsOneWebSocket.playerReadyRequest();
+        }
+        break;
+      case 'GAME_START':
+        if (this.updateGameReadyState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameReadyState(message.data);
+        }
+        break;
+      case 'GAME_PROGRESS':
         if (this.updateGameState) {
           console.log(`${message.type} 처리`);
           this.updateGameState(message.data);
         }
         break;
-      case 'READY':
 
       default:
         console.log(`다른 type${message.type} ${message.data.message}`);
@@ -85,6 +107,15 @@ class OneVsOneWebSocket extends WebSocketManager {
   playerReadyRequest() {
     if (this.roomId) {
       this.sendMessage(`/app/start/${this.roomId}/${this.nickname}`);
+    } else {
+      console.error('Room ID is not set');
+    }
+  }
+
+  // 클릭 이벤트 전송
+  sendClickEvent() {
+    if (this.roomId) {
+      this.sendMessage(`/app/click/${this.roomId}/${this.nickname}`);
     } else {
       console.error('Room ID is not set');
     }

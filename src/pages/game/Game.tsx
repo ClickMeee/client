@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { CheckNicknameDuplicate } from '../../api/CheckNickname';
+import { GameReadyState, gameReadyState } from '../../recoil/atoms/gameReadyState';
 import { GameState, gameState } from '../../recoil/atoms/gameState.ts';
 import { UserState, userState } from '../../recoil/atoms/userState.ts';
 import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
@@ -9,12 +10,13 @@ import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
 export default function Game() {
   // recoil 게임 방 상태
   const [game, setGame] = useRecoilState<GameState | null>(gameState);
+  const [gameReady, setGameReady] = useRecoilState<GameReadyState>(gameReadyState);
 
   // recoil 유저 상태
   const [user, setUser] = useRecoilState<UserState>(userState);
 
   // URL 파라미터에서 roomId 가져오기
-  const { roomId } = useParams<{ roomId: string }>();
+  const { roomId: urlRoomId } = useParams<{ roomId: string }>();
 
   // 닉네임 입력 상태
   const [nicknameInput, setNicknameInput] = useState<string>(''); // 닉네임 입력 상태
@@ -25,25 +27,29 @@ export default function Game() {
 
   // recoil 유저 상태의 roomId, nickname이 변경되면 실행
   useEffect(() => {
+    setUser((prev) => ({
+      ...prev,
+      roomId: urlRoomId, // urlRoomId 값을 user 상태의 roomId에 갱신
+    }));
+
     // nickname이 null이면 동작하지 않음
-    if (!user.nickname || !roomId) {
-      console.log('닉네임이나 roomId가 없습니다.');
+    if (!user.nickname || !user.roomId) {
+      console.log('nickname이나 roomId가 없습니다.');
       return;
     }
 
-    console.log('연결 시도');
     console.log('nickname:', user.nickname);
 
     const playerRoomEnter = async () => {
       try {
         // WebSocket에 roomId와 nickname 설정
-        oneVsOneWebSocket.setRoomData(roomId, user.nickname!);
+        oneVsOneWebSocket.setRoomData(user.roomId!, user.nickname!);
 
         // 연결 시도
         await oneVsOneWebSocket.connect();
 
         // 연결 후, 업데이트에 사용될 set 함수 넘겨주기
-        oneVsOneWebSocket.setGameStateUpdater(setGame);
+        oneVsOneWebSocket.setGameStateUpdater(setGame, setGameReady);
 
         setIsConnected(true);
       } catch (err) {
@@ -53,11 +59,11 @@ export default function Game() {
     };
 
     playerRoomEnter();
-  }, [user.nickname, roomId]);
+  }, [user.nickname, urlRoomId]);
 
   // 닉네임 입력
   const handleNicknameSubmit = async () => {
-    if (!roomId) {
+    if (!user.roomId) {
       console.error('Room ID is undefined');
       return;
     }
@@ -69,7 +75,7 @@ export default function Game() {
 
     try {
       // 닉네임 중복 검사
-      const isDuplicateNickname = await CheckNicknameDuplicate(roomId, nicknameInput);
+      const isDuplicateNickname = await CheckNicknameDuplicate(user.roomId, nicknameInput);
       if (isDuplicateNickname) {
         alert('이미 사용 중인 닉네임입니다.');
         return;
@@ -95,7 +101,7 @@ export default function Game() {
 
       if (totalUsers === totalMaxUserCount && user.nickname === game.roomChief) {
         // 요청을 보내는 코드 (예: 게임 시작 요청)
-        console.log('참가자 수와 팀 최대 사용자 수가 일치합니다. 특정 요청을 보냅니다.');
+        console.log('참가자 수와 팀 최대 사용자 수가 일치합니다.');
         setIsGameButtonVisible(true);
       } else {
         setIsGameButtonVisible(false);
@@ -107,28 +113,29 @@ export default function Game() {
   const handleGameStart = () => {
     console.log('게임 시작 요청을 보냅니다.');
 
+    // setCountdown(3);
+
     // 방장 게임 시작 요청
     oneVsOneWebSocket.startGameRequest();
-
-    setCountdown(3);
   };
 
   // 카운트다운 로직
-  useEffect(() => {
-    if (countdown === null) return;
+  // useEffect(() => {
+  //   if (countdown === null) return;
 
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
-    }
+  //   if (countdown > 0) {
+  //     const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+  //     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
+  //   }
 
-    if (countdown === 0) {
-      console.log('카운트다운 완료! 게임을 시작합니다.');
-      setCountdown(null); // 카운트다운 종료 후 UI 숨기기
+  //   if (countdown === 0) {
+  //     console.log('카운트다운 완료! 게임을 시작합니다.');
+  //     setCountdown(null); // 카운트다운 종료 후 UI 숨기기
 
-      // 게임 시작 추가 로직
-    }
-  }, [countdown]);
+  //     // 게임 시작 로직
+  //     oneVsOneWebSocket.playerReadyRequest();
+  //   }
+  // }, [countdown]);
 
   return (
     <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
@@ -180,16 +187,32 @@ export default function Game() {
                 </div>
               ))}
               <div className="grid grid-cols-1 gap-4">
-                {game?.teams.map((team, index) => (
-                  <button
-                    key={index}
-                    className="w-full py-2 bg-blue-600 text-white rounded-xl p-2 shadow-floating hover:bg-gray-600 transition duration-300"
-                    onClick={() => console.log(`${team.teamName} 버튼 클릭`)}
-                  >
-                    Button {index + 1} - {team.teamName} (클릭 수:{' '}
-                    {team.users.reduce((total, user) => total + user.clickCount, 0)})
-                  </button>
-                ))}
+                {game?.teams.map((team, index) => {
+                  // 사용자가 속한 팀인지 확인
+                  const isUserInTeam = team.users.some((u) => u.nickname === user.nickname);
+
+                  return (
+                    <button
+                      key={index}
+                      className={`w-full py-2 rounded-xl p-2 shadow-floating transition duration-300 ${
+                        isUserInTeam
+                          ? 'bg-blue-600 text-white hover:bg-gray-600'
+                          : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                      }`}
+                      onClick={() => {
+                        if (isUserInTeam) {
+                          oneVsOneWebSocket.sendClickEvent();
+                        } else {
+                          console.log('사용자가 속한 팀이 아닙니다.');
+                        }
+                      }}
+                      disabled={!isUserInTeam} // 자신이 속한 팀이 아니면 비활성화
+                    >
+                      {team.teamName} Button 클릭 수:{' '}
+                      {team.users.reduce((total, user) => total + user.clickCount, 0)}
+                    </button>
+                  );
+                })}
               </div>
               {isGameButtonVisible && (
                 <div className="mt-6">
