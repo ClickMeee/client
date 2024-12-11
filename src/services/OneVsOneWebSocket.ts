@@ -37,21 +37,25 @@ class OneVsOneWebSocket extends WebSocketManager {
   }
 
   // stomp 메세지 데이터 처리 함수
-  processData(message) : void {
-    switch(message.type){
+  processData(message: any): void {
+    switch (message.type) {
       case 'ROOM':
         if (this.updateGameState) {
           console.log(`${message.type} 처리`);
           this.updateGameState(message.data);
         }
         break;
+      case 'GAME_READY':
+        if (this.updateGameState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameState(message.data);
+        }
+        break;
+      case 'READY':
+
       default:
         console.log(`다른 type${message.type} ${message.data.message}`);
     }
-  }
-
-  setGameStateDataCallback(callback: (gameStateData: GameStateDataProps) => void): void {
-    this.gameStateDataCallback = callback;
   }
 
   // 방 입장 요청

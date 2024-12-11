@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import { CheckNicknameDuplicate } from '../../api/CheckNickname';
-import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
+import { useParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
-import { GameState, gameState } from "../../recoil/atoms/gameState.ts";
-import { UserState, userState } from "../../recoil/atoms/userState.ts";
+import { CheckNicknameDuplicate } from '../../api/CheckNickname';
+import { GameState, gameState } from '../../recoil/atoms/gameState.ts';
+import { UserState, userState } from '../../recoil/atoms/userState.ts';
+import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
 
 export default function Game() {
   // recoil 게임 방 상태
@@ -13,77 +13,70 @@ export default function Game() {
   // recoil 유저 상태
   const [user, setUser] = useRecoilState<UserState>(userState);
 
-  //
+  // URL 파라미터에서 roomId 가져오기
   const { roomId } = useParams<{ roomId: string }>();
-  const location = useLocation();
 
-  const [nickname, setNickname] = useState<string>(''); // 닉네임 상태
+  // 닉네임 입력 상태
+  const [nicknameInput, setNicknameInput] = useState<string>(''); // 닉네임 입력 상태
 
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
   const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
   const [countdown, setCountdown] = useState<number | null>(null); // 카운트다운 상태
 
-
-
-  // WebSocket 연결 상태 확인(닉네임 입력으로 판단하도록 수정함)
-  // WebSocket 연결 상태에 따라 game 설정
+  // recoil 유저 상태의 roomId, nickname이 변경되면 실행
   useEffect(() => {
-    if(location.state == null){
+    // nickname이 null이면 동작하지 않음
+    if (!user.nickname || !roomId) {
+      console.log('닉네임이나 roomId가 없습니다.');
       return;
     }
-    console.log("연결 시도");
-    console.log(location.state);
-    const userNickname = location.state.nickname ?? '';
-    setNickname(userNickname);
 
-    if (userNickname && roomId) {
-      const roomChiefEnterRoom = async () => {
-        try {
-          oneVsOneWebSocket.setRoomData(roomId, userNickname);
+    console.log('연결 시도');
+    console.log('nickname:', user.nickname);
 
-          // 연결
-          await oneVsOneWebSocket.connect();
+    const playerRoomEnter = async () => {
+      try {
+        // WebSocket에 roomId와 nickname 설정
+        oneVsOneWebSocket.setRoomData(roomId, user.nickname!);
 
-          // 연결 후, 업데이트에 사용될 set 함수 넘겨주기
-          oneVsOneWebSocket.setGameStateUpdater(setGame);
+        // 연결 시도
+        await oneVsOneWebSocket.connect();
 
-          setIsConnected(true);
-        } catch (err) {
-          console.error('Failed to enter room:', err);
-          setIsConnected(false);
-        }
-      };
-      roomChiefEnterRoom();
-    } else {
-      setIsConnected(false); // 닉네임이나 roomId가 없으면 연결되지 않음
-    }
-  }, [location.state]);
+        // 연결 후, 업데이트에 사용될 set 함수 넘겨주기
+        oneVsOneWebSocket.setGameStateUpdater(setGame);
 
-  // 닉네임 입력 + 방 입장
+        setIsConnected(true);
+      } catch (err) {
+        console.error('Failed to enter room:', err);
+        setIsConnected(false);
+      }
+    };
+
+    playerRoomEnter();
+  }, [user.nickname, roomId]);
+
+  // 닉네임 입력
   const handleNicknameSubmit = async () => {
     if (!roomId) {
       console.error('Room ID is undefined');
       return;
     }
 
-    if (!nickname.trim()) {
+    if (!nicknameInput || !nicknameInput.trim()) {
       alert('닉네임을 입력해주세요.');
       return;
     }
 
     try {
       // 닉네임 중복 검사
-      const isDuplicateNickname = await CheckNicknameDuplicate(roomId, nickname);
+      const isDuplicateNickname = await CheckNicknameDuplicate(roomId, nicknameInput);
       if (isDuplicateNickname) {
         alert('이미 사용 중인 닉네임입니다.');
         return;
       }
 
-      // 방 입장
-      oneVsOneWebSocket.setRoomData(roomId, nickname);
-      await oneVsOneWebSocket.connect();
-
-      oneVsOneWebSocket.setGameStateUpdater(setGame);
+      // Recoil 유저 상태 업데이트
+      setUser((prev) => ({ ...prev, nickname: nicknameInput })); // Recoil 상태 업데이트
 
       setIsConnected(true);
     } catch (error: any) {
@@ -92,27 +85,15 @@ export default function Game() {
     }
   };
 
-  // 총 user 수 계산 함수
-  const countTotalUsers = (): number => {
-    if (!game) return 0;
-    return game.teams.reduce((total, team) => total + team.users.length, 0);
-  };
-
-  // 총 maxUserCount 계산 함수
-  const countTotalMaxUserCount = (): number => {
-    if (!game) return 0;
-    return game.teams.reduce((total, team) => total + team.maxUserCount, 0);
-  };
-
-  // 참가자 수와 maxUserCount 비교 후 특정 요청 보내기
+  // 게임 시작 버튼 표시 로직
   useEffect(() => {
     if (game) {
-      const totalUsers = countTotalUsers();
-      const totalMaxUserCount = countTotalMaxUserCount();
+      const totalUsers = game.teams.reduce((total, team) => total + team.users.length, 0);
+      const totalMaxUserCount = game.teams.reduce((total, team) => total + team.maxUserCount, 0);
 
       console.log('방장 닉네임:' + game.roomChief);
 
-      if (totalUsers === totalMaxUserCount && nickname === game.roomChief) {
+      if (totalUsers === totalMaxUserCount && user.nickname === game.roomChief) {
         // 요청을 보내는 코드 (예: 게임 시작 요청)
         console.log('참가자 수와 팀 최대 사용자 수가 일치합니다. 특정 요청을 보냅니다.');
         setIsGameButtonVisible(true);
@@ -122,6 +103,7 @@ export default function Game() {
     }
   }, [game]);
 
+  // 게임 시작 버튼 클릭 이벤트
   const handleGameStart = () => {
     console.log('게임 시작 요청을 보냅니다.');
 
@@ -170,8 +152,8 @@ export default function Game() {
               <input
                 id="nickname"
                 type="text"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
+                value={nicknameInput}
+                onChange={(e) => setNicknameInput(e.target.value)} // 입력 필드만 업데이트
                 className="w-full p-2 mb-4 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button

@@ -48,16 +48,16 @@ export abstract class WebSocketManager {
   abstract onDisconnect(): void;
 
   // 메시지 전송 메소드
-  sendMessage(destination: string, body : Object | null): void {
+  sendMessage(destination: string, body: Object = ''): void {
     if (!this.client || !this.client.connected) {
-      console.error('sendMessage 함수 실패');
+      console.error('Cannot send message: WebSocket is not connected.');
       return;
     }
 
     try {
       this.client.publish({
         destination,
-        body : JSON.stringify(body),
+        body: typeof body === 'string' ? body : JSON.stringify(body),
       });
       console.log(`Message sent to ${destination}:`, body);
     } catch (error) {
