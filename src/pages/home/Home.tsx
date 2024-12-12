@@ -7,6 +7,16 @@ import { userState } from '../../recoil/atoms/userState';
 
 const Home = () => {
   const resetUserState = useResetRecoilState(userState);
+  const navigate = useNavigate();
+  const [inputNickname, setInputNickname] = useState<string>('');
+  const [gameTime, setGameTime] = useState<number>(10);
+  const [messages, setMessages] = useState<{ id: string; text: string; show: boolean }[]>([]);
+  const [gameType, setGameType] = useState<
+    'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'
+  >('ONE_TO_ONE');
+
+  // Recoil 상태: nickname 및 roomId 관리
+  const [user, setUser] = useRecoilState(userState);
 
   // Home 컴포넌트 진입 시 recoil 유저 상태 초기화
   useEffect(() => {
@@ -14,21 +24,13 @@ const Home = () => {
     console.log('Recoil userState 초기화 완료');
   }, []);
 
-  const navigate = useNavigate();
-
-  // Recoil 상태: nickname 및 roomId 관리
-  const [user, setUser] = useRecoilState(userState);
-
-  // 로컬 상태: 게임 설정
-  const [gameType, setGameType] = useState<
-    'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'
-  >('ONE_TO_ONE');
-
-  // 게임 시간
-  const [gameTime, setGameTime] = useState<number>(10);
-
-  // 모달 메시지 상태
-  const [messages, setMessages] = useState<{ id: string; text: string; show: boolean }[]>([]);
+  useEffect(() => {
+    const roomId = user.roomId;
+    if (roomId !== null){
+      // Game 페이지로 이동
+      navigate(`/game/${roomId}`);
+    }
+  }, [user.nickname]);
 
   // 모달 띄우기 함수
   const showMessage = (message: string) => {
@@ -46,20 +48,17 @@ const Home = () => {
 
   // 방 생성 함수
   const handleCreateRoom = async () => {
-    if (!user.nickname || !user.nickname.trim()) {
+    if (!inputNickname || !inputNickname.trim()) {
       showMessage('닉네임을 작성해 주세요');
       return; // 닉네임이 없으면 방 생성 요청 중단
     }
 
     try {
-      const createdRoomId = await createRoom(gameType, user.nickname, gameTime);
+      const createdRoomId = await createRoom(gameType, inputNickname, gameTime);
       console.log('Room created with ID:', createdRoomId);
 
       // Recoil(userState) 상태에 roomId 업데이트
-      setUser((prev) => ({ ...prev, roomId: createdRoomId }));
-
-      // Game 컴포넌트로 이동
-      navigate(`/game/${createdRoomId}`);
+      setUser((prev) => ({ ...prev, nickname: inputNickname, roomId: createdRoomId }));
     } catch (error: any) {
       console.error('Error creating room:', error.message);
       alert('방 생성에 실패했습니다.');
@@ -82,8 +81,8 @@ const Home = () => {
             </label>
             <input
               id="nickname"
-              value={user.nickname || ''}
-              onChange={(e) => setUser((prev) => ({ ...prev, nickname: e.target.value }))}
+              value={inputNickname}
+              onChange={(e) => setInputNickname(e.target.value)}
               placeholder="닉네임을 입력하세요"
               className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
