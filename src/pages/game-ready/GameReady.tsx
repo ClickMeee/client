@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilState } from 'recoil';
 import { CheckNicknameDuplicate } from '../../api/CheckNickname';
 import { GameReadyState, gameReadyState } from '../../recoil/atoms/gameReadyState';
@@ -8,20 +8,16 @@ import { UserState, userState } from '../../recoil/atoms/userState.ts';
 import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
 
 export default function GameReady() {
-  // recoil 게임 방 상태
+  const { roomId: urlRoomId } = useParams<{ roomId: string }>();
+  const navigate = useNavigate();
+
+  const [user, setUser] = useRecoilState<UserState>(userState);
   const [game, setGame] = useRecoilState<GameState | null>(gameState);
   const [gameReady, setGameReady] = useRecoilState<GameReadyState>(gameReadyState);
 
-  // recoil 유저 상태
-  const [user, setUser] = useRecoilState<UserState>(userState);
-
-  // URL 파라미터에서 roomId 가져오기
-  const { roomId: urlRoomId } = useParams<{ roomId: string }>();
-
-  // 닉네임 입력 상태
   const [nicknameInput, setNicknameInput] = useState<string>(''); // 닉네임 입력 상태
-
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
+  // TODO: gameReady 에서 startFlag 사용하기
   const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
   const [countdown, setCountdown] = useState<number | null>(null); // 카운트다운 상태
 
@@ -50,6 +46,7 @@ export default function GameReady() {
 
         // 연결 후, 업데이트에 사용될 set 함수 넘겨주기
         oneVsOneWebSocket.setGameStateUpdater(setGame, setGameReady);
+        oneVsOneWebSocket.setNavigate(navigate);
 
         setIsConnected(true);
       } catch (err) {
@@ -60,6 +57,24 @@ export default function GameReady() {
 
     playerRoomEnter();
   }, [user.nickname, urlRoomId]);
+
+  // 게임 시작 버튼 표시 로직
+  useEffect(() => {
+    if (game) {
+      const totalUsers = game.teams.reduce((total, team) => total + team.users.length, 0);
+      const totalMaxUserCount = game.teams.reduce((total, team) => total + team.maxUserCount, 0);
+
+      console.log('방장 닉네임:' + game.roomChief);
+
+      if (totalUsers === totalMaxUserCount && user.nickname === game.roomChief) {
+        // 요청을 보내는 코드 (예: 게임 시작 요청)
+        console.log('참가자 수와 팀 최대 사용자 수가 일치합니다.');
+        setIsGameButtonVisible(true);
+      } else {
+        setIsGameButtonVisible(false);
+      }
+    }
+  }, [game]);
 
   // 닉네임 입력
   const handleNicknameSubmit = async () => {
@@ -90,24 +105,6 @@ export default function GameReady() {
       console.error(error.message);
     }
   };
-
-  // 게임 시작 버튼 표시 로직
-  useEffect(() => {
-    if (game) {
-      const totalUsers = game.teams.reduce((total, team) => total + team.users.length, 0);
-      const totalMaxUserCount = game.teams.reduce((total, team) => total + team.maxUserCount, 0);
-
-      console.log('방장 닉네임:' + game.roomChief);
-
-      if (totalUsers === totalMaxUserCount && user.nickname === game.roomChief) {
-        // 요청을 보내는 코드 (예: 게임 시작 요청)
-        console.log('참가자 수와 팀 최대 사용자 수가 일치합니다.');
-        setIsGameButtonVisible(true);
-      } else {
-        setIsGameButtonVisible(false);
-      }
-    }
-  }, [game]);
 
   // 게임 시작 버튼 클릭 이벤트
   const handleGameStart = () => {

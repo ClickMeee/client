@@ -1,16 +1,18 @@
 import { IFrame } from '@stomp/stompjs';
 import { WebSocketManager } from './WebSocketManager';
+import { NavigateFunction } from 'react-router-dom';
 
 class OneVsOneWebSocket extends WebSocketManager {
   private roomId: string = '';
   private nickname: string = '';
   private updateGameState: ((state: any) => void) | null = null;
   private updateGameReadyState: ((state: any) => void) | null = null;
+  private navigate: NavigateFunction | null = null;
 
-  // 상태 업데이트 함수 설정
-  // setGameStateUpdater(updaterFunc: (state: any) => void): void {
-  //   this.updateGameState = updaterFunc;
-  // }
+  setNavigate(navigateFunc: NavigateFunction): void {
+    this.navigate = navigateFunc;
+  }
+
   setGameStateUpdater(
     gameUpdater: (state: any) => void,
     gameReadyUpdater: (state: any) => void
@@ -68,7 +70,9 @@ class OneVsOneWebSocket extends WebSocketManager {
           this.updateGameReadyState(message.data);
 
           // game 사이트로 이동
-          window.location.href = `/game/${this.roomId}`;
+          if (this.navigate) {
+            this.navigate(`/game/${this.roomId}`);
+          }
         }
         break;
       case 'GAME_PROGRESS':
