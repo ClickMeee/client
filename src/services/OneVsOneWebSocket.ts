@@ -66,6 +66,9 @@ class OneVsOneWebSocket extends WebSocketManager {
         if (this.updateGameReadyState) {
           console.log(`${message.type} 처리`);
           this.updateGameReadyState(message.data);
+
+          // game 사이트로 이동
+          window.location.href = `/game/${this.roomId}`;
         }
         break;
       case 'GAME_PROGRESS':
