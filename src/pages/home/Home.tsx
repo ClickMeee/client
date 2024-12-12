@@ -27,8 +27,8 @@ const Home = () => {
   useEffect(() => {
     const roomId = user.roomId;
     if (roomId !== null){
-      // Game 페이지로 이동
-      navigate(`/game/${roomId}`);
+      // GameReady 페이지로 이동
+      navigate(`/game-ready/${roomId}`);
     }
   }, [user.nickname]);
 
