@@ -6,6 +6,8 @@ import { GameReadyState, gameReadyState } from '../../recoil/atoms/gameReadyStat
 import { GameState, gameState } from '../../recoil/atoms/gameState.ts';
 import { UserState, userState } from '../../recoil/atoms/userState.ts';
 import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
+import useMessages from '../../hooks/useMessage.ts';
+import Modal from '../../components/modal/Modal.tsx';
 
 export default function GameReady() {
   const { roomId: urlRoomId } = useParams<{ roomId: string }>();
@@ -20,6 +22,8 @@ export default function GameReady() {
   // TODO: gameReady 에서 startFlag 사용하기
   const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
   const [countdown, setCountdown] = useState<number | null>(null); // 카운트다운 상태
+
+  const { messages, showMessage } = useMessages();
 
   // recoil 유저 상태의 roomId, nickname이 변경되면 실행
   useEffect(() => {
@@ -47,6 +51,7 @@ export default function GameReady() {
         // 연결 후, 업데이트에 사용될 set 함수 넘겨주기
         oneVsOneWebSocket.setGameStateUpdater(setGame, setGameReady);
         oneVsOneWebSocket.setNavigate(navigate);
+        oneVsOneWebSocket.setShowMessage(showMessage);
 
         setIsConnected(true);
       } catch (err) {
@@ -135,68 +140,72 @@ export default function GameReady() {
   // }, [countdown]);
 
   return (
-    <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
-      {countdown !== null && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <h1 className="text-9xl font-bold text-red-500 animate-pulse">{countdown}</h1>
-        </div>
-      )}
-      <div className="bg-gray-700 rounded-xl max-w-100 w-1/5 min-w-80 h-5/6 p-4 shadow-floating">
-        <div className="mt-4 flex justify-center">
-          <h1 className="text-3xl font-bold mb-4">🎲 Game </h1>
-        </div>
-        <div className="flex flex-col items-center justify-center pt-24 pb-24 pl-6 pr-6 text-white">
-          {!isConnected ? (
-            <div className="bg-gray-900 pb-6 pl-6 pr-6 pt-3 rounded-lg shadow-floating">
-              <div className="flex pb-2 justify-center">
-                <label htmlFor="nickname" className="block text-lg font-semibold mb-2">
-                  닉네임 설정
-                </label>
+    <>
+      <Modal messages={messages} />
+      <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
+        {countdown !== null && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <h1 className="text-9xl font-bold text-red-500 animate-pulse">{countdown}</h1>
+          </div>
+        )}
+        <div className="bg-gray-700 rounded-xl max-w-100 w-1/5 min-w-80 h-5/6 p-4 shadow-floating">
+          <div className="mt-4 flex justify-center">
+            <h1 className="text-3xl font-bold mb-4">🎲 Game </h1>
+          </div>
+          <div className="flex flex-col items-center justify-center pt-24 pb-24 pl-6 pr-6 text-white">
+            {!isConnected ? (
+              <div className="bg-gray-900 pb-6 pl-6 pr-6 pt-3 rounded-lg shadow-floating">
+                <div className="flex pb-2 justify-center">
+                  <label htmlFor="nickname" className="block text-lg font-semibold mb-2">
+                    닉네임 설정
+                  </label>
+                </div>
+                <input
+                  id="nickname"
+                  type="text"
+                  value={nicknameInput}
+                  onChange={(e) => setNicknameInput(e.target.value)} // 입력 필드만 업데이트
+                  className="w-full p-2 mb-4 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={handleNicknameSubmit}
+                  className="w-full py-2 bg-blue-600 text-white rounded-md shadow-floating hover:bg-blue-500 transition duration-300"
+                >
+                  방 입장
+                </button>
               </div>
-              <input
-                id="nickname"
-                type="text"
-                value={nicknameInput}
-                onChange={(e) => setNicknameInput(e.target.value)} // 입력 필드만 업데이트
-                className="w-full p-2 mb-4 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                onClick={handleNicknameSubmit}
-                className="w-full py-2 bg-blue-600 text-white rounded-md shadow-floating hover:bg-blue-500 transition duration-300"
-              >
-                방 입장
-              </button>
-            </div>
-          ) : (
-            <div className="text-center">
-              <p className="text-lg mb-4">참가팀 수: {game?.teams.length || 0}</p>
-              {game?.teams.map((team, index) => (
-                <div key={index} className="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
-                  <h2 className="text-2xl font-semibold mb-2">{team.teamName}</h2>
-                  <p className="text-lg">참가자 수: {team.users.length}</p>
-                  <ul className="list-disc list-inside">
-                    {team.users.map((user, userIndex) => (
-                      <li key={userIndex} className="text-gray-300">
-                        {user.nickname}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-              {isGameButtonVisible && (
-                <div className="mt-6">
-                  <button
-                    onClick={handleGameStart}
-                    className="w-full py-2 bg-green-600 text-white rounded-md shadow-floating hover:bg-green-500 transition duration-300"
-                  >
-                    게임 시작
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+            ) : (
+              <div className="text-center">
+                <p className="text-lg mb-4">참가팀 수: {game?.teams.length || 0}</p>
+                {game?.teams.map((team, index) => (
+                  <div key={index} className="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
+                    <h2 className="text-2xl font-semibold mb-2">{team.teamName}</h2>
+                    <p className="text-lg">참가자 수: {team.users.length}</p>
+                    <ul className="list-disc list-inside">
+                      {team.users.map((user, userIndex) => (
+                        <li key={userIndex} className="text-gray-300">
+                          {user.nickname}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+                {isGameButtonVisible && (
+                  <div className="mt-6">
+                    <button
+                      onClick={handleGameStart}
+                      className="w-full py-2 bg-green-600 text-white rounded-md shadow-floating hover:bg-green-500 transition duration-300"
+                    >
+                      게임 시작
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
+
   );
 }

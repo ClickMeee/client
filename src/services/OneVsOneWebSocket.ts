@@ -8,9 +8,14 @@ class OneVsOneWebSocket extends WebSocketManager {
   private updateGameState: ((state: any) => void) | null = null;
   private updateGameReadyState: ((state: any) => void) | null = null;
   private navigate: NavigateFunction | null = null;
+  private showMessage: ((state: any) => void) | null = null;
 
   setNavigate(navigateFunc: NavigateFunction): void {
     this.navigate = navigateFunc;
+  }
+
+  setShowMessage(showMessage: (state: any) => void): void {
+    this.showMessage = showMessage;
   }
 
   setGameStateUpdater(
@@ -76,6 +81,23 @@ class OneVsOneWebSocket extends WebSocketManager {
         }
         break;
       case 'GAME_PROGRESS':
+        if (this.updateGameState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameState(message.data);
+        }
+        break;
+
+      case 'ROOM_LEAVE':
+        if (this.updateGameState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameState(message.data.data);
+        }
+        if (this.showMessage) {
+          this.showMessage(`${message.data.target}님이 나갔습니다.`);
+        }
+        break;
+
+      case 'GAME_END':
         if (this.updateGameState) {
           console.log(`${message.type} 처리`);
           this.updateGameState(message.data);
