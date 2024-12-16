@@ -8,6 +8,7 @@ import { UserState, userState } from '../../recoil/atoms/userState.ts';
 import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
 import useMessages from '../../hooks/useMessage.ts';
 import Modal from '../../components/modal/Modal.tsx';
+import ClipboardJS from 'clipboard';
 
 export default function GameReady() {
   const { roomId: urlRoomId } = useParams<{ roomId: string }>();
@@ -19,40 +20,29 @@ export default function GameReady() {
 
   const [nicknameInput, setNicknameInput] = useState<string>(''); // 닉네임 입력 상태
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
-  // TODO: gameReady 에서 startFlag 사용하기
   const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
   const [countdown, setCountdown] = useState<number | null>(null); // 카운트다운 상태
 
   const { messages, showMessage } = useMessages();
 
-  // recoil 유저 상태의 roomId, nickname이 변경되면 실행
   useEffect(() => {
     setUser((prev) => ({
       ...prev,
       roomId: urlRoomId, // urlRoomId 값을 user 상태의 roomId에 갱신
     }));
 
-    // nickname이 null이면 동작하지 않음
     if (!user.nickname || !user.roomId) {
       console.log('nickname이나 roomId가 없습니다.');
       return;
     }
 
-    console.log('nickname:', user.nickname);
-
     const playerRoomEnter = async () => {
       try {
-        // WebSocket에 roomId와 nickname 설정
         oneVsOneWebSocket.setRoomData(user.roomId!, user.nickname!);
-
-        // 연결 시도
         await oneVsOneWebSocket.connect();
-
-        // 연결 후, 업데이트에 사용될 set 함수 넘겨주기
         oneVsOneWebSocket.setGameStateUpdater(setGame, setGameReady);
         oneVsOneWebSocket.setNavigate(navigate);
         oneVsOneWebSocket.setShowMessage(showMessage);
-
         setIsConnected(true);
       } catch (err) {
         console.error('Failed to enter room:', err);
@@ -63,17 +53,12 @@ export default function GameReady() {
     playerRoomEnter();
   }, [user.nickname, urlRoomId]);
 
-  // 게임 시작 버튼 표시 로직
   useEffect(() => {
     if (game) {
       const totalUsers = game.teams.reduce((total, team) => total + team.users.length, 0);
       const totalMaxUserCount = game.teams.reduce((total, team) => total + team.maxUserCount, 0);
 
-      console.log('방장 닉네임:' + game.roomChief);
-
       if (totalUsers === totalMaxUserCount && user.nickname === game.roomChief) {
-        // 요청을 보내는 코드 (예: 게임 시작 요청)
-        console.log('참가자 수와 팀 최대 사용자 수가 일치합니다.');
         setIsGameButtonVisible(true);
       } else {
         setIsGameButtonVisible(false);
@@ -81,7 +66,6 @@ export default function GameReady() {
     }
   }, [game]);
 
-  // 닉네임 입력
   const handleNicknameSubmit = async () => {
     if (!user.roomId) {
       console.error('Room ID is undefined');
@@ -94,16 +78,13 @@ export default function GameReady() {
     }
 
     try {
-      // 닉네임 중복 검사
       const isDuplicateNickname = await CheckNicknameDuplicate(user.roomId, nicknameInput);
       if (isDuplicateNickname) {
         alert('이미 사용 중인 닉네임입니다.');
         return;
       }
 
-      // Recoil 유저 상태 업데이트
-      setUser((prev) => ({ ...prev, nickname: nicknameInput })); // Recoil 상태 업데이트
-
+      setUser((prev) => ({ ...prev, nickname: nicknameInput }));
       setIsConnected(true);
     } catch (error: any) {
       alert('방 입장에 실패했습니다.');
@@ -111,33 +92,33 @@ export default function GameReady() {
     }
   };
 
-  // 게임 시작 버튼 클릭 이벤트
   const handleGameStart = () => {
     console.log('게임 시작 요청을 보냅니다.');
-
-    // setCountdown(3);
-
-    // 방장 게임 시작 요청
     oneVsOneWebSocket.startGameRequest();
   };
 
-  // 카운트다운 로직
-  // useEffect(() => {
-  //   if (countdown === null) return;
+  const handleCopyGameRoomUrl = () => {
+    var clipboard = new ClipboardJS('button', {
+      text: function () {
+        return window.location.href;
+      }
+    });
+    clipboard.on('success', function (e) { });
+    clipboard.on('error', function (e) { });
+  };
 
-  //   if (countdown > 0) {
-  //     const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-  //     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
-  //   }
-
-  //   if (countdown === 0) {
-  //     console.log('카운트다운 완료! 게임을 시작합니다.');
-  //     setCountdown(null); // 카운트다운 종료 후 UI 숨기기
-
-  //     // 게임 시작 로직
-  //     oneVsOneWebSocket.playerReadyRequest();
-  //   }
-  // }, [countdown]);
+  const handleCopyGameRoomCode = () => {
+    var clipboard = new ClipboardJS('button', {
+      text: function () {
+        if (user.roomId) {
+          return user.roomId;
+        }
+        throw new Error;
+      }
+    });
+    clipboard.on('success', function (e) { });
+    clipboard.on('error', function (e) { });
+  };
 
   return (
     <>
@@ -148,13 +129,23 @@ export default function GameReady() {
             <h1 className="text-9xl font-bold text-red-500 animate-pulse">{countdown}</h1>
           </div>
         )}
-        <div className="bg-gray-700 rounded-xl max-w-100 w-1/5 min-w-80 h-5/6 p-4 shadow-floating">
+        <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 pt-4 pb-4 pl-2 pr-2 shadow-floating">
           <div className="mt-4 flex justify-center">
             <h1 className="text-3xl font-bold mb-4">🎲 Game </h1>
           </div>
-          <div className="flex flex-col items-center justify-center pt-24 pb-24 pl-6 pr-6 text-white">
+          {isConnected ? (
+            <div className='flex flex-row'>
+              <button onClick={handleCopyGameRoomUrl} className="basic-button">
+                🔗 방 링크 복사하기
+              </button>
+              <button onClick={handleCopyGameRoomCode} className="basic-button">
+                0️⃣ 방 코드 복사하기
+              </button>
+            </div>
+          ) : <></>}
+          <div className="flex flex-col pt-6 pb-24 text-white">
             {!isConnected ? (
-              <div className="bg-gray-900 pb-6 pl-6 pr-6 pt-3 rounded-lg shadow-floating">
+              <div className="bg-gray-900 pb-6 pl-2 pr-2 pt-3 rounded-lg shadow-floating">
                 <div className="flex pb-2 justify-center">
                   <label htmlFor="nickname" className="block text-lg font-semibold mb-2">
                     닉네임 설정
@@ -175,37 +166,47 @@ export default function GameReady() {
                 </button>
               </div>
             ) : (
-              <div className="text-center">
-                <p className="text-lg mb-4">참가팀 수: {game?.teams.length || 0}</p>
-                {game?.teams.map((team, index) => (
-                  <div key={index} className="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-semibold mb-2">{team.teamName}</h2>
-                    <p className="text-lg">참가자 수: {team.users.length}</p>
-                    <ul className="list-disc list-inside">
-                      {team.users.map((user, userIndex) => (
-                        <li key={userIndex} className="text-gray-300">
-                          {user.nickname}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-                {isGameButtonVisible && (
-                  <div className="mt-6">
-                    <button
-                      onClick={handleGameStart}
-                      className="w-full py-2 bg-green-600 text-white rounded-md shadow-floating hover:bg-green-500 transition duration-300"
-                    >
-                      게임 시작
-                    </button>
-                  </div>
-                )}
-              </div>
+              <>
+                <div className='flex justify-center'>
+                  <p className="text-2xl mb-4">🙋 총 참가자 수: {game?.teams.length || 0}</p>
+                </div>
+                <div className="text-center flex flex-row justify-around">
+                  {game?.teams.map((team, index) => (
+                    <div key={index} className={`mb-6 m-2 container w-1/${game?.teams.length} bg-gray-800 p-4 rounded-lg shadow-md`}>
+                      <div className="text-2xl font-semibold">{team.teamName}</div>
+                      <div className='text-sm text-gray-500 mb-2'>닉네임</div>
+                      <div className="list-inside">
+                        {team.users.map((u, userIndex) => (
+                          <div key={userIndex} className={`text-white flex rounded-lg border-2 ${user.nickname === u.nickname ? 'border-orange-500' : 'border-white'}`}>
+                            {user.nickname === u.nickname ? (
+                              <div className="absolute self-center ml-2 text-xs">{game.roomChief === u.nickname ? '👑' : '👋'} me</div>
+                            ) : user.nickname !== game.roomChief &&
+                            <div className="absolute self-center ml-2 text-xs">👑</div>
+                            }
+                            <div className="flex-1 text-center">
+                              {u.nickname}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
+          {isGameButtonVisible && (
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={handleGameStart}
+                className="w-3/4 mb-2.5 py-2 bg-green-600 border-2 border-opacity-0 border-white hover:border-opacity-100 hover:-translate-y-1 hover:-translate-x-0.5 text-white rounded-md hover:shadow-floating hover:transition duration-300"
+              >
+                게임 시작
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
-
   );
 }
