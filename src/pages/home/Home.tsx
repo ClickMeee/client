@@ -1,73 +1,59 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useRecoilState, useResetRecoilState } from 'recoil';
-import { createRoom } from '../../api/CreateRoom';
-import Modal from '../../components/modal/Modal';
-import { userState } from '../../recoil/atoms/userState';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useRecoilState, useResetRecoilState } from "recoil";
+import { createRoom } from "../../api/CreateRoom";
+import Modal from "../../components/modal/Modal";
+import { userState } from "../../recoil/atoms/userState";
+import useMessages from "../../hooks/useMessage";
 
 const Home = () => {
   const resetUserState = useResetRecoilState(userState);
   const navigate = useNavigate();
-  const [inputNickname, setInputNickname] = useState<string>('');
+  const [inputNickname, setInputNickname] = useState<string>("");
   const [gameTime, setGameTime] = useState<number>(10);
-  const [messages, setMessages] = useState<{ id: string; text: string; show: boolean }[]>([]);
   const [gameType, setGameType] = useState<
-    'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'
-  >('ONE_TO_ONE');
+    "ONE_TO_ONE" | "ONE_TO_MANY" | "TEAM_VS_TEAM" | "FREE_FOR_ALL"
+  >("ONE_TO_ONE");
 
-  // Recoil 상태: nickname 및 roomId 관리
+  const { messages, showMessage } = useMessages();
+
   const [user, setUser] = useRecoilState(userState);
 
-  // Home 컴포넌트 진입 시 recoil 유저 상태 초기화
   useEffect(() => {
     resetUserState();
-    console.log('Recoil userState 초기화 완료');
+    console.log("Recoil userState 초기화 완료");
   }, []);
 
   useEffect(() => {
     const roomId = user.roomId;
-    if (roomId !== null){
+    if (roomId !== null) {
       // GameReady 페이지로 이동
       navigate(`/game-ready/${roomId}`);
     }
   }, [user.nickname]);
 
-  // 모달 띄우기 함수
-  const showMessage = (message: string) => {
-    const messageId = new Date().getTime().toString();
-    setMessages((prevMessages) => [...prevMessages, { id: messageId, text: message, show: true }]);
-    setTimeout(() => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) => (msg.id === messageId ? { ...msg, show: false } : msg))
-      );
-      setTimeout(() => {
-        setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== messageId));
-      }, 1000);
-    }, 3000);
-  };
-
   // 방 생성 함수
   const handleCreateRoom = async () => {
     if (!inputNickname || !inputNickname.trim()) {
-      showMessage('닉네임을 작성해 주세요');
-      return; // 닉네임이 없으면 방 생성 요청 중단
+      showMessage("닉네임을 작성해 주세요");
+      return;
     }
 
     try {
       const createdRoomId = await createRoom(gameType, inputNickname, gameTime);
-      console.log('Room created with ID:', createdRoomId);
+      console.log("Room created with ID:", createdRoomId);
 
       // Recoil(userState) 상태에 roomId 업데이트
       setUser((prev) => ({ ...prev, nickname: inputNickname, roomId: createdRoomId }));
     } catch (error: any) {
-      console.error('Error creating room:', error.message);
-      alert('방 생성에 실패했습니다.');
+      console.error("Error creating room:", error.message);
+      showMessage("방 생성에 실패했습니다.");
     }
   };
 
   return (
     <>
-      <Modal messages={messages}></Modal>
+      <Modal messages={messages} />
       <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
           <div className="flex justify-center">
@@ -90,7 +76,7 @@ const Home = () => {
           {/* 게임 유형 선택 */}
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-3">게임 유형</h3>
-            {['ONE_TO_ONE', 'ONE_TO_MANY', 'TEAM_VS_TEAM', 'FREE_FOR_ALL'].map((type) => (
+            {["ONE_TO_ONE", "ONE_TO_MANY", "TEAM_VS_TEAM", "FREE_FOR_ALL"].map((type) => (
               <div key={type} className="flex items-center mb-3">
                 <input
                   type="radio"
@@ -104,13 +90,13 @@ const Home = () => {
                   htmlFor={type}
                   className="text-lg hover:-translate-y-0.5 hover:-translate-x-0.5 hover:text-orange-500"
                 >
-                  {type === 'ONE_TO_ONE'
-                    ? '1대1'
-                    : type === 'ONE_TO_MANY'
-                      ? '일대다'
-                      : type === 'TEAM_VS_TEAM'
-                        ? '팀 대 팀'
-                        : '개인전'}
+                  {type === "ONE_TO_ONE"
+                    ? "1대1"
+                    : type === "ONE_TO_MANY"
+                      ? "일대다"
+                      : type === "TEAM_VS_TEAM"
+                        ? "팀 대 팀"
+                        : "개인전"}
                 </label>
               </div>
             ))}
