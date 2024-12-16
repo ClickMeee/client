@@ -24,6 +24,7 @@ const RoomList = () => {
     const ifRoomExistsNavigateRoom = async (index: number) => {
         if(gameState){
             // todo : 데이터에 roomId가 없는 문제가 있음, 그리고 방이 존재하는지 여부 뿐만 아니라, 방에 인원수가 들어갈 수 있는지도 체크해야함
+            // 방 인원수 체크는 그 다음에 해야하나
             if (await CheckExistsRoomByRoomId(gameState[index].roomId)) {
                 handleNavigatePage(`/game-ready/${gameState[index].roomId}`)
                 return;
@@ -70,7 +71,8 @@ const RoomList = () => {
             <div className="flex flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
                 <div className="bg-gray-700 rounded-xl max-w-100 w-3/5 min-w-80 h-5/6 p-10 shadow-floating">
                     <div className="text-center text-3xl mb-10">📚 방 목록</div>
-                    <div className="flex flex-wrap justify-start gap-4">
+                    {gameState && (gameState?.length !== 0) ?
+                     <div className="flex flex-wrap justify-start gap-4">
                         {gameState && gameState.map((room, index) => (
                             <div key={index} className="w-full rounded-lg flex justify-center overflow-visible">
                                 <button onClick={() => ifRoomExistsNavigateRoom(index)}
@@ -86,10 +88,9 @@ const RoomList = () => {
                                 </button>
                             </div>
                         ))}
-                    </div>
+                    </div> : <div className='text-center text-2xl'> 😮 방이 존재하지 않습니다. 😮</div> }
                 </div>
             </div>
-            
         </>
     );
 };
