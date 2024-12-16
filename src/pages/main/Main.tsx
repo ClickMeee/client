@@ -32,7 +32,7 @@ console.log(easterEgg);
             <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
                 <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
                     <div className="text-center text-3xl mb-10">🐹 Welcome Click Meee!!! 🐭</div>
-                    <button onClick={() => handleNavigatePage('/')} className="basic-button text-xl text-center mb-5">📒 방 목록</button>
+                    <button onClick={() => handleNavigatePage('/room-list')} className="basic-button text-xl text-center mb-5">📚 방 목록</button>
                     <button onClick={() => handleNavigatePage('/home')} className="basic-button text-xl text-center mb-5">🎊 방 생성</button>
                     <button onClick={() => handleNavigatePage('/enter')} className="basic-button text-xl text-center mb-5">🚪 방 코드 입장</button>
                 </div>

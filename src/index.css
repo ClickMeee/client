@@ -61,3 +61,21 @@ body {
         @apply w-full py-3 m-2 bg-orange-500 border-white hover:border-opacity-100 border-2 border-opacity-0 text-white rounded-md duration-300 hover:shadow-floating hover:-translate-y-1 hover:-translate-x-0.5 transition-all hover:bg-orange-500
     }
 }
+
+.loader {
+    width: 35px;
+    aspect-ratio: 1;
+    --_g: no-repeat radial-gradient(circle closest-side,#000 90%,#0000);
+    background: 
+      var(--_g) 0    0,
+      var(--_g) 0    100%,
+      var(--_g) 100% 100%;
+    background-size: 40% 40%;
+    animation:l11 1s infinite linear;
+  }
+  @keyframes l11 {
+      25% {background-position:100% 0   ,0 100%,100% 100%}
+      50% {background-position:100% 0   ,0 0   ,100% 100%}
+      75% {background-position:100% 0   ,0 0   ,0    100%}
+      100%{background-position:100% 100%,0 0   ,0    100%}
+  }
