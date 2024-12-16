@@ -133,7 +133,7 @@ const Home = () => {
           {/* 방 생성 버튼 */}
           <button
             onClick={handleCreateRoom}
-            className="w-full py-3 bg-orange-500 text-white rounded-md duration-300 hover:shadow-floating hover:-translate-y-1 hover:-translate-x-0.5 transition-all"
+            className="basic-button"
           >
             방 생성
           </button>

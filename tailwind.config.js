@@ -18,6 +18,14 @@ export default {
           '100%': { transform: 'translate(-60px, -60px)' },
         },
       },
+
+      button: {
+        'basic' : 'w-full py-3 m-2 bg-orange-500 border-white hover:border-opacity-100 border-2 border-opacity-0 text-white rounded-md duration-300 hover:shadow-floating hover:-translate-y-1 hover:-translate-x-0.5 transition-all hover:bg-orange-500'
+      },
+
+      w: {
+        'basic' : 'full'
+      },
       
       backgroundSize: {
         'pattern': '60px 60px', // 패턴 크기
