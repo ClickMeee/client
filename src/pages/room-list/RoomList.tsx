@@ -56,12 +56,17 @@ const RoomList = () => {
         return maxUserCount;
     }
 
+    const fetchRoomData = async () => {
+        const roomData = await ReadAllRoom();
+        setGameState(roomData);
+    };
+
     useEffect(() => {
-        const fetchRoomData = async () => {
-            const roomData = await ReadAllRoom();
-            setGameState(roomData);
-        };
-        fetchRoomData();
+        let polling = setInterval(fetchRoomData, 5000);
+
+        return () => {
+            clearInterval(polling);
+        }
     }, []);
 
     useEffect(() => {
