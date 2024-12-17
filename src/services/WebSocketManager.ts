@@ -85,6 +85,8 @@ export abstract class WebSocketManager {
     return this.client;
   }
 
+
+
   // 웹 소켓 연결 종료
   disconnect(): void {
     if (this.client) {

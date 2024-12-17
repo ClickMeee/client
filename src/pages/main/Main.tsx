@@ -1,6 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { ReadCurrentUserCount } from '../../api/ReadCurrentUserCount.ts';
+import { useResetRecoilState } from "recoil";
+import { gameState } from "../../recoil/atoms/gameState.ts";
+import { userState } from "../../recoil/atoms/userState.ts";
+import { gameReadyState } from "../../recoil/atoms/gameReadyState.ts";
+import { oneVsOneWebSocket } from "../../services/OneVsOneWebSocket.ts";
 
 const Main = () => {
   // 이스터에그
@@ -8,28 +13,36 @@ const Main = () => {
     _    _        _                               
     | |  | |      | |                              
     | |  | |  ___ | |  ___   ___   _ __ ___    ___ 
-    | |/\| | / _ \| | / __| / _ \ | '_ \` _ \  / _ \\
+    | |/\\| | / _ \\| | / __| / _ \\ | '_ \` _ \\  / _ \\
     \\  /\\  /|  __/| || (__ | (_) || | | | | ||  __/
-    \\/  \\/  \\___||_| \\___| \\___/ |_| |_| |_| \\___|
-    _____  _  _        _     ___  ___                   _  _  _ 
+     \\/  \\/  \\___||_| \\___| \\___/ |_| |_| |_| \\___|
+     _____  _  _        _     ___  ___                   _  _  _ 
     /  __ \\| |(_)      | |    |  \\/  |                  | || || |
     | /  \\/| | _   ___ | | __ | .  . |  ___   ___   ___ | || || |
     | |    | || | / __|| |/ / | |\\/| | / _ \\ / _ \\ / _ \\| || || |
     | \\__/\\| || || (__ |   <  | |  | ||  __/|  __/|  __/|_||_||_|
-    \\____/|_||_| \\___||_|\\_\\ \\_|  |_\\/ \\___| \\___| \\___|(_)(_)(_)
+     \\____/|_||_| \\___||_|\\_\\ \\_|  |_/ \\___| \\___| \\___|(_)(_)(_)
 `;
 
   console.log(easterEgg);
   const navigate = useNavigate();
   const [userCount, setUserCount] = useState<number | null>(null);
+  const resetGameState = useResetRecoilState(gameState);
+  const resetUserState = useResetRecoilState(userState);
+  const resetGameReadyState = useResetRecoilState(gameReadyState);
 
   const fetchCurrentUserCount = async () => {
     setUserCount(await ReadCurrentUserCount());
   };
 
   useEffect(() => {
+    oneVsOneWebSocket.disconnect();
+    resetGameState();
+    resetUserState();
+    resetGameReadyState();
+
     fetchCurrentUserCount();
-    let polling = setInterval(fetchCurrentUserCount, 5000);
+    const polling = setInterval(fetchCurrentUserCount, 5000);
 
     return () => {
       clearInterval(polling);

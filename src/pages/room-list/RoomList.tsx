@@ -26,8 +26,6 @@ const RoomList = () => {
 
     const ifRoomExistsNavigateRoom = async (index: number) => {
         if(gameState){
-            // todo : 데이터에 roomId가 없는 문제가 있음, 그리고 방이 존재하는지 여부 뿐만 아니라, 방에 인원수가 들어갈 수 있는지도 체크해야함
-            // 방 인원수 체크는 그 다음에 해야하나
             if (await CheckExistsRoomByRoomId(gameState[index].roomId)) {
                 handleNavigatePage(`/game-ready/${gameState[index].roomId}`)
                 return;
