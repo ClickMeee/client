@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-       # 2. Set up Node.js 22
+      # 2. Set up Node.js 22
       - name: Set up Node.js 22
         uses: actions/setup-node@v2
         with:
@@ -27,10 +27,10 @@ jobs:
       # 4. Build the project with Vite
       - name: Build with Vite
         run: npx vite build
-        
+
       # 5. scp build file
-      - name: Scp to Deploy Server
-	      run: ls
+      - name: scp to Deploy Server
+        run: ls
 
       # 6. Deploy the build folder to the remote server
       - name: Deploy to server via SSH
