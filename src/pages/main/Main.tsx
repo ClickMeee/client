@@ -28,6 +28,7 @@ const Main = () => {
   };
 
   useEffect(() => {
+    fetchCurrentUserCount();
     let polling = setInterval(fetchCurrentUserCount, 5000);
 
     return () => {
