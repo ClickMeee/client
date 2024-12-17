@@ -29,7 +29,7 @@ jobs:
         run: npx vite build
         
       - name: scp to Deploy - server
-	      run: ls
+      	run: ls
 
       # 5. Deploy the build folder to the remote server
       - name: Deploy to server via SSH
