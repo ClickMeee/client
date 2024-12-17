@@ -18,8 +18,8 @@ export interface RoomDataProps {
   gameTime: number; // 게임 시간 (초)
   currentTime: number; // 현재 시간 (초)
   startFlag: boolean; // 게임 시작 여부
-
   teams: Team[]; // 팀 목록
 
   roomChief: string; // 방장 닉네임
 }
+

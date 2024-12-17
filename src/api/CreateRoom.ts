@@ -38,13 +38,11 @@ const buildRequestBody = (
 
 // createRoom 함수 리팩토링
 export const createRoom = async (
-  gameType: string, // 지원하는 게임 타입
-  nickname: string, // 닉네임
-  gameTime: number // 게임 시간
+  roomProps: CreateRoomProps
 ): Promise<string> => {
   try {
-    const requestBody = buildRequestBody(gameType, nickname, gameTime);
-
+    // const requestBody = buildRequestBody(gameType, nickname, gameTime);
+    const requestBody = roomProps;
     const response = await axiosInstance.post<CreateRoomResponse>('/room', requestBody);
 
     console.log('Room created successfully:', response.data);

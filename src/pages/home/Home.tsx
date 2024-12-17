@@ -4,6 +4,8 @@ import { useRecoilState, useResetRecoilState } from 'recoil';
 import { createRoom } from '../../api/CreateRoom';
 import Modal from '../../components/modal/Modal';
 import { userState } from '../../recoil/atoms/userState';
+import { CreateRoomGenerator } from '../../types/CreateRoom.type';
+import { RoomDataProps } from '../../types/RoomData.type';
 
 const Home = () => {
   const resetUserState = useResetRecoilState(userState);
@@ -15,8 +17,15 @@ const Home = () => {
     'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'
   >('ONE_TO_ONE');
 
+
+  // 개인전 팀 수 선택
+  const [freeForAllCount, setFreeForAllCount] = useState<number>(2);
+
   // Recoil 상태: nickname 및 roomId 관리
   const [user, setUser] = useRecoilState(userState);
+
+  // 개인전 팀수 선택 (.map())
+  const freeForAllValue = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
   // Home 컴포넌트 진입 시 recoil 유저 상태 초기화
   useEffect(() => {
@@ -26,7 +35,7 @@ const Home = () => {
 
   useEffect(() => {
     const roomId = user.roomId;
-    if (roomId !== null){
+    if (roomId !== null) {
       // GameReady 페이지로 이동
       navigate(`/game-ready/${roomId}`);
     }
@@ -54,6 +63,9 @@ const Home = () => {
     }
 
     try {
+      const roomData : RoomDataProps = CreateRoomGenerator.makeRoom(
+
+      ) 
       const createdRoomId = await createRoom(gameType, inputNickname, gameTime);
       console.log('Room created with ID:', createdRoomId);
 
@@ -129,11 +141,54 @@ const Home = () => {
               <option value={60}>60초</option>
             </select>
           </div>
+          {/* 일대일 게임 선택시, 옵션 */}
+          {
+            gameType === 'ONE_TO_ONE' ?
+            <div>
+              
+            </div> : <></>
+          }
+
+
+          {/* 일대 다 게임시, 옵션 */}
+          {gameType === 'ONE_TO_MANY' ?
+            <div className=''>
+              일대다
+            </div> : <></>
+          }
+          {/* 다대 다 게임시, 옵션 */}
+          {gameType === 'TEAM_VS_TEAM' ?
+            <div className=''>
+              다대다
+            </div> : <></>
+          }
+
+          {/* 개인전 선택시, 옵션 */}
+          {gameType === 'FREE_FOR_ALL' ?
+            <div className='mb-10'>
+              <div className='text-center mb-3 text-xl'>개인전 옵션</div>
+              <div className='text-lg mb-2'>최대 인원 수</div>
+              <select
+              value={freeForAllCount}
+              onChange={(c) => {setFreeForAllCount(Number(c.target.value))}}
+              className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              {
+                freeForAllValue.map((value, index) => {
+                  return <option value={value}>{value}팀</option>
+                })
+              }
+            </select>
+
+            
+
+            </div> : <></>
+          }
 
           {/* 방 생성 버튼 */}
           <button
             onClick={handleCreateRoom}
-            className="basic-button"
+            className="w-full py-3 m-2 bg-orange-500 border-white hover:border-opacity-100 border-2 border-opacity-0 text-white rounded-md duration-300 hover:shadow-floating hover:-translate-y-1 hover:-translate-x-0.5 transition-all hover:bg-orange-500"
           >
             방 생성
           </button>

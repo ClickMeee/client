@@ -4,11 +4,11 @@ type Team = {
   clickCountScale: number; // 클릭 스케일링 비율
 };
 
-type RoomChief = {
-  nickname: string; // 방장의 닉네임
-};
-
 type GameType = 'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'; // 게임 유형
+
+type RoomChief = {
+  nickname: string
+}
 
 export interface CreateRoomProps {
   teams: Team[]; // 팀 목록
@@ -16,3 +16,34 @@ export interface CreateRoomProps {
   gameType: GameType; // 게임 유형
   roomChief: RoomChief; // 방장 정보
 }
+
+export class CreateRoomGenerator{
+
+  static makeRoom(teams: Team[], gameTime: number, gameType: GameType, roomChief: RoomChief) : CreateRoomProps{
+    return {
+      'teams' : teams,
+      'gameTime' : gameTime,
+      'gameType' : gameType,
+      'roomChief' : roomChief
+    }
+  }
+
+  static makeTeam(teamName: string, maxUserCount: number, clickCountScale: number) : Team{
+    return {
+      'teamName' : teamName,
+      'maxUserCount' : maxUserCount,
+      'clickCountScale' : clickCountScale,
+    };
+  }
+  
+  static makeOneManTeam(teamName: string, clickCountScale: number) : Team{
+    return {
+      'teamName' : teamName,
+      'maxUserCount' : 1,
+      'clickCountScale' : clickCountScale
+    }
+  }
+
+}
+
+
