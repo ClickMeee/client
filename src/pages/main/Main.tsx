@@ -19,8 +19,6 @@ const Main = () => {
 `;
 
 console.log(easterEgg);
-
-
     const navigate = useNavigate();
 
     const handleNavigatePage = (path: string) => {

@@ -9,6 +9,7 @@ class OneVsOneWebSocket extends WebSocketManager {
   private updateGameReadyState: ((state: any) => void) | null = null;
   private navigate: NavigateFunction | null = null;
   private showMessage: ((state: any) => void) | null = null;
+  private showRoomChiefLeaveMessage: ((state: any) => void) | null = null;
 
   setNavigate(navigateFunc: NavigateFunction): void {
     this.navigate = navigateFunc;
@@ -29,6 +30,10 @@ class OneVsOneWebSocket extends WebSocketManager {
   setRoomData(roomId: string, nickname: string): void {
     this.roomId = roomId;
     this.nickname = nickname;
+  }
+
+  setShowRoomChiefLeaveMessage(showRoomChiefLeaveMessage: (state: any) => void): void{
+    this.showRoomChiefLeaveMessage = showRoomChiefLeaveMessage;
   }
 
   onConnect(frame: IFrame): void {
@@ -101,6 +106,12 @@ class OneVsOneWebSocket extends WebSocketManager {
         if (this.updateGameState) {
           console.log(`${message.type} 처리`);
           this.updateGameState(message.data);
+        }
+        break;
+
+      case 'ROOM_CHIEF_LEAVE':
+        if (this.showRoomChiefLeaveMessage) {
+          this.showRoomChiefLeaveMessage(true);
         }
         break;
 

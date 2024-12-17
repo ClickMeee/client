@@ -22,9 +22,20 @@ export default function GameReady() {
   const [nicknameInput, setNicknameInput] = useState<string>(''); // 닉네임 입력 상태
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
   const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
-  const [countdown, setCountdown] = useState<number | null>(null); 
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [roomChiefModal, setRoomChiefModal] = useState<boolean>(false);
 
   const { messages, showMessage } = useMessages();
+
+  useEffect(() => {
+    if (roomChiefModal) {
+      const timer = setTimeout(() => {
+        navigate('/'); // 원하는 경로로 이동
+      }, 3000);
+
+      return () => clearTimeout(timer); // 타이머 클리어
+    }
+  }, [roomChiefModal, navigate]);
 
   useEffect(() => {
     setUser((prev) => ({
@@ -44,6 +55,7 @@ export default function GameReady() {
         oneVsOneWebSocket.setGameStateUpdater(setGame, setGameReady);
         oneVsOneWebSocket.setNavigate(navigate);
         oneVsOneWebSocket.setShowMessage(showMessage);
+        oneVsOneWebSocket.setShowRoomChiefLeaveMessage(setRoomChiefModal);
         setIsConnected(true);
       } catch (err) {
         console.error('Failed to enter room:', err);
@@ -125,6 +137,15 @@ export default function GameReady() {
   return (
     <>
       <Modal messages={messages} />
+      {roomChiefModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h1 className="text-2xl font-bold text-red-500 mb-4">방장이 방을 나갔습니다.</h1>
+            <p className="text-gray-700">잠시 후 메인 페이지로 이동합니다...</p>
+            <div className='loader m-auto'></div>
+          </div>
+        </div>
+      )}
       <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         {countdown !== null && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
