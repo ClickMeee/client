@@ -3,7 +3,7 @@ import axiosInstance from './axiosInstance';
 
 export const ReadAllRoom = async (): Promise<GameState[]> => {
   try {
-    const response = await axiosInstance.get(`/room`);
+    const response = await axiosInstance.get(`/api/room`);
     const rooms: GameState[] = response.data;
     return rooms;
   } catch (error) {

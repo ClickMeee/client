@@ -45,7 +45,7 @@ export const createRoom = async (
   try {
     const requestBody = buildRequestBody(gameType, nickname, gameTime);
 
-    const response = await axiosInstance.post<CreateRoomResponse>('/room', requestBody);
+    const response = await axiosInstance.post<CreateRoomResponse>('/api/room', requestBody);
 
     console.log('Room created successfully:', response.data);
     return response.data.roomId; // 서버에서 반환된 roomId를 사용

@@ -40,7 +40,7 @@ class OneVsOneWebSocket extends WebSocketManager {
     console.log('WebSocket connected:', frame);
 
     // 방 정보 구독
-    this.subscribe(`/topic/room/${this.roomId}`, (message) => {
+    this.subscribe(`/api/topic/room/${this.roomId}`, (message) => {
       this.processData(message);
     });
 
@@ -128,7 +128,7 @@ class OneVsOneWebSocket extends WebSocketManager {
         nickname: this.nickname,
       };
 
-      this.sendMessage('/app/room/enter', requestBody);
+      this.sendMessage('/api/app/room/enter', requestBody);
     } else {
       console.error('Room ID or Nickname is not set');
     }
@@ -137,7 +137,7 @@ class OneVsOneWebSocket extends WebSocketManager {
   // 방장 게임 시작 요청
   startGameRequest() {
     if (this.roomId) {
-      this.sendMessage(`/app/start/${this.roomId}`);
+      this.sendMessage(`/api/app/start/${this.roomId}`);
     } else {
       console.error('Room ID is not set');
     }
@@ -146,7 +146,7 @@ class OneVsOneWebSocket extends WebSocketManager {
   // 플레이어 준비 요청
   playerReadyRequest() {
     if (this.roomId) {
-      this.sendMessage(`/app/start/${this.roomId}/${this.nickname}`);
+      this.sendMessage(`/api/app/start/${this.roomId}/${this.nickname}`);
     } else {
       console.error('Room ID is not set');
     }
@@ -155,7 +155,7 @@ class OneVsOneWebSocket extends WebSocketManager {
   // 클릭 이벤트 전송
   sendClickEvent() {
     if (this.roomId) {
-      this.sendMessage(`/app/click/${this.roomId}/${this.nickname}`);
+      this.sendMessage(`/api/app/click/${this.roomId}/${this.nickname}`);
     } else {
       console.error('Room ID is not set');
     }

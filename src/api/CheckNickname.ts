@@ -5,7 +5,7 @@ export const CheckNicknameDuplicate = async (
   nickname: string
 ): Promise<boolean> => {
   try {
-    const response = await axiosInstance.get(`/room/${roomId}/${nickname}`);
+    const response = await axiosInstance.get(`/api/room/${roomId}/${nickname}`);
     const { duplicate } = response.data;
     return duplicate;
   } catch (error) {
