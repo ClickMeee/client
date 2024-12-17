@@ -43,4 +43,3 @@ jobs:
             sudo rm -rf .clickmeee/web/files/dist
             sudo mv ./clickmeee/deploy_data/dist ./web/files
             sudo rm -rf ./clickmeee/deploy_data/dist
-		          
