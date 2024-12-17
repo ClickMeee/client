@@ -45,5 +45,6 @@ jobs:
           script: |
             # Delete old files in the web server folder
             sudo rm -rf ./clickmeee/web/files/dist
+            sudo ls
             sudo mv ./clickmeee/deploy_data/dist ./web/files
             sudo rm -rf ./clickmeee/deploy_data/dist
