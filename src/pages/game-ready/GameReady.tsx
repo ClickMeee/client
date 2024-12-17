@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilState } from 'recoil';
 import { CheckNicknameDuplicate } from '../../api/CheckNickname';
@@ -9,7 +9,6 @@ import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
 import useMessages from '../../hooks/useMessage.ts';
 import Modal from '../../components/modal/Modal.tsx';
 import ClipboardJS from 'clipboard';
-
 
 export default function GameReady() {
   const { roomId: urlRoomId } = useParams<{ roomId: string }>();
@@ -24,6 +23,7 @@ export default function GameReady() {
   const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
   const [countdown, setCountdown] = useState<number | null>(null);
   const [roomChiefModal, setRoomChiefModal] = useState<boolean>(false);
+  const clipboardRef = useRef<ClipboardJS | null>(null);
 
   const { messages, showMessage } = useMessages();
 
@@ -79,6 +79,25 @@ export default function GameReady() {
     }
   }, [game]);
 
+  useEffect(() => {
+    // ClipboardJS 객체 초기화 (한 번만 실행)
+    clipboardRef.current = new ClipboardJS(".copy-button");
+
+    clipboardRef.current.on("success", (e) => {
+      if (e.trigger.getAttribute("data-clipboard-text") === window.location.href) {
+        showMessage("방 링크가 복사되었습니다.");
+      } else {
+        showMessage("방 코드가 복사되었습니다.");
+      }
+    });
+
+    clipboardRef.current.on("error", () => {
+      showMessage("복사에 실패했습니다.");
+    });
+
+    return () => clipboardRef.current?.destroy(); // 객체 제거
+  }, []);
+
   const handleNicknameSubmit = async () => {
     if (!user.roomId) {
       console.error('Room ID is undefined');
@@ -110,30 +129,6 @@ export default function GameReady() {
     oneVsOneWebSocket.startGameRequest();
   };
 
-
-  const handleCopyGameRoomUrl = () => {
-    var clipboard = new ClipboardJS('button', {
-      text: function () {
-        return window.location.href;
-      }
-    });
-    clipboard.on('success', function (e) { });
-    clipboard.on('error', function (e) { });
-  };
-
-  const handleCopyGameRoomCode = () => {
-    var clipboard = new ClipboardJS('button', {
-      text: function () {
-        if (user.roomId) {
-          return user.roomId;
-        }
-        throw new Error;
-      }
-    });
-    clipboard.on('success', function (e) { });
-    clipboard.on('error', function (e) { });
-  };
-
   return (
     <>
       <Modal messages={messages} />
@@ -158,10 +153,10 @@ export default function GameReady() {
           </div>
           {isConnected ? (
             <div className='flex flex-row'>
-              <button onClick={handleCopyGameRoomUrl} className="basic-button">
+              <button className="basic-button copy-button" data-clipboard-text={window.location.href}>
                 🔗 방 링크 복사하기
               </button>
-              <button onClick={handleCopyGameRoomCode} className="basic-button">
+              <button className="basic-button copy-button" data-clipboard-text={user?.roomId || ""}>
                 0️⃣ 방 코드 복사하기
               </button>
             </div>
