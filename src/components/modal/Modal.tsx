@@ -1,7 +1,8 @@
-import React from 'react';
+import React from "react";
+import { Message } from "../../hooks/useMessage";
 
 interface ModalProps {
-  messages: { id: string; text: string; show: boolean }[]; // show 상태 추가
+  messages: Message[];
 }
 
 const Modal: React.FC<ModalProps> = ({ messages }) => {
@@ -10,11 +11,10 @@ const Modal: React.FC<ModalProps> = ({ messages }) => {
       {messages.map((message) => (
         <div
           key={message.id}
-          className={`bg-orange-500 opacity-95 border-black text-white px-6 py-3 rounded-xl shadow-floating w-full opacity-0 max-w-xs transform transition-all duration-1000 ease-in-out ${
-            message.show
-              ? `opacity-100`
-              : 'translate-y-[-100px] opacity-0'
-          }`}
+          className={`bg-orange-500 opacity-95 border-black text-white px-6 py-3 rounded-xl shadow-floating w-full opacity-0 max-w-xs transform transition-all duration-1000 ease-in-out ${message.show
+            ? `opacity-100`
+            : 'translate-y-[-100px] opacity-0'
+            }`}
         >
           <p>{message.text}</p>
         </div>
