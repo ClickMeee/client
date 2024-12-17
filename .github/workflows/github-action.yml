@@ -14,6 +14,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # 2. Set the VITE_API_URL environment variable
+      - name: Create .env file
+        run: |
+          echo ${{ secrets.HOST_NAME }} > .env
+          cat .env
+
       # 2. Set up Node.js 22
       - name: Set up Node.js 22
         uses: actions/setup-node@v2
