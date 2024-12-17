@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilState } from 'recoil';
-import { CheckNicknameDuplicate } from '../../api/CheckNickname';
+import { CheckNicknameDuplicate } from '../../api/CheckEnterableRoom.ts';
 import { GameReadyState, gameReadyState } from '../../recoil/atoms/gameReadyState';
 import { GameState, gameState } from '../../recoil/atoms/gameState.ts';
 import { UserState, userState } from '../../recoil/atoms/userState.ts';
@@ -110,8 +110,8 @@ export default function GameReady() {
     }
 
     try {
-      const isDuplicateNickname = await CheckNicknameDuplicate(user.roomId, nicknameInput);
-      if (isDuplicateNickname) {
+      const enterable = await CheckNicknameDuplicate(user.roomId, nicknameInput);
+      if (enterable) {
         showMessage('이미 사용 중인 닉네임입니다.');
         return;
       }
