@@ -14,6 +14,7 @@ type Team ={
 }
 
 export type GameState = {
+  roomId : string
   gameType : "ONE_TO_ONE";
   gameTime: number;
   currentTime: number;

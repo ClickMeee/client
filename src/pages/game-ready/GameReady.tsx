@@ -15,13 +15,13 @@ export default function GameReady() {
 
   const [user, setUser] = useRecoilState<UserState>(userState);
   const [game, setGame] = useRecoilState<GameState | null>(gameState);
-  const [gameReady, setGameReady] = useRecoilState<GameReadyState>(gameReadyState);
+  const [gameReady, setGameReady] = useRecoilState<GameReadyState>(gameReadyState); 
 
   const [nicknameInput, setNicknameInput] = useState<string>(''); // 닉네임 입력 상태
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
   // TODO: gameReady 에서 startFlag 사용하기
   const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
-  const [countdown, setCountdown] = useState<number | null>(null); // 카운트다운 상태
+  const [countdown, setCountdown] = useState<number | null>(null); 
 
   // recoil 유저 상태의 roomId, nickname이 변경되면 실행
   useEffect(() => {
