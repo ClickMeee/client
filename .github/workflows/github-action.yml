@@ -27,6 +27,9 @@ jobs:
       # 4. Build the project with Vite
       - name: Build with Vite
         run: npx vite build
+        
+      - name: scp to Deploy - server
+	      run: ls
 
       # 5. Deploy the build folder to the remote server
       - name: Deploy to server via SSH
@@ -43,3 +46,4 @@ jobs:
             sudo rm -rf ./clickmeee/web/files/dist
             sudo mv ./clickmeee/deploy_data/dist ./web/files
             sudo rm -rf ./clickmeee/deploy_data/dist
+		          
