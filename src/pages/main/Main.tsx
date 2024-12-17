@@ -58,7 +58,7 @@ const Main = () => {
             📚 방 목록
           </button>
           <button
-            onClick={() => handleNavigatePage('/home')}
+            onClick={() => handleNavigatePage('/game-setting')}
             className="basic-button text-xl text-center mb-5"
           >
             🎊 방 생성

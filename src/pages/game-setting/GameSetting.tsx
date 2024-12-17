@@ -6,7 +6,7 @@ import Modal from "../../components/modal/Modal";
 import { userState } from "../../recoil/atoms/userState";
 import useMessages from "../../hooks/useMessage";
 
-const Home = () => {
+const GameSetting = () => {
   const resetUserState = useResetRecoilState(userState);
   const navigate = useNavigate();
   const [inputNickname, setInputNickname] = useState<string>("");
@@ -129,4 +129,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default GameSetting;
