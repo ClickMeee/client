@@ -21,7 +21,7 @@ export abstract class WebSocketManager {
 
     return new Promise((resolve, reject) => {
       this.client = new Client({
-        webSocketFactory: () => new SockJS(import.meta.env.VITE_API_URL + '/api/connect'),
+        webSocketFactory: () => new SockJS(import.meta.env.VITE_API_URL + '/api/ws/connect'),
         debug: (str: string) => console.log(`[STOMP Debug] ${str}`),
         reconnectDelay: 5000,
         onConnect: (frame: IFrame) => {
