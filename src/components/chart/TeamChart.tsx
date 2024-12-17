@@ -48,6 +48,7 @@ const TeamChart: React.FC = () => {
   // 차트 옵션 설정
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top" as const,

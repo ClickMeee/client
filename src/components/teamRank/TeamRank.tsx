@@ -2,9 +2,7 @@ import { useRecoilValue } from "recoil";
 import { gameState, GameState } from "../../recoil/atoms/gameState";
 import { UserState, userState } from "../../recoil/atoms/userState";
 
-type Props = {}
-
-export default function TeamRank({ }: Props) {
+export default function TeamRank() {
   const game = useRecoilValue<GameState | null>(gameState); // 게임 상태
   const user = useRecoilValue<UserState>(userState); // 사용자 상태
 
@@ -22,13 +20,24 @@ export default function TeamRank({ }: Props) {
     .sort((a, b) => b.totalClicks - a.totalClicks);
 
   return (
-    <div>
-      <h1>Your Team: {userTeamName}</h1>
-      <ul>
+    <div className="w-full h-full rounded-lg p-4 border-2 border-orange-500">
+      <h2 className="text-xl font-semibold text-orange-500 mb-4 text-center">
+        🏆 Team Rankings
+      </h2>
+
+      <ul className="space-y-3">
         {rankedTeams?.map((team, index) => (
-          <li key={index} style={{ fontWeight: team.isUserTeam ? "bold" : "normal" }}>
-            {team.teamName}: {team.totalClicks} clicks
-            {team.isUserTeam && " (Your Team)"}
+          <li
+            key={index}
+            className={`flex justify-between items-center px-4 py-2 rounded-lg shadow-md
+              ${
+              team.isUserTeam
+                ? "bg-orange-500 text-black font-bold"
+                : "bg-gray-900 text-gray-300"
+            }`}
+          >
+            <span className="text-lg">{index + 1}. {team.teamName}</span>
+            <span className="text-lg">{team.totalClicks} clicks</span>
           </li>
         ))}
       </ul>
