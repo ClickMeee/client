@@ -102,6 +102,12 @@ class OneVsOneWebSocket extends WebSocketManager {
         }
         break;
 
+      case 'ROOM_ENTER':
+        if (this.showMessage) {
+          this.showMessage(`${message.data.target}님이 입장하였습니다.`);
+        }
+        break;
+
       case 'GAME_END':
         if (this.updateGameState) {
           console.log(`${message.type} 처리`);
