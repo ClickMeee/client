@@ -35,6 +35,8 @@ const Main = () => {
     setUserCount(await ReadCurrentUserCount());
   };
 
+  const title : string = '🐹 Welcome 🐭\n Click Meee!!!';
+
   useEffect(() => {
     oneVsOneWebSocket.disconnect();
     resetGameState();
@@ -56,14 +58,16 @@ const Main = () => {
   return (
     <>
       <span className="w-1/7 transition-all fixed hidden lg:block">
-        <div className={`bg-gray-700 m-10 mt-6 text-white p-5 rounded-xl shadow-floating opacity-${userCount !== null ? 100 : 0}`}>
+        <div
+          className={`bg-gray-700 m-10 mt-6 text-white p-5 rounded-xl shadow-floating opacity-${userCount !== null ? 100 : 0}`}
+        >
           🐥 현재 접속자 수 : {userCount}
         </div>
       </span>
 
       <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
-          <div className="text-center text-3xl mb-10">🐹 Welcome Click Meee!!! 🐭</div>
+            <div className="text-center whitespace-pre-wrap md:text-4xl mb-10 text-2xl sm:text-3xl xl:text-5xl">{title}</div>
           <button
             onClick={() => handleNavigatePage('/room-list')}
             className="basic-button text-xl text-center mb-5"
