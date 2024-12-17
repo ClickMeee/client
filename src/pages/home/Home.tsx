@@ -16,7 +16,7 @@ const Home = () => {
   const [gameType, setGameType] = useState<
     'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'
   >('ONE_TO_ONE');
-
+  const [teamCount, setTeamCount] = useState<number>(2);
 
   // 개인전 팀 수 선택
   const [freeForAllCount, setFreeForAllCount] = useState<number>(2);
@@ -26,6 +26,7 @@ const Home = () => {
 
   // 개인전 팀수 선택 (.map())
   const freeForAllValue = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+
 
   // Home 컴포넌트 진입 시 recoil 유저 상태 초기화
   useEffect(() => {
@@ -63,9 +64,9 @@ const Home = () => {
     }
 
     try {
-      const roomData : RoomDataProps = CreateRoomGenerator.makeRoom(
+      const roomData: RoomDataProps = CreateRoomGenerator.makeRoom(
 
-      ) 
+      )
       const createdRoomId = await createRoom(gameType, inputNickname, gameTime);
       console.log('Room created with ID:', createdRoomId);
 
@@ -141,12 +142,37 @@ const Home = () => {
               <option value={60}>60초</option>
             </select>
           </div>
+
+          {/* 팀 스케일 설정 */}
+          <div className="mb-6">
+            <label className="block text-lg font-semibold mb-2">팀별 클릭 배율</label>
+
+            {
+              Array.from(Array(teamCount), (value, index) => {
+                const teamId = index + 1;
+                return <>
+                  <label className="p-0 mb-0 block text-sm font-semibold">{teamId}팀</label>
+                  <input
+                    id=""
+                    value={inputNickname}
+                    onChange={(e) => setInputNickname(e.target.value)}
+                    placeholder={`${teamId}팀의 클릭 배율을 입력하세요`}
+                    className="w-full p-2 mb-2 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                </>
+              })
+            }
+
+          </div>
+
+
+
           {/* 일대일 게임 선택시, 옵션 */}
           {
             gameType === 'ONE_TO_ONE' ?
-            <div>
-              
-            </div> : <></>
+              <div>
+
+              </div> : <></>
           }
 
 
@@ -169,18 +195,18 @@ const Home = () => {
               <div className='text-center mb-3 text-xl'>개인전 옵션</div>
               <div className='text-lg mb-2'>최대 인원 수</div>
               <select
-              value={freeForAllCount}
-              onChange={(c) => {setFreeForAllCount(Number(c.target.value))}}
-              className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >
-              {
-                freeForAllValue.map((value, index) => {
-                  return <option value={value}>{value}팀</option>
-                })
-              }
-            </select>
+                value={freeForAllCount}
+                onChange={(c) => { setFreeForAllCount(Number(c.target.value)) }}
+                className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                {
+                  freeForAllValue.map((value, index) => {
+                    return <option value={value}>{value}팀</option>
+                  })
+                }
+              </select>
 
-            
+
 
             </div> : <></>
           }
