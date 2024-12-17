@@ -33,8 +33,14 @@ jobs:
         uses: appleboy/ssh-action@v0.1.0
         with:
           host: ${{ secrets.AWS_HOST }}
-          username:  changuii
+          username: ubuntu
           password: ${{ secrets.AWS_PASSWORD }}
           port: ${{ secrets.AWS_PORT }}
           source: "./dist/*"
           target: ${{ secrets.TARGET_DIRECTORY }}
+          script: |
+            # Delete old files in the web server folder
+            sudo rm -rf .clickmeee/web/files/dist
+            sudo mv ./clickmeee/deploy_data/dist ./web/files
+            sudo rm -rf ./clickmeee/deploy_data/dist
+		          
