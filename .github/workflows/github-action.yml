@@ -28,10 +28,11 @@ jobs:
       - name: Build with Vite
         run: npx vite build
         
-      - name: scp to Deploy - server
-      	run: ls
+      # 5. scp build file
+      - name: Scp to Deploy Server
+	      run: ls
 
-      # 5. Deploy the build folder to the remote server
+      # 6. Deploy the build folder to the remote server
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.0
         with:
