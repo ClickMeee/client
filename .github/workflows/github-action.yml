@@ -27,10 +27,18 @@ jobs:
       # 4. Build the project with Vite
       - name: Build with Vite
         run: npx vite build
+        
+      # 5. SCP the build files to the remote server
+      - name: SCP build files to remote server
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: changuii
+          password: ${{ secrets.AWS_PASSWORD }}
+          port: ${{ secrets.AWS_PORT }}
+          source: "./dist/*"
+          target: ${{ secrets.TARGET_DIRECTORY }}
 
-      # 5. scp build file
-      - name: scp to Deploy Server
-        run: ls
 
       # 6. Deploy the build folder to the remote server
       - name: Deploy to server via SSH
@@ -40,11 +48,8 @@ jobs:
           username: changuii
           password: ${{ secrets.AWS_PASSWORD }}
           port: ${{ secrets.AWS_PORT }}
-          source: "./dist/*"
-          target: ${{ secrets.TARGET_DIRECTORY }}
           script: |
             # Delete old files in the web server folder
             sudo rm -rf ./clickmeee/web/files/dist
-            sudo ls ./clickmeee/deploy_data
             sudo mv ./clickmeee/deploy_data/dist ./clickmeee/web/files
             sudo rm -rf ./clickmeee/deploy_data/dist
