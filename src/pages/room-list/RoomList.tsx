@@ -3,11 +3,14 @@ import { useEffect, useState } from 'react';
 import { GameState } from '../../recoil/atoms/gameState';
 import { ReadAllRoom } from '../../api/ReadAllRoom';
 import { CheckExistsRoomByRoomId } from '../../api/CheckExistsRoomByRoomId';
-
+import useMessages from '../../hooks/useMessage.ts';
+import Modal from "../../components/modal/Modal.tsx";
 
 const RoomList = () => {
     const navigate = useNavigate();
     const [gameState, setGameState] = useState<GameState[] | null>(null);
+
+    const { messages, showMessage } = useMessages();
 
     // 'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'
     const GAME_TYPE = {
@@ -30,8 +33,7 @@ const RoomList = () => {
                 return;
             }
         }
-        // todo : modal로 변경해야함
-        alert("잘못된 요청입니다.")
+        showMessage("잘못된 요청입니다.")
     }
 
     const calculateRoomCurrentUserCount = (index: number) => {
@@ -67,7 +69,8 @@ const RoomList = () => {
     }, [gameState]);
 
     return (
-        <>  
+        <>
+            <Modal messages={messages}/>
             <div className="flex flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
                 <div className="bg-gray-700 rounded-xl max-w-100 w-3/5 min-w-80 h-5/6 p-10 shadow-floating">
                     <div className="text-center text-3xl mb-10">📚 방 목록</div>

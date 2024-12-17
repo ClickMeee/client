@@ -86,21 +86,21 @@ export default function GameReady() {
     }
 
     if (!nicknameInput || !nicknameInput.trim()) {
-      alert('닉네임을 입력해주세요.');
+      showMessage('닉네임을 입력해주세요.');
       return;
     }
 
     try {
       const isDuplicateNickname = await CheckNicknameDuplicate(user.roomId, nicknameInput);
       if (isDuplicateNickname) {
-        alert('이미 사용 중인 닉네임입니다.');
+        showMessage('이미 사용 중인 닉네임입니다.');
         return;
       }
 
       setUser((prev) => ({ ...prev, nickname: nicknameInput }));
       setIsConnected(true);
     } catch (error: any) {
-      alert('방 입장에 실패했습니다.');
+      showMessage('방 입장에 실패했습니다.');
       console.error(error.message);
     }
   };
