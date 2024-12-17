@@ -1,0 +1,40 @@
+name: Deploy Vite Project to Nginx Server
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the code from GitHub
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+       # 2. Set up Node.js 22
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22' 
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Build the project with Vite
+      - name: Build with Vite
+        run: npx vite build
+
+      # 5. Deploy the build folder to the remote server
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v0.1.0
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ubuntu
+          password: ${{ secrets.AWS_PASSWORD }}
+          port: ${{ secrets.AWS_PORT }}
+          source: "./dist/*"
+          target: ${{ secrets.TARGET_DIRECTORY }}
