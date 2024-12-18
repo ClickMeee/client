@@ -9,44 +9,58 @@ const Game = () => {
   const [moveMessage, setMoveMessage] = useState<boolean>(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [clicked, setClicked] = useState(false);
+  const [isCounted, setIsCounted] = useState(false);
 
-
-  const startMessage = '🚀 게임 시작 🧑‍🚀'
+  const startMessage = '🚀 게임 시작 🧑‍🚀';
   const second = 1000;
   const halfSecond = 500;
   useEffect(() => {
-    setMoveMessage(true)
+    setMoveMessage(true);
     const handleCountdown = () => {
-      setCount(prevCount => {
+      setCount((prevCount) => {
         setMoveMessage(true);
-        if(prevCount == 1){
+        setIsCounted(true);
+        const sound : HTMLAudioElement = document.querySelector('#count-audio') as HTMLAudioElement;
+        if (prevCount == 1) {
           clearInterval(interval);
+          handleGameStartSound();
+          if(sound instanceof HTMLAudioElement){
+            sound.muted = false;
+          }
+          return 0;
         }
+        if(sound instanceof HTMLAudioElement){
+          sound.muted = false;
+        }
+        handleCountdownSound();
         return prevCount - 1;
       });
     };
 
     const handleMove = () => {
       setMoveMessage(false);
-    }
+    };
 
     let interval = setInterval(handleCountdown, second);
     let i = setInterval(handleMove, halfSecond);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearInterval(i);
+    };
   }, []);
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     oneVsOneWebSocket.sendClickEvent();
-    handleButtonClickSound()
-    handleButtonClickAnimation(e)
+    handleButtonClickSound();
+    handleButtonClickAnimation(e);
     setClicked(true);
   };
 
   const handleButtonClickSound = () => {
-    const sound = new Audio('/public/click-water.mp3');
+    const sound = new Audio('/click-water.mp3');
     sound.play();
-  }
+  };
 
   const handleButtonClickAnimation = (e: React.MouseEvent<HTMLButtonElement>) => {
     // 클릭한 위치 추적
@@ -55,15 +69,33 @@ const Game = () => {
 
     setClicked(true);
     setTimeout(() => setClicked(false), 600); // 애니메이션 후 상태 리셋
-  }
+  };
+
+  const handleCountdownSound = () => {
+    const sound = new Audio('/countdown.mp3');
+    sound.play();
+  };
+
+  const handleGameStartSound = () => {
+    const sound = new Audio('/game-start.mp3');
+    sound.play();
+  };
 
   return (
     <>
+      {isCounted ? (
+          <audio id='count-audio' className="hidden" muted autoPlay>
+            <source src="/countdown.mp3" type="audio/mp3" />
+          </audio>
+      ) : (
+        <></>
+      )}
       {count > 0 ? (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-gray-500 bg-opacity-50"></div>
           <div
-            className={`transform relative ease-in-out transition-all ${moveMessage ? "-translate-y-20" : ""} duration-1000 text-9xl text-orange-500`}>
+            className={`transform relative ease-in-out transition-all ${moveMessage ? '-translate-y-20' : ''} duration-1000 text-9xl text-orange-500`}
+          >
             {count > 1 ? count - 1 : startMessage}
           </div>
         </div>
@@ -71,8 +103,7 @@ const Game = () => {
         <></>
       )}
       <div className="flex flex-col gap-8 p-8 h-full">
-        <div
-          className="flex flex-col items-center justify-center w-full h-2/3 p-4 bg-white rounded-xl shadow-xl box-border">
+        <div className="flex flex-col items-center justify-center w-full h-2/3 p-4 bg-white rounded-xl shadow-xl box-border">
           {/* 차트 표시 div */}
           <div className="flex gap-4 w-full h-full">
             <div className="flex-[3] h-full">
@@ -95,7 +126,6 @@ const Game = () => {
             onClick={handleButtonClick}
           >
             Click Mee!
-
             {clicked && (
               <div
                 className="absolute rounded-full bg-blue-700 opacity-50 animate-ping"
@@ -110,8 +140,6 @@ const Game = () => {
           </button>
         </div>
       </div>
-
-
     </>
   );
 };
