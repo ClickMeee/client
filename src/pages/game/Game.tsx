@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 const Game = () => {
   const [count, setCount] = useState<number>(4);
   const [moveMessage, setMoveMessage] = useState<boolean>(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [clicked, setClicked] = useState(false);
 
 
   const startMessage = '🚀 게임 시작 🧑‍🚀'
@@ -34,24 +36,43 @@ const Game = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleButtonClick = () => {
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     oneVsOneWebSocket.sendClickEvent();
+    handleButtonClickSound()
+    handleButtonClickAnimation(e)
+    setClicked(true);
   };
+
+  const handleButtonClickSound = () => {
+    const sound = new Audio('/public/click-water.mp3');
+    sound.play();
+  }
+
+  const handleButtonClickAnimation = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // 클릭한 위치 추적
+    const { clientX, clientY } = e;
+    setPosition({ x: clientX, y: clientY });
+
+    setClicked(true);
+    setTimeout(() => setClicked(false), 600); // 애니메이션 후 상태 리셋
+  }
 
   return (
     <>
       {count > 0 ? (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-gray-500 bg-opacity-50"></div>
-            <div className={`transform relative ease-in-out transition-all ${moveMessage ? "-translate-y-20" : ""} duration-1000 text-9xl text-orange-500`}>
-              {count > 1 ? count - 1 : startMessage}
-            </div>
+          <div
+            className={`transform relative ease-in-out transition-all ${moveMessage ? "-translate-y-20" : ""} duration-1000 text-9xl text-orange-500`}>
+            {count > 1 ? count - 1 : startMessage}
+          </div>
         </div>
       ) : (
         <></>
       )}
       <div className="flex flex-col gap-8 p-8 h-full">
-        <div className="flex flex-col items-center justify-center w-full h-2/3 p-4 bg-white rounded-xl shadow-xl box-border">
+        <div
+          className="flex flex-col items-center justify-center w-full h-2/3 p-4 bg-white rounded-xl shadow-xl box-border">
           {/* 차트 표시 div */}
           <div className="flex gap-4 w-full h-full">
             <div className="flex-[3] h-full">
@@ -68,15 +89,29 @@ const Game = () => {
           </div>
         </div>
         {/* 클릭 버튼 */}
-        <div className="flex-1 flex w-full h-full box-border shadow-xl">
+        <div className="flex-1 select-none flex w-full h-full box-border shadow-xl">
           <button
-            className="w-full h-full bg-orange-400 text-xl font-bold rounded-lg hover:bg-orange-500 box-border"
+            className={`w-full h-full  text-xl font-bold bg-orange-400 border-2 border-opacity-0 rounded-lg hover:bg-orange-500 box-border ${clicked ? 'shadow-inner border-opacity-100 border-green-500' : ''}`}
             onClick={handleButtonClick}
           >
             Click Mee!
+
+            {clicked && (
+              <div
+                className="absolute rounded-full bg-blue-700 opacity-50 animate-ping"
+                style={{
+                  left: `${position.x - 30}px`,
+                  top: `${position.y - 30}px`,
+                  width: '60px',
+                  height: '60px',
+                }}
+              ></div>
+            )}
           </button>
         </div>
       </div>
+
+
     </>
   );
 };
