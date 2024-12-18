@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { ReadCurrentUserCount } from '../../api/ReadCurrentUserCount.ts';
-import { useResetRecoilState } from "recoil";
-import { gameState } from "../../recoil/atoms/gameState.ts";
-import { userState } from "../../recoil/atoms/userState.ts";
-import { gameReadyState } from "../../recoil/atoms/gameReadyState.ts";
-import { oneVsOneWebSocket } from "../../services/OneVsOneWebSocket.ts";
+import { useResetRecoilState } from 'recoil';
+import { gameState } from '../../recoil/atoms/gameState.ts';
+import { userState } from '../../recoil/atoms/userState.ts';
+import { gameReadyState } from '../../recoil/atoms/gameReadyState.ts';
+import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket.ts';
 
 const Main = () => {
   // 이스터에그
@@ -30,12 +30,29 @@ const Main = () => {
   const resetGameState = useResetRecoilState(gameState);
   const resetUserState = useResetRecoilState(userState);
   const resetGameReadyState = useResetRecoilState(gameReadyState);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      // 전체 화면을 요청합니다.
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      }
+      setIsFullscreen(true);
+    } else {
+      // 전체 화면 종료
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+      setIsFullscreen(false);
+    }
+  };
 
   const fetchCurrentUserCount = async () => {
     setUserCount(await ReadCurrentUserCount());
   };
 
-  const title : string = '🐹 Welcome 🐭\n Click Meee!!!';
+  const title: string = '🐹 Welcome 🐭\n Click Meee!!!';
 
   useEffect(() => {
     oneVsOneWebSocket.disconnect();
@@ -48,7 +65,7 @@ const Main = () => {
 
     return () => {
       clearInterval(polling);
-    }
+    };
   }, []);
 
   const handleNavigatePage = (path: string) => {
@@ -67,7 +84,9 @@ const Main = () => {
 
       <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
-            <div className="text-center whitespace-pre-wrap md:text-4xl mb-10 text-2xl sm:text-3xl xl:text-5xl">{title}</div>
+          <div className="text-center whitespace-pre-wrap md:text-4xl mb-10 text-2xl sm:text-3xl xl:text-5xl">
+            {title}
+          </div>
           <button
             onClick={() => handleNavigatePage('/room-list')}
             className="basic-button text-xl text-center mb-5"
@@ -85,6 +104,12 @@ const Main = () => {
             className="basic-button text-xl text-center mb-5"
           >
             🚪 방 코드 입장
+          </button>
+          <button
+            onClick={toggleFullscreen}
+            className="basic-button text-xl text-center mb-5"
+          >
+            {isFullscreen ? '🌕 전체화면 종료' : '☀️ 전체화면'}
           </button>
         </div>
       </div>
