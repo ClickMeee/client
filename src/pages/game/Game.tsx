@@ -9,7 +9,7 @@ const Game = () => {
   const [moveMessage, setMoveMessage] = useState<boolean>(false);
 
 
-  const startMessage = '게임 시작'
+  const startMessage = '🚀 게임 시작 🧑‍🚀'
   const second = 1000;
   const halfSecond = 500;
   useEffect(() => {
@@ -43,7 +43,9 @@ const Game = () => {
       {count > 0 ? (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-gray-500 bg-opacity-50"></div>
-          <div className={`transform text-9xl text-red-500 relative ease-in-out transition-all ${moveMessage ? '-translate-y-20' : ''} duration-1000`}>{count > 1 ? count-1 : startMessage}</div>
+            <div className={`transform relative ease-in-out transition-all ${moveMessage ? "-translate-y-20" : ""} duration-1000 text-9xl text-orange-500`}>
+              {count > 1 ? count - 1 : startMessage}
+            </div>
         </div>
       ) : (
         <></>
