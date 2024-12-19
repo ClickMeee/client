@@ -72,17 +72,17 @@ const Game = () => {
       )}
       <div className="flex flex-col gap-8 p-8 h-full">
         <div
-          className="flex flex-col items-center justify-center w-full h-2/3 p-4 bg-white rounded-xl shadow-xl box-border">
+          className="flex flex-col items-center justify-center w-full h-1/2 md:h-full p-4 bg-white rounded-xl shadow-xl box-border">
           {/* 차트 표시 div */}
           <div className="flex gap-4 w-full h-full">
-            <div className="flex-[3] h-full">
+            <div className="flex-[3] h-full hidden md:block">
               <TeamChart />
             </div>
             <div className="flex flex-col flex-[2] gap-4">
-              <div className="flex-1 h-1/2">
+              <div className="flex-1 h-1/4 hidden md:block md:h-1/2">
                 <IndividualChart />
               </div>
-              <div className="flex-1 h-1/2 p-4">
+              <div className="flex-1 h-3/4 p-4 md:h-1/2">
                 <TeamRank />
               </div>
             </div>
@@ -110,8 +110,6 @@ const Game = () => {
           </button>
         </div>
       </div>
-
-
     </>
   );
 };
