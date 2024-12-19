@@ -105,12 +105,11 @@ const Main = () => {
           >
             🚪 방 코드 입장
           </button>
-          <button
-            onClick={toggleFullscreen}
-            className="basic-button text-xl text-center mb-5"
-          >
-            {isFullscreen ? '🌕 전체화면 종료' : '☀️ 전체화면'}
-          </button>
+          { !/Mobi/i.test(window.navigator.userAgent) ?
+            <button onClick={toggleFullscreen} className="basic-button text-xl text-center mb-5">
+              {isFullscreen ? '🌕 전체화면 종료' : '☀️ 전체화면'}
+            </button> : <></>
+          }
         </div>
       </div>
     </>
