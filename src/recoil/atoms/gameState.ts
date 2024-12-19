@@ -23,7 +23,6 @@ export type GameState = {
   roomChief : string
 }
 
-// TODO: 모든 게임 상태가 이런 구조면 oneVsOneGameState 이름 변경할 것
 export const gameState = atom<GameState | null>({
   key : 'gameState',
   default: null,

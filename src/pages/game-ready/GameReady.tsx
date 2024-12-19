@@ -5,12 +5,13 @@ import { CheckNicknameDuplicate } from '../../api/CheckEnterableRoom.ts';
 import { GameReadyState, gameReadyState } from '../../recoil/atoms/gameReadyState';
 import { GameState, gameState } from '../../recoil/atoms/gameState.ts';
 import { UserState, userState } from '../../recoil/atoms/userState.ts';
-import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
 import useMessages from '../../hooks/useMessage.ts';
 import Modal from '../../components/modal/Modal.tsx';
 import ClipboardJS from 'clipboard';
+import WebSocketManager from "../../services/WebSocketManager.ts";
 
 export default function GameReady() {
+  const webSocketManager = WebSocketManager.getInstance();
   const { roomId: urlRoomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
 
@@ -50,12 +51,12 @@ export default function GameReady() {
 
     const playerRoomEnter = async () => {
       try {
-        oneVsOneWebSocket.setRoomData(user.roomId!, user.nickname!);
-        await oneVsOneWebSocket.connect();
-        oneVsOneWebSocket.setGameStateUpdater(setGame, setGameReady);
-        oneVsOneWebSocket.setNavigate(navigate);
-        oneVsOneWebSocket.setShowMessage(showMessage);
-        oneVsOneWebSocket.setShowRoomChiefLeaveMessage(setRoomChiefModal);
+        webSocketManager.setRoomData(user.roomId!, user.nickname!);
+        await webSocketManager.connect();
+        webSocketManager.setGameStateUpdater(setGame, setGameReady);
+        webSocketManager.setNavigate(navigate);
+        webSocketManager.setShowMessage(showMessage);
+        webSocketManager.setShowRoomChiefLeaveMessage(setRoomChiefModal);
         setIsConnected(true);
       } catch (err) {
         console.error('Failed to enter room:', err);
@@ -126,7 +127,7 @@ export default function GameReady() {
 
   const handleGameStart = () => {
     console.log('게임 시작 요청을 보냅니다.');
-    oneVsOneWebSocket.startGameRequest();
+    webSocketManager.startGameRequest();
   };
 
   return (
