@@ -72,7 +72,7 @@ const Game = () => {
       )}
       <div className="flex flex-col gap-8 p-8 h-full">
         <div
-          className="flex flex-col items-center justify-center w-full h-1/2 md:h-1/2 p-4 bg-white rounded-xl shadow-xl box-border">
+          className="flex flex-col items-center justify-center w-full h-1/2 md:h-2/3 p-4 bg-white rounded-xl shadow-xl box-border">
           {/* 차트 표시 div */}
           <div className="flex gap-4 w-full h-full">
             <div className="flex-[3] h-full hidden md:block">
@@ -91,7 +91,7 @@ const Game = () => {
         {/* 클릭 버튼 */}
         <div className="flex-1 select-none flex w-full h-full box-border shadow-xl">
           <button
-            className={`w-full h-full  text-xl font-bold bg-orange-400 border-2 border-opacity-0 rounded-lg hover:bg-orange-500 box-border ${clicked ? 'shadow-inner border-opacity-100 border-green-500' : ''}`}
+            className={`w-full h-full  text-xl font-bold bg-orange-400 border-2 border-orange-400 rounded-lg hover:bg-orange-500 box-border ${clicked ? 'shadow-inner border-opacity-100 border-green-500' : ''}`}
             onClick={handleButtonClick}
           >
             Click Mee!
