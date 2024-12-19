@@ -44,7 +44,7 @@ const Game = () => {
   };
 
   const handleButtonClickSound = () => {
-    const sound = new Audio('/public/click-water.mp3');
+    const sound = new Audio('/click-water.mp3');
     sound.play();
   }
 
