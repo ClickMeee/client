@@ -4,7 +4,6 @@ import { userState } from "../../recoil/atoms/userState";
 import { RoomDataProps } from "../../types/RoomData.type.ts";
 import { RoomClientProps } from "../../types/RoomClient.type.ts";
 
-
 export default function TeamRank() {
   const game = useRecoilValue<RoomDataProps | null>(gameState); // 게임 상태
   const user = useRecoilValue<RoomClientProps>(userState); // 사용자 상태
@@ -20,10 +19,10 @@ export default function TeamRank() {
       totalClicks: team.users.reduce((sum, user) => sum + user.clickCount, 0),
       isUserTeam: team.teamName === userTeamName,
     }))
-    .sort((a, b) => b.totalClicks - a.totalClicks);
+    .sort((a, b) => b.totalClicks - a.totalClicks).slice(0, 3);
 
   return (
-    <div className="w-full h-full rounded-lg p-4 border-2 border-orange-500">
+    <div className="w-full h-full rounded-lg p-4 border-2 border-orange-300">
       <h2 className="text-xl font-semibold text-orange-500 mb-4 text-center">
         🏆 Team Rankings
       </h2>
@@ -32,11 +31,11 @@ export default function TeamRank() {
         {rankedTeams?.map((team, index) => (
           <li
             key={index}
-            className={`flex justify-between items-center px-4 py-2 rounded-lg shadow-md
+            className={`flex justify-between items-center px-4 py-2 rounded-lg
               ${
               team.isUserTeam
-                ? "bg-orange-500 text-black font-bold"
-                : "bg-gray-900 text-gray-300"
+                ? " text-black font-bold border-2 border-orange-500 shadow-lg bg-orange-500"
+                : " text-gray-600 border-2 border-gray-300 shadow-sm"
             }`}
           >
             <span className="text-lg">{index + 1}. {team.teamName}</span>
