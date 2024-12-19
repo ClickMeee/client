@@ -1,29 +1,7 @@
 import {atom} from 'recoil';
+import { RoomDataProps } from "../../types/RoomData.type.ts";
 
-type User = {
-  nickname: string;
-  clickCount: number;
-}
-
-type Team ={
-  teamName: string;
-  maxUserCount: number;
-  clickCountScale : number;
-  users : User[];
-  teamScore : number;
-}
-
-export type GameState = {
-  roomId : string
-  gameType : "ONE_TO_ONE";
-  gameTime: number;
-  currentTime: number;
-  startFlag: boolean;
-  teams: Team[];
-  roomChief : string
-}
-
-export const gameState = atom<GameState | null>({
+export const gameState = atom<RoomDataProps | null>({
   key : 'gameState',
   default: null,
 });
