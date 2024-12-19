@@ -5,7 +5,7 @@ import { useResetRecoilState } from 'recoil';
 import { gameState } from '../../recoil/atoms/gameState.ts';
 import { userState } from '../../recoil/atoms/userState.ts';
 import { gameReadyState } from '../../recoil/atoms/gameReadyState.ts';
-import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket.ts';
+import WebSocketManager from "../../services/WebSocketManager.ts";
 
 const Main = () => {
   // 이스터에그
@@ -31,6 +31,7 @@ const Main = () => {
   const resetUserState = useResetRecoilState(userState);
   const resetGameReadyState = useResetRecoilState(gameReadyState);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const webSocketManager = WebSocketManager.getInstance();
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -55,7 +56,7 @@ const Main = () => {
   const title: string = '🐹 Welcome 🐭\n Click Meee!!!';
 
   useEffect(() => {
-    oneVsOneWebSocket.disconnect();
+    webSocketManager.disconnect();
     resetGameState();
     resetUserState();
     resetGameReadyState();

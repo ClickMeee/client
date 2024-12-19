@@ -1,15 +1,23 @@
 import { Client, IFrame, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { NavigateFunction } from "react-router-dom";
 
-export abstract class WebSocketManager {
+class WebSocketManager {
   private static instance: WebSocketManager | null = null;
   private client: Client | null = null;
+  private roomId: string = '';
+  private nickname: string = '';
+  private updateGameState: ((state: any) => void) | null = null;
+  private updateGameReadyState: ((state: any) => void) | null = null;
+  private navigate: NavigateFunction | null = null;
+  private showMessage: ((state: any) => void) | null = null;
+  private showRoomChiefLeaveMessage: ((state: any) => void) | null = null;
 
-  public static getInstance<T extends WebSocketManager>(type: new () => T): T {
+  public static getInstance(): WebSocketManager {
     if (!WebSocketManager.instance) {
-      WebSocketManager.instance = new type();
+      WebSocketManager.instance = new WebSocketManager();
     }
-    return WebSocketManager.instance as T;
+    return WebSocketManager.instance;
   }
 
   // 웹 소켓 연결
@@ -25,8 +33,15 @@ export abstract class WebSocketManager {
         debug: (str: string) => console.log(`[STOMP Debug] ${str}`),
         reconnectDelay: 5000,
         onConnect: (frame: IFrame) => {
-          console.log('WebSocket connected successfully.');
-          this.onConnect(frame); // 추상화된 onConnect 호출
+          console.log('WebSocket connected:', frame);
+
+          // 방 정보 구독
+          this.subscribe(`/topic/room/${this.roomId}`, (message) => {
+            this.processData(message);
+          });
+
+          // 방 입장 요청
+          this.roomEnterRequest();
           resolve(); // 연결 성공 시 프라미스 해결
         },
         onStompError: (error: any) => {
@@ -43,9 +58,100 @@ export abstract class WebSocketManager {
     });
   }
 
-  abstract onConnect(frame: IFrame): void;
-  abstract onStompError(frame: IFrame): void;
-  abstract onDisconnect(): void;
+  // stomp 메세지 데이터 처리 함수
+  processData(message: any): void {
+    switch (message.type) {
+      case 'ROOM':
+        if (this.updateGameState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameState(message.data);
+        }
+        break;
+      case 'GAME_READY':
+        if (this.updateGameReadyState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameReadyState(message.data);
+
+          // 플레이어 준비 요청
+          this.playerReadyRequest();
+        }
+        break;
+      case 'GAME_START':
+        if (this.updateGameReadyState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameReadyState(message.data);
+
+          // game 사이트로 이동
+          if (this.navigate) {
+            this.navigate(`/game/${this.roomId}`);
+          }
+        }
+        break;
+      case 'GAME_PROGRESS':
+        if (this.updateGameState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameState(message.data);
+        }
+        break;
+
+      case 'ROOM_LEAVE':
+        if (this.updateGameState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameState(message.data.data);
+        }
+        if (this.showMessage) {
+          this.showMessage(`${message.data.target}님이 나갔습니다.`);
+        }
+        break;
+
+      case 'ROOM_ENTER':
+        if (this.showMessage) {
+          this.showMessage(`${message.data.target}님이 입장하였습니다.`);
+        }
+        break;
+
+      case 'GAME_END':
+        if (this.updateGameState) {
+          console.log(`${message.type} 처리`);
+          this.updateGameState(message.data);
+        }
+        break;
+
+      case 'ROOM_CHIEF_LEAVE':
+        if (this.showRoomChiefLeaveMessage) {
+          this.showRoomChiefLeaveMessage(true);
+        }
+        break;
+
+      default:
+        console.log(`다른 type${message.type} ${message.data.message}`);
+    }
+  }
+
+  setNavigate(navigateFunc: NavigateFunction): void {
+    this.navigate = navigateFunc;
+  }
+
+  setShowMessage(showMessage: (state: any) => void): void {
+    this.showMessage = showMessage;
+  }
+
+  setGameStateUpdater(
+    gameUpdater: (state: any) => void,
+    gameReadyUpdater: (state: any) => void
+  ): void {
+    this.updateGameState = gameUpdater;
+    this.updateGameReadyState = gameReadyUpdater;
+  }
+
+  setRoomData(roomId: string, nickname: string): void {
+    this.roomId = roomId;
+    this.nickname = nickname;
+  }
+
+  setShowRoomChiefLeaveMessage(showRoomChiefLeaveMessage: (state: any) => void): void {
+    this.showRoomChiefLeaveMessage = showRoomChiefLeaveMessage;
+  }
 
   // 메시지 전송 메소드
   sendMessage(destination: string, body: Object = ''): void {
@@ -85,7 +191,45 @@ export abstract class WebSocketManager {
     return this.client;
   }
 
+    roomEnterRequest() {
+      if (this.roomId && this.nickname) {
+        const requestBody = {
+          roomId: this.roomId,
+          nickname: this.nickname,
+        };
 
+        this.sendMessage('/app/room/enter', requestBody);
+      } else {
+        console.error('Room ID or Nickname is not set');
+      }
+    }
+
+    // 방장 게임 시작 요청
+    startGameRequest() {
+      if (this.roomId) {
+        this.sendMessage(`/app/start/${this.roomId}`);
+      } else {
+        console.error('Room ID is not set');
+      }
+    }
+
+    // 플레이어 준비 요청
+    playerReadyRequest() {
+      if (this.roomId) {
+        this.sendMessage(`/app/start/${this.roomId}/${this.nickname}`);
+      } else {
+        console.error('Room ID is not set');
+      }
+    }
+
+    // 클릭 이벤트 전송
+    sendClickEvent() {
+      if (this.roomId) {
+        this.sendMessage(`/app/click/${this.roomId}/${this.nickname}`);
+      } else {
+        console.error('Room ID is not set');
+      }
+    }
 
   // 웹 소켓 연결 종료
   disconnect(): void {
@@ -101,3 +245,5 @@ export abstract class WebSocketManager {
     }
   }
 }
+
+export default WebSocketManager;

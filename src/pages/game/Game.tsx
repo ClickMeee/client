@@ -1,15 +1,15 @@
-import { oneVsOneWebSocket } from '../../services/OneVsOneWebSocket';
 import TeamChart from '../../components/chart/TeamChart';
 import IndividualChart from '../../components/chart/IndividualChart';
 import TeamRank from '../../components/teamRank/TeamRank';
 import { useEffect, useState } from 'react';
+import WebSocketManager from "../../services/WebSocketManager.ts";
 
 const Game = () => {
   const [count, setCount] = useState<number>(4);
   const [moveMessage, setMoveMessage] = useState<boolean>(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [clicked, setClicked] = useState(false);
-
+  const webSocketManager = WebSocketManager.getInstance();
 
   const startMessage = '🚀 게임 시작 🧑‍🚀'
   const second = 1000;
@@ -37,7 +37,7 @@ const Game = () => {
   }, []);
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    oneVsOneWebSocket.sendClickEvent();
+    webSocketManager.sendClickEvent();
     handleButtonClickSound()
     handleButtonClickAnimation(e)
     setClicked(true);
