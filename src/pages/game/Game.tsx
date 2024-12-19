@@ -72,7 +72,7 @@ const Game = () => {
       )}
       <div className="flex flex-col gap-8 p-8 h-full">
         <div
-          className="flex flex-col items-center justify-center w-full h-1/2 md:h-full p-4 bg-white rounded-xl shadow-xl box-border">
+          className="flex flex-col items-center justify-center w-full h-1/2 md:h-1/2 p-4 bg-white rounded-xl shadow-xl box-border">
           {/* 차트 표시 div */}
           <div className="flex gap-4 w-full h-full">
             <div className="flex-[3] h-full hidden md:block">

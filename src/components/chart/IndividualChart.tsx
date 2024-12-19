@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
-import { gameState, GameState } from "../../recoil/atoms/gameState";
-import { UserState, userState } from "../../recoil/atoms/userState";
+import { gameState } from "../../recoil/atoms/gameState";
+import { userState } from "../../recoil/atoms/userState";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+import { RoomDataProps } from "../../types/RoomData.type.ts";
+import { RoomClientProps } from "../../types/RoomClient.type.ts";
 
 // Chart.js 모듈 등록
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const IndividualChart: React.FC = () => {
-  const game = useRecoilValue<GameState | null>(gameState);
-  const user = useRecoilValue<UserState>(userState);
+  const game = useRecoilValue<RoomDataProps | null>(gameState);
+  const user = useRecoilValue<RoomClientProps>(userState);
   const [userScores, setUserScores] = useState<number[]>([]);
   const [timeLabels, setTimeLabels] = useState<string[]>([]);
 

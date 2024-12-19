@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { CheckExistsRoomByRoomId } from '../../api/CheckExistsRoomByRoomId';
 import useMessages from '../../hooks/useMessage.ts';
-import Modal from "../../components/modal/Modal.tsx";
+import MessageModal from "../../components/modal/MessageModal.tsx";
 
 const EnterRoomByCode = () => {
 
@@ -25,7 +25,7 @@ const EnterRoomByCode = () => {
 
     return (
         <>
-            <Modal messages={messages} />
+            <MessageModal messages={messages} />
             <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
                 <div className="bg-gray-700 rounded-xl max-w-100 w-1.5/5 min-w-80 h-5/6 p-10 shadow-floating">
                     <div className="text-center text-2xl mb-10">🐹 코드를 아래 입력해주세요 🐭</div>

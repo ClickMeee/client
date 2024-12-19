@@ -1,10 +1,13 @@
 import { useRecoilValue } from "recoil";
-import { gameState, GameState } from "../../recoil/atoms/gameState";
-import { UserState, userState } from "../../recoil/atoms/userState";
+import { gameState} from "../../recoil/atoms/gameState";
+import { userState } from "../../recoil/atoms/userState";
+import { RoomDataProps } from "../../types/RoomData.type.ts";
+import { RoomClientProps } from "../../types/RoomClient.type.ts";
+
 
 export default function TeamRank() {
-  const game = useRecoilValue<GameState | null>(gameState); // 게임 상태
-  const user = useRecoilValue<UserState>(userState); // 사용자 상태
+  const game = useRecoilValue<RoomDataProps | null>(gameState); // 게임 상태
+  const user = useRecoilValue<RoomClientProps>(userState); // 사용자 상태
 
   const userTeamName = game?.teams.find((team) =>
     team.users.some((teamUser) => teamUser.nickname === user.nickname)

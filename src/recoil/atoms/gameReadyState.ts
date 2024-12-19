@@ -1,12 +1,7 @@
 import { atom } from 'recoil';
+import { GameStateDataProps } from "../../types/GameStateData.type.ts";
 
-export type GameReadyState = {
-  startFlag: string | null;
-  readyUser: number | null;
-  allUser: number | null;
-};
-
-export const gameReadyState = atom<GameReadyState>({
+export const gameReadyState = atom<GameStateDataProps>({
   key: 'gameReadyState',
   default: {
     startFlag: null,

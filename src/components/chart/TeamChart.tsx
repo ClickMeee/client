@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
-import { gameState, GameState } from "../../recoil/atoms/gameState";
+import { gameState} from "../../recoil/atoms/gameState";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+import { RoomDataProps } from "../../types/RoomData.type.ts";
 
 // Chart.js 모듈 등록
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const TeamChart: React.FC = () => {
-  const game = useRecoilValue<GameState | null>(gameState);
+  const game = useRecoilValue<RoomDataProps | null>(gameState);
   const [team1Scores, setTeam1Scores] = useState<number[]>([]);
   const [team2Scores, setTeam2Scores] = useState<number[]>([]);
   const [timeLabels, setTimeLabels] = useState<string[]>([]); // X축 레이블 상태

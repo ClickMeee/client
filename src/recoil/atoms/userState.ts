@@ -1,11 +1,7 @@
 import { atom } from 'recoil';
+import { RoomClientProps } from "../../types/RoomClient.type.ts";
 
-export type UserState = {
-  nickname: string | null;
-  roomId: string | null | undefined;
-};
-
-export const userState = atom<UserState>({
+export const userState = atom<RoomClientProps>({
   key: 'userState',
   default: {
     nickname: null,

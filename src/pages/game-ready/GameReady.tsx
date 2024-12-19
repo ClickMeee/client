@@ -2,22 +2,25 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilState } from 'recoil';
 import { CheckNicknameDuplicate } from '../../api/CheckEnterableRoom.ts';
-import { GameReadyState, gameReadyState } from '../../recoil/atoms/gameReadyState';
-import { GameState, gameState } from '../../recoil/atoms/gameState.ts';
-import { UserState, userState } from '../../recoil/atoms/userState.ts';
+import { gameReadyState } from '../../recoil/atoms/gameReadyState';
+import { gameState } from '../../recoil/atoms/gameState.ts';
+import { userState } from '../../recoil/atoms/userState.ts';
 import useMessages from '../../hooks/useMessage.ts';
-import Modal from '../../components/modal/Modal.tsx';
+import MessageModal from '../../components/modal/MessageModal.tsx';
 import ClipboardJS from 'clipboard';
 import WebSocketManager from "../../services/WebSocketManager.ts";
+import { RoomDataProps } from "../../types/RoomData.type.ts";
+import { RoomClientProps } from "../../types/RoomClient.type.ts";
+import { GameStateDataProps } from "../../types/GameStateData.type.ts";
 
 export default function GameReady() {
   const webSocketManager = WebSocketManager.getInstance();
   const { roomId: urlRoomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
 
-  const [user, setUser] = useRecoilState<UserState>(userState);
-  const [game, setGame] = useRecoilState<GameState | null>(gameState);
-  const [gameReady, setGameReady] = useRecoilState<GameReadyState>(gameReadyState); 
+  const [user, setUser] = useRecoilState<RoomClientProps>(userState);
+  const [game, setGame] = useRecoilState<RoomDataProps | null>(gameState);
+  const [gameReady, setGameReady] = useRecoilState<GameStateDataProps>(gameReadyState);
 
   const [nicknameInput, setNicknameInput] = useState<string>(''); // 닉네임 입력 상태
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
@@ -132,7 +135,7 @@ export default function GameReady() {
 
   return (
     <>
-      <Modal messages={messages} />
+      <MessageModal messages={messages} />
       {roomChiefModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">

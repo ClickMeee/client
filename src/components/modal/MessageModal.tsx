@@ -5,7 +5,7 @@ interface ModalProps {
   messages: Message[];
 }
 
-const Modal: React.FC<ModalProps> = ({ messages }) => {
+const MessageModal: React.FC<ModalProps> = ({ messages }) => {
   return (
     <div className="fixed top-4 right-4 z-50 flex flex-col items-end space-y-3">
       {messages.map((message) => (
@@ -23,4 +23,4 @@ const Modal: React.FC<ModalProps> = ({ messages }) => {
   );
 };
 
-export default Modal;
+export default MessageModal;
