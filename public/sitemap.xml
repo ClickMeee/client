@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    <!-- 홈 페이지 -->
+    <url>
+        <loc>http://클릭해줘.메인.한국/</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- 게임 설정 페이지 -->
+    <url>
+        <loc>http://클릭해줘.메인.한국/game-setting</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- 게임 준비 페이지 -->
+    <url>
+        <loc>http://클릭해줘.메인.한국/game-ready/123</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- 게임 페이지 -->
+    <url>
+        <loc>http://클릭해줘.메인.한국/game/123</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- 방 코드로 입장하기 페이지 -->
+    <url>
+        <loc>http://클릭해줘.메인.한국/enter</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- 방 목록 페이지 -->
+    <url>
+        <loc>http://클릭해줘.메인.한국/room-list</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+</urlset>
