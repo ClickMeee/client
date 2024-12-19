@@ -70,7 +70,7 @@ const TeamChart: React.FC = () => {
         beginAtZero: true,
         title: {
           display: true,
-          text: "Click Count",
+          text: "Team Click Score",
         },
       },
     },
