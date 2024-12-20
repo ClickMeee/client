@@ -40,7 +40,7 @@ const IndividualChart: React.FC = () => {
     labels: timeLabels,
     datasets: [
       {
-        label: `${nickname}'s Clicks`,
+        label: `My Click Count`,
         data: userScores,
         borderColor: "rgba(54, 162, 235, 1)",
         backgroundColor: "rgba(54, 162, 235, 0.2)",
@@ -59,7 +59,7 @@ const IndividualChart: React.FC = () => {
       },
       title: {
         display: true,
-        text: `Real-Time Performance of ${nickname}`,
+        text: 'My Click Chart',
       },
     },
     scales: {
