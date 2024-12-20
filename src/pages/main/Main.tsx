@@ -83,7 +83,8 @@ const Main = () => {
         </div>
       </span>
 
-      <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
+      <div
+        className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
           <div className="text-center whitespace-pre-wrap md:text-4xl mb-10 text-2xl sm:text-3xl xl:text-5xl">
             {title}
@@ -106,11 +107,17 @@ const Main = () => {
           >
             🚪 방 코드 입장
           </button>
-          { !/Mobi/i.test(window.navigator.userAgent) ?
+          {!/Mobi/i.test(window.navigator.userAgent) ?
             <button onClick={toggleFullscreen} className="basic-button text-xl text-center mb-5">
               {isFullscreen ? '🌕 전체화면 종료' : '☀️ 전체화면'}
             </button> : <></>
           }
+          <button
+            onClick={() => handleNavigatePage('/help')}
+            className="basic-button text-xl text-center mb-5"
+          >
+            🆘 도움말
+          </button>
         </div>
       </div>
     </>
