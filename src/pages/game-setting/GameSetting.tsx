@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useRecoilState, useResetRecoilState } from "recoil";
-import { createRoom } from "../../api/CreateRoom";
-import MessageModal from "../../components/modal/MessageModal.tsx";
-import { userState } from "../../recoil/atoms/userState";
-import useMessages from "../../hooks/useMessage";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useRecoilState, useResetRecoilState } from 'recoil';
+import { createRoom } from '../../api/CreateRoom';
+import MessageModal from '../../components/modal/MessageModal.tsx';
+import useMessages from '../../hooks/useMessage';
+import { userState } from '../../recoil/atoms/userState';
 
 const GameSetting = () => {
   const resetUserState = useResetRecoilState(userState);
   const navigate = useNavigate();
-  const [inputNickname, setInputNickname] = useState<string>("");
+  const [inputNickname, setInputNickname] = useState<string>('');
   const [gameTime, setGameTime] = useState<number>(10);
   const [gameType, setGameType] = useState<
-    "ONE_TO_ONE" | "ONE_TO_MANY" | "TEAM_VS_TEAM" | "FREE_FOR_ALL"
-  >("ONE_TO_ONE");
+    'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'
+  >('ONE_TO_ONE');
 
   const { messages, showMessage } = useMessages();
 
@@ -21,7 +21,7 @@ const GameSetting = () => {
 
   useEffect(() => {
     resetUserState();
-    console.log("Recoil userState 초기화 완료");
+    console.log('Recoil userState 초기화 완료');
   }, []);
 
   useEffect(() => {
@@ -35,19 +35,19 @@ const GameSetting = () => {
   // 방 생성 함수
   const handleCreateRoom = async () => {
     if (!inputNickname || !inputNickname.trim()) {
-      showMessage("닉네임을 작성해 주세요");
+      showMessage('닉네임을 작성해 주세요');
       return;
     }
 
     try {
       const createdRoomId = await createRoom(gameType, inputNickname, gameTime);
-      console.log("Room created with ID:", createdRoomId);
+      console.log('Room created with ID:', createdRoomId);
 
       // Recoil(userState) 상태에 roomId 업데이트
       setUser((prev) => ({ ...prev, nickname: inputNickname, roomId: createdRoomId }));
     } catch (error: any) {
-      console.error("Error creating room:", error.message);
-      showMessage("방 생성에 실패했습니다.");
+      console.error('Error creating room:', error.message);
+      showMessage('방 생성에 실패했습니다.');
     }
   };
 
@@ -76,7 +76,7 @@ const GameSetting = () => {
           {/* 게임 유형 선택 */}
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-3">게임 유형</h3>
-            {["ONE_TO_ONE", "ONE_TO_MANY", "TEAM_VS_TEAM", "FREE_FOR_ALL"].map((type) => (
+            {['ONE_TO_ONE', 'ONE_TO_MANY', 'TEAM_VS_TEAM', 'FREE_FOR_ALL'].map((type) => (
               <div key={type} className="flex items-center mb-3">
                 <input
                   type="radio"
@@ -84,19 +84,16 @@ const GameSetting = () => {
                   value={type}
                   checked={gameType === type}
                   onChange={() => setGameType(type as any)}
-                  className="mr-2 hover:-translate-y-0.5 hover:-translate-x-0.5"
+                  className="mr-2 "
                 />
-                <label
-                  htmlFor={type}
-                  className="text-lg hover:-translate-y-0.5 hover:-translate-x-0.5 hover:text-orange-500"
-                >
-                  {type === "ONE_TO_ONE"
-                    ? "1대1"
-                    : type === "ONE_TO_MANY"
-                      ? "일대다"
-                      : type === "TEAM_VS_TEAM"
-                        ? "팀 대 팀"
-                        : "개인전"}
+                <label htmlFor={type} className="text-lg  hover:text-orange-500">
+                  {type === 'ONE_TO_ONE'
+                    ? '1대1'
+                    : type === 'ONE_TO_MANY'
+                      ? '일대다'
+                      : type === 'TEAM_VS_TEAM'
+                        ? '팀 대 팀'
+                        : '개인전'}
                 </label>
               </div>
             ))}
@@ -117,10 +114,7 @@ const GameSetting = () => {
           </div>
 
           {/* 방 생성 버튼 */}
-          <button
-            onClick={handleCreateRoom}
-            className="basic-button"
-          >
+          <button onClick={handleCreateRoom} className="basic-button">
             방 생성
           </button>
         </div>

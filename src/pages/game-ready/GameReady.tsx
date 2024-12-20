@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import ClipboardJS from 'clipboard';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { CheckNicknameDuplicate } from '../../api/CheckEnterableRoom.ts';
+import MessageModal from '../../components/modal/MessageModal.tsx';
+import useMessages from '../../hooks/useMessage.ts';
 import { gameReadyState } from '../../recoil/atoms/gameReadyState';
 import { gameState } from '../../recoil/atoms/gameState.ts';
 import { userState } from '../../recoil/atoms/userState.ts';
-import useMessages from '../../hooks/useMessage.ts';
-import MessageModal from '../../components/modal/MessageModal.tsx';
-import ClipboardJS from 'clipboard';
-import WebSocketManager from "../../services/WebSocketManager.ts";
-import { RoomDataProps } from "../../types/RoomData.type.ts";
-import { RoomClientProps } from "../../types/RoomClient.type.ts";
-import { GameStateDataProps } from "../../types/GameStateData.type.ts";
+import WebSocketManager from '../../services/WebSocketManager.ts';
+import { GameStateDataProps } from '../../types/GameStateData.type.ts';
+import { RoomClientProps } from '../../types/RoomClient.type.ts';
+import { RoomDataProps } from '../../types/RoomData.type.ts';
 
 export default function GameReady() {
   const webSocketManager = WebSocketManager.getInstance();
@@ -25,8 +25,8 @@ export default function GameReady() {
   const [nicknameInput, setNicknameInput] = useState<string>(''); // 닉네임 입력 상태
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
   const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
-  const [countdown, setCountdown] = useState<number | null>(null);
   const [roomChiefModal, setRoomChiefModal] = useState<boolean>(false);
+
   const clipboardRef = useRef<ClipboardJS | null>(null);
 
   const { messages, showMessage } = useMessages();
@@ -56,6 +56,7 @@ export default function GameReady() {
       try {
         webSocketManager.setRoomData(user.roomId!, user.nickname!);
         await webSocketManager.connect();
+
         webSocketManager.setGameStateUpdater(setGame, setGameReady);
         webSocketManager.setNavigate(navigate);
         webSocketManager.setShowMessage(showMessage);
@@ -85,18 +86,18 @@ export default function GameReady() {
 
   useEffect(() => {
     // ClipboardJS 객체 초기화 (한 번만 실행)
-    clipboardRef.current = new ClipboardJS(".copy-button");
+    clipboardRef.current = new ClipboardJS('.copy-button');
 
-    clipboardRef.current.on("success", (e) => {
-      if (e.trigger.getAttribute("data-clipboard-text") === window.location.href) {
-        showMessage("방 링크가 복사되었습니다.");
+    clipboardRef.current.on('success', (e) => {
+      if (e.trigger.getAttribute('data-clipboard-text') === window.location.href) {
+        showMessage('방 링크가 복사되었습니다.');
       } else {
-        showMessage("방 코드가 복사되었습니다.");
+        showMessage('방 코드가 복사되었습니다.');
       }
     });
 
-    clipboardRef.current.on("error", () => {
-      showMessage("복사에 실패했습니다.");
+    clipboardRef.current.on('error', () => {
+      showMessage('복사에 실패했습니다.');
     });
 
     return () => clipboardRef.current?.destroy(); // 객체 제거
@@ -141,30 +142,30 @@ export default function GameReady() {
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h1 className="text-2xl font-bold text-red-500 mb-4">방장이 방을 나갔습니다.</h1>
             <p className="text-gray-700">잠시 후 메인 페이지로 이동합니다...</p>
-            <div className='loader m-auto'></div>
+            <div className="loader m-auto"></div>
           </div>
         </div>
       )}
       <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
-        {countdown !== null && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <h1 className="text-9xl font-bold text-red-500 animate-pulse">{countdown}</h1>
-          </div>
-        )}
         <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 pt-4 pb-4 pl-2 pr-2 shadow-floating">
           <div className="mt-4 flex justify-center">
             <h1 className="text-3xl font-bold mb-4">🎲 Game </h1>
           </div>
           {isConnected ? (
-            <div className='flex flex-row'>
-              <button className="basic-button copy-button" data-clipboard-text={window.location.href}>
+            <div className="flex flex-row">
+              <button
+                className="basic-button copy-button"
+                data-clipboard-text={window.location.href}
+              >
                 🔗 방 링크 복사하기
               </button>
-              <button className="basic-button copy-button" data-clipboard-text={user?.roomId || ""}>
+              <button className="basic-button copy-button" data-clipboard-text={user?.roomId || ''}>
                 0️⃣ 방 코드 복사하기
               </button>
             </div>
-          ) : <></>}
+          ) : (
+            <></>
+          )}
           <div className="flex flex-col pt-6 pb-24 text-white">
             {!isConnected ? (
               <div className="bg-gray-900 pb-6 pl-2 pr-2 pt-3 rounded-lg shadow-floating">
@@ -189,25 +190,33 @@ export default function GameReady() {
               </div>
             ) : (
               <>
-                <div className='flex justify-center'>
+                <div className="flex justify-center">
                   <p className="text-2xl mb-4">🙋 총 참가자 수: {game?.teams.length || 0}</p>
                 </div>
                 <div className="text-center flex flex-row justify-around">
                   {game?.teams.map((team, index) => (
-                    <div key={index} className={`mb-6 m-2 container w-1/${game?.teams.length} bg-gray-800 p-4 rounded-lg shadow-md`}>
+                    <div
+                      key={index}
+                      className={`mb-6 m-2 container w-1/${game?.teams.length} bg-gray-800 p-4 rounded-lg shadow-md`}
+                    >
                       <div className="text-2xl font-semibold">{team.teamName}</div>
-                      <div className='text-sm text-gray-500 mb-2'>닉네임</div>
+                      <div className="text-sm text-gray-500 mb-2">닉네임</div>
                       <div className="list-inside">
                         {team.users.map((u, userIndex) => (
-                          <div key={userIndex} className={`text-white flex rounded-lg border-2 ${user.nickname === u.nickname ? 'border-orange-500' : 'border-white'}`}>
+                          <div
+                            key={userIndex}
+                            className={`text-white flex rounded-lg border-2 ${user.nickname === u.nickname ? 'border-orange-500' : 'border-white'}`}
+                          >
                             {user.nickname === u.nickname ? (
-                              <div className="absolute self-center ml-2 text-xs">{game.roomChief === u.nickname ? '👑' : '👋'} me</div>
-                            ) : user.nickname !== game.roomChief &&
-                            <div className="absolute self-center ml-2 text-xs">👑</div>
-                            }
-                            <div className="flex-1 text-center">
-                              {u.nickname}
-                            </div>
+                              <div className="absolute self-center ml-2 text-xs">
+                                {game.roomChief === u.nickname ? '👑' : '👋'}
+                              </div>
+                            ) : (
+                              user.nickname !== game.roomChief && (
+                                <div className="absolute self-center ml-2 text-xs">👑</div>
+                              )
+                            )}
+                            <div className="flex-1 text-center">{u.nickname}</div>
                           </div>
                         ))}
                       </div>

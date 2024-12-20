@@ -1,25 +1,24 @@
-import TeamChart from '../../components/chart/TeamChart';
-import IndividualChart from '../../components/chart/IndividualChart';
-import TeamRank from '../../components/teamRank/TeamRank';
 import { useEffect, useState } from 'react';
-import WebSocketManager from "../../services/WebSocketManager.ts";
+import IndividualChart from '../../components/chart/IndividualChart';
+import TeamChart from '../../components/chart/TeamChart';
+import TeamRank from '../../components/teamRank/TeamRank';
+import WebSocketManager from '../../services/WebSocketManager.ts';
 
 const Game = () => {
   const [count, setCount] = useState<number>(4);
   const [moveMessage, setMoveMessage] = useState<boolean>(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [clicked, setClicked] = useState(false);
   const webSocketManager = WebSocketManager.getInstance();
 
-  const startMessage = '🚀 게임 시작 🧑‍🚀'
+  const startMessage = '🚀 Game Start! 🧑‍🚀';
   const second = 1000;
   const halfSecond = 500;
+
   useEffect(() => {
-    setMoveMessage(true)
+    setMoveMessage(true);
     const handleCountdown = () => {
-      setCount(prevCount => {
+      setCount((prevCount) => {
         setMoveMessage(true);
-        if(prevCount == 1){
+        if (prevCount == 1) {
           clearInterval(interval);
         }
         return prevCount - 1;
@@ -28,7 +27,7 @@ const Game = () => {
 
     const handleMove = () => {
       setMoveMessage(false);
-    }
+    };
 
     let interval = setInterval(handleCountdown, second);
     let i = setInterval(handleMove, halfSecond);
@@ -38,24 +37,13 @@ const Game = () => {
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     webSocketManager.sendClickEvent();
-    handleButtonClickSound()
-    handleButtonClickAnimation(e)
-    setClicked(true);
+    handleButtonClickSound();
   };
 
   const handleButtonClickSound = () => {
     const sound = new Audio('/click-water.mp3');
     sound.play();
-  }
-
-  const handleButtonClickAnimation = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // 클릭한 위치 추적
-    const { clientX, clientY } = e;
-    setPosition({ x: clientX, y: clientY });
-
-    setClicked(true);
-    setTimeout(() => setClicked(false), 600); // 애니메이션 후 상태 리셋
-  }
+  };
 
   return (
     <>
@@ -63,7 +51,8 @@ const Game = () => {
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-gray-500 bg-opacity-50"></div>
           <div
-            className={`transform relative ease-in-out transition-all ${moveMessage ? "-translate-y-20" : ""} duration-1000 text-9xl text-orange-500`}>
+            className={`transform relative ease-in-out transition-all ${moveMessage ? '-translate-y-20' : ''} duration-1000 text-9xl text-orange-500`}
+          >
             {count > 1 ? count - 1 : startMessage}
           </div>
         </div>
@@ -71,8 +60,7 @@ const Game = () => {
         <></>
       )}
       <div className="flex flex-col gap-8 p-8 h-full">
-        <div
-          className="flex flex-col items-center justify-center w-full h-1/2 md:h-2/3 p-4 bg-white rounded-xl shadow-xl box-border">
+        <div className="flex flex-col items-center justify-center w-full h-1/2 md:h-2/3 p-4 bg-white rounded-xl shadow-xl box-border">
           {/* 차트 표시 div */}
           <div className="flex gap-4 w-full h-full">
             <div className="flex-[3] h-full hidden md:block">
@@ -91,22 +79,10 @@ const Game = () => {
         {/* 클릭 버튼 */}
         <div className="flex-1 select-none flex w-full h-full box-border shadow-xl">
           <button
-            className={`w-full h-full  text-xl font-bold bg-orange-400 border-2 border-orange-400 rounded-lg hover:bg-orange-500 box-border ${clicked ? 'shadow-inner border-opacity-100 border-green-500' : ''}`}
+            className="w-full h-full text-xl font-bold bg-orange-400 rounded-lg box-border overflow-hidden hover:bg-orange-500 active:bg-blue-500 transition-all"
             onClick={handleButtonClick}
           >
             Click Mee!
-
-            {clicked && (
-              <div
-                className="absolute rounded-full bg-blue-700 opacity-50 animate-ping"
-                style={{
-                  left: `${position.x - 30}px`,
-                  top: `${position.y - 30}px`,
-                  width: '60px',
-                  height: '60px',
-                }}
-              ></div>
-            )}
           </button>
         </div>
       </div>

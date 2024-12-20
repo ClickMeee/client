@@ -1,11 +1,11 @@
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { ReadCurrentUserCount } from '../../api/ReadCurrentUserCount.ts';
+import { useNavigate } from 'react-router-dom';
 import { useResetRecoilState } from 'recoil';
+import { ReadCurrentUserCount } from '../../api/ReadCurrentUserCount.ts';
+import { gameReadyState } from '../../recoil/atoms/gameReadyState.ts';
 import { gameState } from '../../recoil/atoms/gameState.ts';
 import { userState } from '../../recoil/atoms/userState.ts';
-import { gameReadyState } from '../../recoil/atoms/gameReadyState.ts';
-import WebSocketManager from "../../services/WebSocketManager.ts";
+import WebSocketManager from '../../services/WebSocketManager.ts';
 
 const Main = () => {
   // 이스터에그
@@ -27,9 +27,11 @@ const Main = () => {
   console.log(easterEgg);
   const navigate = useNavigate();
   const [userCount, setUserCount] = useState<number | null>(null);
+
   const resetGameState = useResetRecoilState(gameState);
   const resetUserState = useResetRecoilState(userState);
   const resetGameReadyState = useResetRecoilState(gameReadyState);
+
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const webSocketManager = WebSocketManager.getInstance();
 
@@ -106,11 +108,15 @@ const Main = () => {
           >
             🚪 방 코드 입장
           </button>
-          { !/Mobi/i.test(window.navigator.userAgent) ?
+
+          {/* 모바일에서는 전체화면 버튼을 노출 X  */}
+          {!/Mobi/i.test(window.navigator.userAgent) ? (
             <button onClick={toggleFullscreen} className="basic-button text-xl text-center mb-5">
               {isFullscreen ? '🌕 전체화면 종료' : '☀️ 전체화면'}
-            </button> : <></>
-          }
+            </button>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </>

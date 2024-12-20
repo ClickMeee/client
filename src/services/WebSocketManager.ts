@@ -1,12 +1,13 @@
 import { Client, IFrame, IMessage } from '@stomp/stompjs';
+import { NavigateFunction } from 'react-router-dom';
 import SockJS from 'sockjs-client';
-import { NavigateFunction } from "react-router-dom";
 
 class WebSocketManager {
   private static instance: WebSocketManager | null = null;
   private client: Client | null = null;
   private roomId: string = '';
   private nickname: string = '';
+
   private updateGameState: ((state: any) => void) | null = null;
   private updateGameReadyState: ((state: any) => void) | null = null;
   private navigate: NavigateFunction | null = null;
@@ -191,45 +192,45 @@ class WebSocketManager {
     return this.client;
   }
 
-    roomEnterRequest() {
-      if (this.roomId && this.nickname) {
-        const requestBody = {
-          roomId: this.roomId,
-          nickname: this.nickname,
-        };
+  roomEnterRequest() {
+    if (this.roomId && this.nickname) {
+      const requestBody = {
+        roomId: this.roomId,
+        nickname: this.nickname,
+      };
 
-        this.sendMessage('/app/room/enter', requestBody);
-      } else {
-        console.error('Room ID or Nickname is not set');
-      }
+      this.sendMessage('/app/room/enter', requestBody);
+    } else {
+      console.error('Room ID or Nickname is not set');
     }
+  }
 
-    // 방장 게임 시작 요청
-    startGameRequest() {
-      if (this.roomId) {
-        this.sendMessage(`/app/start/${this.roomId}`);
-      } else {
-        console.error('Room ID is not set');
-      }
+  // 방장 게임 시작 요청
+  startGameRequest() {
+    if (this.roomId) {
+      this.sendMessage(`/app/start/${this.roomId}`);
+    } else {
+      console.error('Room ID is not set');
     }
+  }
 
-    // 플레이어 준비 요청
-    playerReadyRequest() {
-      if (this.roomId) {
-        this.sendMessage(`/app/start/${this.roomId}/${this.nickname}`);
-      } else {
-        console.error('Room ID is not set');
-      }
+  // 플레이어 준비 요청
+  playerReadyRequest() {
+    if (this.roomId) {
+      this.sendMessage(`/app/start/${this.roomId}/${this.nickname}`);
+    } else {
+      console.error('Room ID is not set');
     }
+  }
 
-    // 클릭 이벤트 전송
-    sendClickEvent() {
-      if (this.roomId) {
-        this.sendMessage(`/app/click/${this.roomId}/${this.nickname}`);
-      } else {
-        console.error('Room ID is not set');
-      }
+  // 클릭 이벤트 전송
+  sendClickEvent() {
+    if (this.roomId) {
+      this.sendMessage(`/app/click/${this.roomId}/${this.nickname}`);
+    } else {
+      console.error('Room ID is not set');
     }
+  }
 
   // 웹 소켓 연결 종료
   disconnect(): void {

@@ -1,15 +1,14 @@
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { GameState } from '../../recoil/atoms/gameState';
-import { ReadAllRoom } from '../../api/ReadAllRoom';
+import { useNavigate } from 'react-router-dom';
 import { CheckExistsRoomByRoomId } from '../../api/CheckExistsRoomByRoomId';
-import useMessages from '../../hooks/useMessage.ts';
+import { ReadAllRoom } from '../../api/ReadAllRoom';
 import MessageModal from '../../components/modal/MessageModal.tsx';
+import useMessages from '../../hooks/useMessage.ts';
+import { RoomListDataProps } from '../../types/RoomListData.type';
 
 const RoomList = () => {
   const navigate = useNavigate();
-  const [gameState, setGameState] = useState<GameState[] | null>(null);
-
+  const [roomList, setRoomList] = useState<RoomListDataProps[] | null>(null);
   const { messages, showMessage } = useMessages();
 
   // 'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'
@@ -25,9 +24,9 @@ const RoomList = () => {
   };
 
   const ifRoomExistsNavigateRoom = async (index: number) => {
-    if (gameState) {
-      if (await CheckExistsRoomByRoomId(gameState[index].roomId)) {
-        handleNavigatePage(`/game-ready/${gameState[index].roomId}`);
+    if (roomList) {
+      if (await CheckExistsRoomByRoomId(roomList[index].roomId)) {
+        handleNavigatePage(`/game-ready/${roomList[index].roomId}`);
         return;
       }
     }
@@ -36,8 +35,8 @@ const RoomList = () => {
 
   const calculateRoomCurrentUserCount = (index: number) => {
     let totalUserCount = 0;
-    if (gameState) {
-      gameState[index].teams.map((val) => {
+    if (roomList) {
+      roomList[index].teams.map((val) => {
         totalUserCount += val.users.length;
       });
     }
@@ -46,22 +45,22 @@ const RoomList = () => {
 
   const calculateRoomMaxUserCount = (index: number) => {
     let maxUserCount = 0;
-    if (gameState) {
-      gameState[index].teams.map((val) => {
+    if (roomList) {
+      roomList[index].teams.map((val) => {
         maxUserCount += val.maxUserCount;
       });
     }
     return maxUserCount;
   };
 
-  const fetchRoomData = async () => {
-    const roomData = await ReadAllRoom();
-    setGameState(roomData);
+  const fetchRoomList = async () => {
+    const rooms = await ReadAllRoom();
+    setRoomList(rooms);
   };
 
   useEffect(() => {
-    fetchRoomData();
-    let polling = setInterval(fetchRoomData, 5000);
+    fetchRoomList();
+    let polling = setInterval(fetchRoomList, 5000);
 
     return () => {
       clearInterval(polling);
@@ -69,8 +68,8 @@ const RoomList = () => {
   }, []);
 
   useEffect(() => {
-    console.log(gameState);
-  }, [gameState]);
+    console.log(roomList);
+  }, [roomList]);
 
   return (
     <>
@@ -78,10 +77,10 @@ const RoomList = () => {
       <div className="flex flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         <div className="bg-gray-700 rounded-xl max-w-100 w-3/5 min-w-80 h-5/6 p-10 shadow-floating">
           <div className="text-center text-3xl mb-10">📚 방 목록</div>
-          {gameState && gameState?.length !== 0 ? (
+          {roomList && roomList?.length !== 0 ? (
             <div className="flex flex-wrap justify-start gap-4">
-              {gameState &&
-                gameState.map((room, index) => (
+              {roomList &&
+                roomList.map((room, index) => (
                   <div
                     key={index}
                     className="w-full rounded-lg flex justify-center overflow-visible"
