@@ -13,6 +13,7 @@ class WebSocketManager {
   private navigate: NavigateFunction | null = null;
   private showMessage: ((state: any) => void) | null = null;
   private showRoomChiefLeaveMessage: ((state: any) => void) | null = null;
+  private showResultMessage: ((state: any) => void) | null = null;
 
   public static getInstance(): WebSocketManager {
     if (!WebSocketManager.instance) {
@@ -116,6 +117,9 @@ class WebSocketManager {
           console.log(`${message.type} 처리`);
           this.updateGameState(message.data);
         }
+        if (this.showResultMessage) {
+          this.showResultMessage(true);
+        }
         break;
 
       case 'ROOM_CHIEF_LEAVE':
@@ -152,6 +156,10 @@ class WebSocketManager {
 
   setShowRoomChiefLeaveMessage(showRoomChiefLeaveMessage: (state: any) => void): void {
     this.showRoomChiefLeaveMessage = showRoomChiefLeaveMessage;
+  }
+
+  setShowResultMessage(showResultMessage: (state: any) => void): void {
+    this.showResultMessage = showResultMessage;
   }
 
   // 메시지 전송 메소드

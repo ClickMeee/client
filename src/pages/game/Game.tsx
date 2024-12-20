@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import IndividualChart from '../../components/chart/IndividualChart';
 import TeamChart from '../../components/chart/TeamChart';
-import TeamRank from '../../components/teamRank/TeamRank';
+import TeamRank from '../../components/Rank/TeamRank';
 import WebSocketManager from '../../services/WebSocketManager.ts';
+import ResultModal from "../../components/modal/ResultModal.tsx";
 
 const Game = () => {
   const [count, setCount] = useState<number>(4);
   const [moveMessage, setMoveMessage] = useState<boolean>(false);
+  const [resultModal, setResultModal] = useState<boolean>(true);
   const webSocketManager = WebSocketManager.getInstance();
 
   const startMessage = '🚀 Game Start! 🧑‍🚀';
@@ -14,6 +16,7 @@ const Game = () => {
   const halfSecond = 500;
 
   useEffect(() => {
+    webSocketManager.setShowResultMessage(setResultModal);
     setMoveMessage(true);
     const handleCountdown = () => {
       setCount((prevCount) => {
@@ -47,6 +50,7 @@ const Game = () => {
 
   return (
     <>
+      {resultModal && <ResultModal setResultModal = {setResultModal}/>}
       {count > 0 ? (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-gray-500 bg-opacity-50"></div>
@@ -71,7 +75,7 @@ const Game = () => {
                 <IndividualChart />
               </div>
               <div className="flex-1 h-3/4 p-4 md:h-1/2">
-                <TeamRank />
+                <TeamRank resultModal={false} />
               </div>
             </div>
           </div>
