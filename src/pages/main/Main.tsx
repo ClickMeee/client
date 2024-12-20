@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useResetRecoilState } from 'recoil';
+import { useEffect, useState } from 'react';
 import { ReadCurrentUserCount } from '../../api/ReadCurrentUserCount.ts';
-import { gameReadyState } from '../../recoil/atoms/gameReadyState.ts';
+import { useResetRecoilState } from 'recoil';
 import { gameState } from '../../recoil/atoms/gameState.ts';
 import { userState } from '../../recoil/atoms/userState.ts';
-import WebSocketManager from '../../services/WebSocketManager.ts';
+import { gameReadyState } from '../../recoil/atoms/gameReadyState.ts';
+import WebSocketManager from "../../services/WebSocketManager.ts";
 
 const Main = () => {
   // 이스터에그
@@ -113,10 +113,14 @@ const Main = () => {
           {!/Mobi/i.test(window.navigator.userAgent) ? (
             <button onClick={toggleFullscreen} className="basic-button text-xl text-center mb-5">
               {isFullscreen ? '🌕 전체화면 종료' : '☀️ 전체화면'}
-            </button>
-          ) : (
-            <></>
-          )}
+            </button>) : <></>
+          }
+          <button
+            onClick={() => handleNavigatePage('/help')}
+            className="basic-button text-xl text-center mb-5"
+          >
+            🆘 도움말
+          </button>
         </div>
       </div>
     </>

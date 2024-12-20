@@ -1,10 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import EnterRoomByCode from '../pages/enter/EnterRoomByCode.tsx';
 import GameReady from '../pages/game-ready/GameReady.tsx';
 import GameSetting from '../pages/game-setting/GameSetting.tsx';
-import Game from '../pages/game/Game.tsx';
-import Main from '../pages/main/Main.tsx';
+import Game from "../pages/game/Game.tsx";
+import Main from "../pages/main/Main.tsx"
+import EnterRoomByCode from '../pages/enter/EnterRoomByCode.tsx';
 import RoomList from '../pages/room-list/RoomList.tsx';
+import Help from "../pages/help/Help.tsx";
 
 export default function Router() {
   return (
@@ -27,6 +28,7 @@ export default function Router() {
       {/* 방 목록 화면면 */}
       <Route path="/room-list" element={<RoomList />} />
 
+      <Route path="/help" element={<Help />} />
       {/* default 경로 설정 */}
       <Route path="*" element={<Navigate replace to="/" />} />
     </Routes>
