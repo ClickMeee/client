@@ -8,6 +8,7 @@ const Game = () => {
   const [count, setCount] = useState<number>(4);
   const [moveMessage, setMoveMessage] = useState<boolean>(false);
   const webSocketManager = WebSocketManager.getInstance();
+  const [clickEffect, setClickEffect] = useState<{ id: number; x: number; y: number }[]>([]);
 
   const startMessage = '🚀 Game Start! 🧑‍🚀';
   const second = 1000;
@@ -18,7 +19,7 @@ const Game = () => {
     const handleCountdown = () => {
       setCount((prevCount) => {
         setMoveMessage(true);
-        if (prevCount == 1) {
+        if (prevCount === 1) {
           clearInterval(interval);
         }
         return prevCount - 1;
@@ -32,17 +33,36 @@ const Game = () => {
     let interval = setInterval(handleCountdown, second);
     let i = setInterval(handleMove, halfSecond);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearInterval(i);
+    };
   }, []);
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     webSocketManager.sendClickEvent();
+
     handleButtonClickSound();
+    handleButtonClickAnimation(e);
   };
 
   const handleButtonClickSound = () => {
     const sound = new Audio('/click-water.mp3');
     sound.play();
+  };
+
+  const handleButtonClickAnimation = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const { clientX, clientY } = e;
+    const { left, top } = e.currentTarget.getBoundingClientRect();
+
+    // 클릭 효과 추가
+    const effect = { id: Date.now(), x: clientX - left, y: clientY - top };
+
+    setClickEffect((prev) => [...prev, effect]);
+
+    setTimeout(() => {
+      setClickEffect((prev) => prev.filter((item) => item.id !== effect.id)); // 오래된 효과 제거
+    }, 500); // 애니메이션 지속 시간과 일치
   };
 
   return (
@@ -56,9 +76,7 @@ const Game = () => {
             {count > 1 ? count - 1 : startMessage}
           </div>
         </div>
-      ) : (
-        <></>
-      )}
+      ) : null}
       <div className="flex flex-col gap-8 p-8 h-full">
         <div className="flex flex-col items-center justify-center w-full h-1/2 md:h-2/3 p-4 bg-white rounded-xl shadow-xl box-border">
           {/* 차트 표시 div */}
@@ -77,12 +95,25 @@ const Game = () => {
           </div>
         </div>
         {/* 클릭 버튼 */}
-        <div className="flex-1 select-none flex w-full h-full box-border shadow-xl">
+        <div className="relative flex-1 select-none flex w-full h-full box-border shadow-xl overflow-hidden">
           <button
-            className="w-full h-full text-xl font-bold bg-orange-400 rounded-lg box-border overflow-hidden hover:bg-orange-500 active:bg-blue-500 transition-all"
+            className="w-full h-full text-xl font-bold bg-orange-400 rounded-lg box-border hover:bg-orange-500 focus:outline-none"
             onClick={handleButtonClick}
           >
             Click Mee!
+            {/* 클릭 애니메이션 효과 */}
+            {clickEffect.map((effect) => (
+              <span
+                key={effect.id}
+                className="absolute bg-red-600 opacity-70 rounded-full transform scale-50 animate-ping"
+                style={{
+                  top: `${effect.y - 175}px`,
+                  left: `${effect.x - 175}px`,
+                  width: '350px',
+                  height: '350px',
+                }}
+              ></span>
+            ))}
           </button>
         </div>
       </div>
