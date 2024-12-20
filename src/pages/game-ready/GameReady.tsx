@@ -71,6 +71,7 @@ export default function GameReady() {
     playerRoomEnter();
   }, [user.nickname, urlRoomId]);
 
+  // 로직 수정 필요
   useEffect(() => {
     if (game) {
       const totalUsers = game.teams.reduce((total, team) => total + team.users.length, 0);

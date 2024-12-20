@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import IndividualChart from '../../components/chart/IndividualChart';
 import TeamChart from '../../components/chart/TeamChart';
+import ResultModal from '../../components/modal/ResultModal.tsx';
 import TeamRank from '../../components/Rank/TeamRank';
 import WebSocketManager from '../../services/WebSocketManager.ts';
-import ResultModal from "../../components/modal/ResultModal.tsx";
 
 const Game = () => {
   const [count, setCount] = useState<number>(4);
-  const [moveMessage, setMoveMessage] = useState<boolean>(false);
-  const [resultModal, setResultModal] = useState<boolean>(false);
+  const [moveMessage, setMoveMessage] = useState<boolean>(false); // 움직이는 카운트다운 메시지
+  const [resultModal, setResultModal] = useState<boolean>(false); // 결과 모달
   const webSocketManager = WebSocketManager.getInstance();
   const [clickEffect, setClickEffect] = useState<{ id: number; x: number; y: number }[]>([]);
 
@@ -70,7 +70,7 @@ const Game = () => {
 
   return (
     <>
-      {resultModal && <ResultModal setResultModal = {setResultModal}/>}
+      {resultModal && <ResultModal setResultModal={setResultModal} />}
       {count > 0 ? (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-gray-500 bg-opacity-50"></div>
