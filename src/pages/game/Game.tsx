@@ -8,7 +8,7 @@ import ResultModal from "../../components/modal/ResultModal.tsx";
 const Game = () => {
   const [count, setCount] = useState<number>(4);
   const [moveMessage, setMoveMessage] = useState<boolean>(false);
-  const [resultModal, setResultModal] = useState<boolean>(true);
+  const [resultModal, setResultModal] = useState<boolean>(false);
   const webSocketManager = WebSocketManager.getInstance();
 
   const startMessage = '🚀 Game Start! 🧑‍🚀';
