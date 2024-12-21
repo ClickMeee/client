@@ -14,6 +14,7 @@ const GameSetting = () => {
   const [gameType, setGameType] = useState<
     'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'
   >('ONE_TO_ONE');
+  const [maxUserCount, setMaxUserCount] = useState<number>(2);
 
   const { messages, showMessage } = useMessages();
 
@@ -32,6 +33,17 @@ const GameSetting = () => {
     }
   }, [user.nickname]);
 
+  useEffect(() => {
+    // 게임 유형이 변경될 때, maxUserCount 초기화
+    if (gameType === 'TEAM_VS_TEAM') {
+      setMaxUserCount(2); // 기본값 2 vs 2
+    } else if (gameType === 'ONE_TO_MANY') {
+      setMaxUserCount(99); // 기본값 99
+    } else if (gameType === 'FREE_FOR_ALL') {
+      setMaxUserCount(1); // 기본값 1명 이상
+    }
+  }, [gameType]);
+
   // 방 생성 함수
   const handleCreateRoom = async () => {
     if (!inputNickname || !inputNickname.trim()) {
@@ -40,7 +52,7 @@ const GameSetting = () => {
     }
 
     try {
-      const createdRoomId = await createRoom(gameType, inputNickname, gameTime);
+      const createdRoomId = await createRoom(gameType, inputNickname, gameTime, maxUserCount);
       console.log('Room created with ID:', createdRoomId);
 
       // Recoil(userState) 상태에 roomId 업데이트
@@ -112,6 +124,61 @@ const GameSetting = () => {
               <option value={60}>60초</option>
             </select>
           </div>
+
+          {/* 최대 사용자 수 설정 */}
+          {gameType === 'ONE_TO_MANY' && (
+            <div className="mb-6">
+              <label className="block text-lg font-semibold mb-2">
+                다수 팀의 기본 인원 수 (1 대 N)
+              </label>
+              <input
+                type="number"
+                value={99}
+                disabled
+                className="w-full p-3 bg-gray-800 text-gray-500 border border-gray-700 rounded-md cursor-not-allowed"
+              />
+              <small className="text-gray-500 block mt-2">
+                다수 팀의 기본 인원 수는 99명으로 고정되어 있습니다.
+              </small>
+            </div>
+          )}
+
+          {gameType === 'FREE_FOR_ALL' && (
+            <div className="mb-6">
+              <label className="block text-lg font-semibold mb-2">참가자 수</label>
+              <input
+                type="number"
+                min="1"
+                value={maxUserCount}
+                onChange={(e) => setMaxUserCount(Number(e.target.value))}
+                className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="참가자 수를 입력하세요"
+              />
+              <small className="text-gray-500 block mt-2">
+                개인전에 참가할 인원 수를 입력하세요.
+              </small>
+            </div>
+          )}
+
+          {gameType === 'TEAM_VS_TEAM' && (
+            <div className="mb-6">
+              <label className="block text-lg font-semibold mb-2">
+                팀 대 팀 (2 vs 2, 3 vs 3, 4 vs 4)
+              </label>
+              <select
+                value={maxUserCount}
+                onChange={(e) => setMaxUserCount(Number(e.target.value))}
+                className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value={2}>2 vs 2</option>
+                <option value={3}>3 vs 3</option>
+                <option value={4}>4 vs 4</option>
+              </select>
+              <small className="text-gray-500 block mt-2">
+                팀 대 팀 형식의 게임에서 팀 당 최대 인원 수를 선택하세요.
+              </small>
+            </div>
+          )}
 
           {/* 방 생성 버튼 */}
           <button onClick={handleCreateRoom} className="basic-button">

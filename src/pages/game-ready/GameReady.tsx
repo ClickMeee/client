@@ -71,13 +71,12 @@ export default function GameReady() {
     playerRoomEnter();
   }, [user.nickname, urlRoomId]);
 
-  // 로직 수정 필요
   useEffect(() => {
     if (game) {
-      const totalUsers = game.teams.reduce((total, team) => total + team.users.length, 0);
-      const totalMaxUserCount = game.teams.reduce((total, team) => total + team.maxUserCount, 0);
+      const isTeamsHaveUsers = game.teams.every((team) => team.users.length > 0);
 
-      if (totalUsers === totalMaxUserCount && user.nickname === game.roomChief) {
+      // 각 팀의 사용자가 한명 이상 이고, 방장인 경우에만 게임 시작 버튼을 보여줌
+      if (isTeamsHaveUsers && user.nickname === game.roomChief) {
         setIsGameButtonVisible(true);
       } else {
         setIsGameButtonVisible(false);
@@ -192,13 +191,22 @@ export default function GameReady() {
             ) : (
               <>
                 <div className="flex justify-center">
-                  <p className="text-2xl mb-4">🙋 총 참가자 수: {game?.teams.length || 0}</p>
+                  <p className="text-2xl mb-4">
+                    🙋 총 참가자 수:{' '}
+                    {game?.teams.reduce((total, team) => total + team.users.length, 0) || 0}
+                  </p>
                 </div>
                 <div className="text-center flex flex-row justify-around">
                   {game?.teams.map((team, index) => (
                     <div
                       key={index}
-                      className={`mb-6 m-2 container w-1/${game?.teams.length} bg-gray-800 p-4 rounded-lg shadow-md`}
+                      className={`mb-6 m-2 container w-1/${game?.teams.length} rounded-lg shadow-md ${
+                        team.teamName === 'BLUE'
+                          ? 'bg-blue-700'
+                          : team.teamName === 'RED'
+                            ? 'bg-red-700'
+                            : 'bg-gray-800'
+                      }`}
                     >
                       <div className="text-2xl font-semibold">{team.teamName}</div>
                       <div className="text-sm text-gray-500 mb-2">닉네임</div>
@@ -208,15 +216,9 @@ export default function GameReady() {
                             key={userIndex}
                             className={`text-white flex rounded-lg border-2 ${user.nickname === u.nickname ? 'border-orange-500' : 'border-white'}`}
                           >
-                            {user.nickname === u.nickname ? (
-                              <div className="absolute self-center ml-2 text-xs">
-                                {game.roomChief === u.nickname ? '👑' : '👋'}
-                              </div>
-                            ) : (
-                              user.nickname !== game.roomChief && (
-                                <div className="absolute self-center ml-2 text-xs">👑</div>
-                              )
-                            )}
+                            <div className="absolute self-center ml-2 text-xs">
+                              {game.roomChief === u.nickname ? '👑' : '👋'}
+                            </div>
                             <div className="flex-1 text-center">{u.nickname}</div>
                           </div>
                         ))}
