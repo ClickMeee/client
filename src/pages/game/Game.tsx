@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 import IndividualChart from '../../components/chart/IndividualChart';
 import TeamChart from '../../components/chart/TeamChart';
-import ResultModal from '../../components/modal/ResultModal.tsx';
 import TeamRank from '../../components/Rank/TeamRank';
 import WebSocketManager from '../../services/WebSocketManager.ts';
 import { useRecoilValue } from "recoil";
 import { RoomDataProps } from "../../types/RoomData.type.ts";
 import { gameState } from "../../recoil/atoms/gameState.ts";
 import IndividualRank from "../../components/Rank/IndividualRank.tsx";
+import { useNavigate } from "react-router-dom";
 
 const Game = () => {
+  const navigate = useNavigate();
   const game = useRecoilValue<RoomDataProps | null>(gameState); // 게임 상태
   const [count, setCount] = useState<number>(4);
   const [moveMessage, setMoveMessage] = useState<boolean>(false); // 움직이는 카운트다운 메시지
@@ -20,6 +21,16 @@ const Game = () => {
   const startMessage = '🚀 Game Start! 🧑‍🚀';
   const second = 1000;
   const halfSecond = 500;
+
+  useEffect(() => {
+    if (resultModal) {
+      const timer = setTimeout(() => {
+        navigate('/game-result'); // 원하는 경로로 이동
+      }, 3000);
+
+      return () => clearTimeout(timer); // 타이머 클리어
+    }
+  }, [resultModal]);
 
   useEffect(() => {
     webSocketManager.setShowResultMessage(setResultModal);
@@ -75,7 +86,15 @@ const Game = () => {
 
   return (
     <>
-      {resultModal && <ResultModal setResultModal={setResultModal} />}
+      {resultModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h1 className="text-2xl font-bold text-red-500 mb-4">게임 끝!</h1>
+            <p className="text-gray-700">잠시 후 결과 페이지로 이동합니다...</p>
+            <div className="loader m-auto"></div>
+          </div>
+        </div>
+      )}
       {count > 0 ? (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-gray-500 bg-opacity-50"></div>

@@ -6,6 +6,7 @@ import Main from "../pages/main/Main.tsx"
 import EnterRoomByCode from '../pages/enter/EnterRoomByCode.tsx';
 import RoomList from '../pages/room-list/RoomList.tsx';
 import Help from "../pages/help/Help.tsx";
+import GameResult from "../pages/game-result/GameResult.tsx";
 
 export default function Router() {
   return (
@@ -21,6 +22,9 @@ export default function Router() {
 
       {/* 게임 화면 */}
       <Route path="/game/:roomId" element={<Game />} />
+
+      {/* 게임 결과 화면 */}
+      <Route path="/game-result" element={<GameResult />} />
 
       {/* 방 코드 입력 화면*/}
       <Route path="/enter" element={<EnterRoomByCode />} />
