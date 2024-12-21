@@ -129,6 +129,17 @@ export default function GameReady() {
     }
   };
 
+  const handleTeamChange = (targetTeamName: string) => {
+    console.log(`팀 이동: ${targetTeamName}`);
+
+    let currentTeam = game?.teams.find((team) =>
+      team.users.some((u) => u.nickname === user.nickname)
+    );
+    let currentTeamName = currentTeam?.teamName || null;
+
+    webSocketManager.moveTeamRequest(targetTeamName, currentTeamName || '');
+  };
+
   const handleGameStart = () => {
     console.log('게임 시작 요청을 보냅니다.');
     webSocketManager.startGameRequest();
@@ -222,6 +233,21 @@ export default function GameReady() {
                             <div className="flex-1 text-center">{u.nickname}</div>
                           </div>
                         ))}
+                        {/* 팀 이동 버튼 표시 */}
+                        {!game?.teams.some(
+                          (t) =>
+                            t.users.some((u) => u.nickname === user.nickname) &&
+                            t.teamName === team.teamName
+                        ) &&
+                          team.users.length < team.maxUserCount && (
+                            <div
+                              className="text-white flex rounded-lg border-2 border-dashed border-gray-500 cursor-pointer hover:border-orange-500 hover:bg-gray-800 transition duration-200"
+                              onClick={() => handleTeamChange(team.teamName)}
+                            >
+                              <div className="absolute self-center ml-2 text-xs">🔄</div>
+                              <div className="flex-1 text-center">팀 이동</div>
+                            </div>
+                          )}
                       </div>
                     </div>
                   ))}

@@ -240,6 +240,21 @@ class WebSocketManager {
     }
   }
 
+  // 팀 이동
+  moveTeamRequest(targetTeamName: string, currentTeamName: string) {
+    const requestBody = {
+      nickname: this.nickname,
+      targetTeamName: targetTeamName,
+      currentTeamName: currentTeamName,
+    };
+
+    if (this.roomId) {
+      this.sendMessage(`/app/room/${this.roomId}/move`, requestBody);
+    } else {
+      console.error('Room ID is not set');
+    }
+  }
+
   // 웹 소켓 연결 종료
   disconnect(): void {
     if (this.client) {
