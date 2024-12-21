@@ -4,8 +4,13 @@ import TeamChart from '../../components/chart/TeamChart';
 import ResultModal from '../../components/modal/ResultModal.tsx';
 import TeamRank from '../../components/Rank/TeamRank';
 import WebSocketManager from '../../services/WebSocketManager.ts';
+import { useRecoilValue } from "recoil";
+import { RoomDataProps } from "../../types/RoomData.type.ts";
+import { gameState } from "../../recoil/atoms/gameState.ts";
+import IndividualRank from "../../components/Rank/IndividualRank.tsx";
 
 const Game = () => {
+  const game = useRecoilValue<RoomDataProps | null>(gameState); // 게임 상태
   const [count, setCount] = useState<number>(4);
   const [moveMessage, setMoveMessage] = useState<boolean>(false); // 움직이는 카운트다운 메시지
   const [resultModal, setResultModal] = useState<boolean>(false); // 결과 모달
@@ -86,14 +91,14 @@ const Game = () => {
           {/* 차트 표시 div */}
           <div className="flex gap-4 w-full h-full">
             <div className="flex-[3] h-full hidden md:block">
-              <TeamChart />
+              <TeamChart/>
             </div>
             <div className="flex flex-col flex-[2] gap-4">
               <div className="flex-1 h-1/4 hidden md:block md:h-1/2">
                 <IndividualChart />
               </div>
               <div className="flex-1 h-3/4 p-4 md:h-1/2">
-                <TeamRank resultModal={false} />
+                {game?.gameType === "FREE_FOR_ALL" ? <IndividualRank/> : <TeamRank resultModal={false} /> }
               </div>
             </div>
           </div>
