@@ -42,7 +42,7 @@ const TeamChart: React.FC = () => {
         // 팀별 클릭 수 합산
         const updatedScores = { ...teamScores };
         game.teams.forEach((team) => {
-          const totalClicks = team.users.reduce((sum, user) => sum + user.clickCount, 0);
+          const totalClicks = team.teamScore
           if (!updatedScores[team.teamName]) {
             updatedScores[team.teamName] = [];
           }
