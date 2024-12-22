@@ -5,6 +5,7 @@ import { createRoom } from '../../api/CreateRoom';
 import MessageModal from '../../components/modal/MessageModal.tsx';
 import useMessages from '../../hooks/useMessage';
 import { userState } from '../../recoil/atoms/userState';
+import messageModal from "../../components/modal/MessageModal.tsx";
 
 const GameSetting = () => {
   const resetUserState = useResetRecoilState(userState);
@@ -15,6 +16,7 @@ const GameSetting = () => {
     'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'
   >('ONE_TO_ONE');
   const [maxUserCount, setMaxUserCount] = useState<number>(2);
+  const [clickCountScale, setClickCountScale] = useState<number>(1);
 
   const { messages, showMessage } = useMessages();
 
@@ -51,8 +53,13 @@ const GameSetting = () => {
       return;
     }
 
+    if(clickCountScale < 1){
+      showMessage('클릭 배율은 1보다 큰 값을 작성해 주세요');
+      return;
+    }
+
     try {
-      const createdRoomId = await createRoom(gameType, inputNickname, gameTime, maxUserCount);
+      const createdRoomId = await createRoom(gameType, inputNickname, gameTime, maxUserCount, clickCountScale);
       console.log('Room created with ID:', createdRoomId);
 
       // Recoil(userState) 상태에 roomId 업데이트
@@ -62,6 +69,7 @@ const GameSetting = () => {
       showMessage('방 생성에 실패했습니다.');
     }
   };
+
 
   return (
     <>
@@ -140,6 +148,15 @@ const GameSetting = () => {
               <small className="text-gray-500 block mt-2">
                 다수 팀의 기본 인원 수는 99명으로 고정되어 있습니다.
               </small>
+              <label className="block text-lg font-semibold mt-4 mb-2">1팀의 클릭 배율</label>
+              <input
+                value={clickCountScale}
+                onChange={(e) => setClickCountScale(Number(e.target.value))}
+                className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+              <small className="text-gray-500 block mt-2">
+                클릭 배율은 1보다 작을 수 없습니다.
+              </small>
             </div>
           )}
 
@@ -147,7 +164,6 @@ const GameSetting = () => {
             <div className="mb-6">
               <label className="block text-lg font-semibold mb-2">참가자 수</label>
               <input
-                type="number"
                 min="1"
                 value={maxUserCount}
                 onChange={(e) => setMaxUserCount(Number(e.target.value))}
