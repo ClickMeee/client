@@ -21,7 +21,7 @@ const TeamRank: React.FC<TeamRankProps> = ({resultModal})=> {
   const rankedTeams = game?.teams
     .map((team) => ({
       teamName: team.teamName,
-      totalClicks: team.users.reduce((sum, user) => sum + user.clickCount, 0),
+      totalClicks: team.teamScore,
       isUserTeam: team.teamName === userTeamName,
     }))
     .sort((a, b) => b.totalClicks - a.totalClicks).slice(0, 3);
