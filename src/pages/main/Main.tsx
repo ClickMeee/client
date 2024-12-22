@@ -33,7 +33,6 @@ const Main = () => {
   const resetGameReadyState = useResetRecoilState(gameReadyState);
 
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-  const webSocketManager = WebSocketManager.getInstance();
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -58,10 +57,13 @@ const Main = () => {
   const title: string = '🐹 Welcome 🐭\n Click Meee!!!';
 
   useEffect(() => {
-    webSocketManager.disconnect();
-    resetGameState();
-    resetUserState();
-    resetGameReadyState();
+    const webSocketManager = WebSocketManager.getInstance();
+    if(webSocketManager){
+      webSocketManager.disconnect();
+      resetGameState();
+      resetUserState();
+      resetGameReadyState();
+    }
 
     fetchCurrentUserCount();
     const polling = setInterval(fetchCurrentUserCount, 5000);

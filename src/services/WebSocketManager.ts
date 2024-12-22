@@ -1,21 +1,49 @@
 import { Client, IFrame, IMessage } from '@stomp/stompjs';
 import { NavigateFunction } from 'react-router-dom';
 import SockJS from 'sockjs-client';
+import { RoomDataProps } from "../types/RoomData.type.ts";
+import { GameStateDataProps } from "../types/GameStateData.type.ts";
+
+type GameStateUpdater = (state: RoomDataProps) => void;
+type GameReadyUpdater = (state: GameStateDataProps) => void;
+type ShowMessageFunction = (message: string) => void;
+type ShowRoomChiefLeaveMessageFunction = (isChiefLeft: boolean) => void;
+type ShowResultMessageFunction = (isGameEnded: boolean) => void;
+
+type WebSocketManagerParams = {
+  roomId: string;
+  nickname: string;
+  updateGameState: GameStateUpdater;
+  updateGameReadyState: GameReadyUpdater;
+  navigate: NavigateFunction;
+  showMessage: ShowMessageFunction;
+  showRoomChiefLeaveMessage: ShowRoomChiefLeaveMessageFunction;
+};
 
 class WebSocketManager {
   private static instance: WebSocketManager | null = null;
   private client: Client | null = null;
-  private roomId: string = '';
-  private nickname: string = '';
+  private roomId!: string;
+  private nickname!: string;
+  private updateGameState!: GameStateUpdater;
+  private updateGameReadyState!: GameReadyUpdater
+  private navigate!: NavigateFunction
+  private showMessage!: ShowMessageFunction
+  private showRoomChiefLeaveMessage!: ShowRoomChiefLeaveMessageFunction
+  private showResultMessage!: ShowResultMessageFunction
 
-  private updateGameState: ((state: any) => void) | null = null;
-  private updateGameReadyState: ((state: any) => void) | null = null;
-  private navigate: NavigateFunction | null = null;
-  private showMessage: ((state: any) => void) | null = null;
-  private showRoomChiefLeaveMessage: ((state: any) => void) | null = null;
-  private showResultMessage: ((state: any) => void) | null = null;
+  init(params: WebSocketManagerParams) {
+    this.roomId = params.roomId;
+    this.nickname = params.nickname;
+    this.updateGameState = params.updateGameState;
+    this.updateGameReadyState = params.updateGameReadyState;
+    this.navigate = params.navigate;
+    this.showMessage = params.showMessage;
+    this.showRoomChiefLeaveMessage = params.showRoomChiefLeaveMessage;
+  }
 
-  public static getInstance(): WebSocketManager {
+  public static getInstance(
+  ): WebSocketManager{
     if (!WebSocketManager.instance) {
       WebSocketManager.instance = new WebSocketManager();
     }
@@ -64,98 +92,56 @@ class WebSocketManager {
   processData(message: any): void {
     switch (message.type) {
       case 'ROOM':
-        if (this.updateGameState) {
           console.log(`${message.type} 처리`);
           this.updateGameState(message.data);
-        }
+
         break;
+
       case 'GAME_READY':
-        if (this.updateGameReadyState) {
           console.log(`${message.type} 처리`);
           this.updateGameReadyState(message.data);
 
           // 플레이어 준비 요청
           this.playerReadyRequest();
-        }
         break;
+
       case 'GAME_START':
-        if (this.updateGameReadyState) {
           console.log(`${message.type} 처리`);
           this.updateGameReadyState(message.data);
 
           // game 사이트로 이동
-          if (this.navigate) {
             this.navigate(`/game/${this.roomId}`);
-          }
-        }
         break;
+
       case 'GAME_PROGRESS':
-        if (this.updateGameState) {
           console.log(`${message.type} 처리`);
           this.updateGameState(message.data);
-        }
         break;
 
       case 'ROOM_LEAVE':
-        if (this.updateGameState) {
           console.log(`${message.type} 처리`);
           this.updateGameState(message.data.data);
-        }
-        if (this.showMessage) {
           this.showMessage(`${message.data.target}님이 나갔습니다.`);
-        }
+
         break;
 
       case 'ROOM_ENTER':
-        if (this.showMessage) {
           this.showMessage(`${message.data.target}님이 입장하였습니다.`);
-        }
         break;
 
       case 'GAME_END':
-        if (this.updateGameState) {
           console.log(`${message.type} 처리`);
           this.updateGameState(message.data);
-        }
-        if (this.showResultMessage) {
           this.showResultMessage(true);
-        }
         break;
 
       case 'ROOM_CHIEF_LEAVE':
-        if (this.showRoomChiefLeaveMessage) {
           this.showRoomChiefLeaveMessage(true);
-        }
         break;
 
       default:
         console.log(`다른 type${message.type} ${message.data.message}`);
     }
-  }
-
-  setNavigate(navigateFunc: NavigateFunction): void {
-    this.navigate = navigateFunc;
-  }
-
-  setShowMessage(showMessage: (state: any) => void): void {
-    this.showMessage = showMessage;
-  }
-
-  setGameStateUpdater(
-    gameUpdater: (state: any) => void,
-    gameReadyUpdater: (state: any) => void
-  ): void {
-    this.updateGameState = gameUpdater;
-    this.updateGameReadyState = gameReadyUpdater;
-  }
-
-  setRoomData(roomId: string, nickname: string): void {
-    this.roomId = roomId;
-    this.nickname = nickname;
-  }
-
-  setShowRoomChiefLeaveMessage(showRoomChiefLeaveMessage: (state: any) => void): void {
-    this.showRoomChiefLeaveMessage = showRoomChiefLeaveMessage;
   }
 
   setShowResultMessage(showResultMessage: (state: any) => void): void {
@@ -195,11 +181,6 @@ class WebSocketManager {
     console.log(`Subscribed to ${destination}`); // 후에 삭제
   }
 
-  // Optional getter for `client` (if needed)
-  getClient(): Client | null {
-    return this.client;
-  }
-
   roomEnterRequest() {
     if (this.roomId && this.nickname) {
       const requestBody = {
@@ -217,9 +198,8 @@ class WebSocketManager {
   startGameRequest() {
     if (this.roomId) {
       this.sendMessage(`/app/start/${this.roomId}`);
-    } else {
+    } else
       console.error('Room ID is not set');
-    }
   }
 
   // 플레이어 준비 요청
