@@ -5,18 +5,18 @@ const useFirework= () => {
   const animationEnd = Date.now() + duration;
   const defaults = { startVelocity: 25, spread: 360, ticks: 50, zIndex: 100 };
 
-  function randomInRange(min, max) {
+  function randomInRange(min:number, max:number) {
     return Math.random() * (max - min) + min;
   }
 
-  let interval = setInterval(function () {
-    let timeLeft = animationEnd - Date.now();
+  const interval = setInterval(function () {
+    const timeLeft = animationEnd - Date.now();
 
     if (timeLeft <= 0) {
       return clearInterval(interval);
     }
 
-    let particleCount = 50 * (timeLeft / duration);
+    const particleCount = 50 * (timeLeft / duration);
     confetti(
       Object.assign({}, defaults, {
         particleCount,

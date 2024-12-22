@@ -25,12 +25,7 @@ export default function GameResult() {
   return (
     <>
       <MessageModal messages={messages} />
-      <div>
-        게임 결과 페이지
-      </div>
       <GameResultChart />
-      {/* 폭죽 애니메이션 */}
-
     </>
   );
 }
