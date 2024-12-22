@@ -42,7 +42,7 @@ export default function GameReady() {
   }, [roomChiefModal, navigate]);
 
   useEffect(() => {
-    setUser((prev) => ({
+    setUser((prev: RoomClientProps)  => ({
       ...prev,
       roomId: urlRoomId, // urlRoomId 값을 user 상태의 roomId에 갱신
     }));
@@ -54,13 +54,19 @@ export default function GameReady() {
 
     const playerRoomEnter = async () => {
       try {
-        webSocketManager.setRoomData(user.roomId!, user.nickname!);
+        webSocketManager.init(
+          {
+            roomId: user.roomId!,
+            nickname : user.nickname!,
+            updateGameState : setGame,
+            updateGameReadyState : setGameReady,
+            navigate : navigate,
+            showMessage : showMessage,
+            showRoomChiefLeaveMessage : setRoomChiefModal
+          }
+        )
         await webSocketManager.connect();
 
-        webSocketManager.setGameStateUpdater(setGame, setGameReady);
-        webSocketManager.setNavigate(navigate);
-        webSocketManager.setShowMessage(showMessage);
-        webSocketManager.setShowRoomChiefLeaveMessage(setRoomChiefModal);
         setIsConnected(true);
       } catch (err) {
         console.error('Failed to enter room:', err);

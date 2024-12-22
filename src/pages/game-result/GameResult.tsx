@@ -1,4 +1,3 @@
-import ClipboardJS from 'clipboard';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
@@ -11,8 +10,7 @@ import WebSocketManager from '../../services/WebSocketManager.ts';
 import { GameStateDataProps } from '../../types/GameStateData.type.ts';
 import { RoomClientProps } from '../../types/RoomClient.type.ts';
 import { RoomDataProps } from '../../types/RoomData.type.ts';
-import IndividualRank from "../../components/Rank/IndividualRank.tsx";
-import TeamRank from "../../components/Rank/TeamRank.tsx";
+import GameResultChart from '../../components/chart/GameResultChart.tsx';
 
 export default function GameResult() {
   const webSocketManager = WebSocketManager.getInstance();
@@ -27,11 +25,7 @@ export default function GameResult() {
   return (
     <>
       <MessageModal messages={messages} />
-      <div>
-        게임 결과 페이지
-      </div>
-      <IndividualRank/>
-      <TeamRank resultModal={true}/>
+      <GameResultChart />
     </>
   );
 }
