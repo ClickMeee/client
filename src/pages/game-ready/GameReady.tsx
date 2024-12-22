@@ -11,7 +11,7 @@ import { userState } from '../../recoil/atoms/userState.ts';
 import WebSocketManager from '../../services/WebSocketManager.ts';
 import { GameStateDataProps } from '../../types/GameStateData.type.ts';
 import { RoomClientProps } from '../../types/RoomClient.type.ts';
-import { RoomDataProps } from '../../types/RoomData.type.ts';
+import { RoomDataProps, Team } from "../../types/RoomData.type.ts";
 
 export default function GameReady() {
   const webSocketManager = WebSocketManager.getInstance();
@@ -132,13 +132,21 @@ export default function GameReady() {
   const handleTeamChange = (targetTeamName: string) => {
     console.log(`팀 이동: ${targetTeamName}`);
 
-    let currentTeam = game?.teams.find((team) =>
-      team.users.some((u) => u.nickname === user.nickname)
-    );
-    let currentTeamName = currentTeam?.teamName || null;
+    let currentTeam = getCurrentTeam();
+    let currentTeamName = getCurrentTeamName(currentTeam);
 
     webSocketManager.moveTeamRequest(targetTeamName, currentTeamName || '');
   };
+
+  const getCurrentTeam = () : Team | undefined => {
+    return game?.teams.find((team) =>
+      team.users.some((u) => u.nickname === user.nickname)
+    );
+  }
+
+  const getCurrentTeamName = (currentTeam : Team | undefined) : string | null => {
+    return currentTeam?.teamName || null;
+  }
 
   const handleGameStart = () => {
     console.log('게임 시작 요청을 보냅니다.');
@@ -177,9 +185,9 @@ export default function GameReady() {
           ) : (
             <></>
           )}
-          <div className="flex flex-col pt-6 pb-24 text-white">
+          <div className="flex flex-col pt-6 pb-6 text-white">
             {!isConnected ? (
-              <div className="bg-gray-900 pb-6 pl-2 pr-2 pt-3 rounded-lg shadow-floating">
+              <div className="bg-gray-900 pb-6 pl-2 pr-2 pt-3 ml-10 mr-10 rounded-lg">
                 <div className="flex pb-2 justify-center">
                   <label htmlFor="nickname" className="block text-lg font-semibold mb-2">
                     닉네임 설정
@@ -222,32 +230,54 @@ export default function GameReady() {
                       <div className="text-2xl font-semibold">{team.teamName}</div>
                       <div className="text-sm text-gray-500 mb-2">닉네임</div>
                       <div className="list-inside">
+                        {/* 유저 */}
                         {team.users.map((u, userIndex) => (
                           <div
                             key={userIndex}
-                            className={`text-white flex rounded-lg border-2 ${user.nickname === u.nickname ? 'border-orange-500' : 'border-white'}`}
+                            className={`text-white flex p-2 m-1 rounded-lg border-2 ${user.nickname === u.nickname ? 'border-orange-400' : 'border-white'}`}
                           >
                             <div className="absolute self-center ml-2 text-xs">
-                              {game.roomChief === u.nickname ? '👑' : '👋'}
+                              {game.roomChief === u.nickname ? '👑' : ''}
                             </div>
                             <div className="flex-1 text-center">{u.nickname}</div>
                           </div>
                         ))}
                         {/* 팀 이동 버튼 표시 */}
                         {!game?.teams.some(
-                          (t) =>
-                            t.users.some((u) => u.nickname === user.nickname) &&
-                            t.teamName === team.teamName
-                        ) &&
+                            (t) =>
+                              t.users.some((u) => u.nickname === user.nickname) &&
+                              t.teamName === team.teamName
+                          ) &&
                           team.users.length < team.maxUserCount && (
                             <div
-                              className="text-white flex rounded-lg border-2 border-dashed border-gray-500 cursor-pointer hover:border-orange-500 hover:bg-gray-800 transition duration-200"
+                              className="text-white flex rounded-lg p-2 m-1 border-2 border-dashed border-gray-500 cursor-pointer hover:border-orange-500 hover:bg-gray-800 transition duration-200"
                               onClick={() => handleTeamChange(team.teamName)}
                             >
                               <div className="absolute self-center ml-2 text-xs">🔄</div>
                               <div className="flex-1 text-center">팀 이동</div>
                             </div>
                           )}
+                        {/* 빈 공간 표시 */}
+                        {team.maxUserCount > team.users.length ? (
+                          <>
+                            {Array.from(
+                              { length: (team.maxUserCount - team.users.length - (team.teamName !== (getCurrentTeamName(getCurrentTeam()) || '') ? 1 : 0)) > 5 ? 5 : 0},
+                              (_, index) => (
+                                <div>
+                                  <div
+                                    key={index}
+                                    className={`text-white flex p-2 m-1 rounded-lg border-2 border-white`}
+                                  >
+                                    <div className="flex-1 text-center">Empty</div>
+                                  </div>
+                                </div>
+                              )
+                            )}
+                          </>
+                        ) : (
+                          <></>
+                        )}
+
                       </div>
                     </div>
                   ))}
@@ -256,7 +286,7 @@ export default function GameReady() {
             )}
           </div>
           {isGameButtonVisible && (
-            <div className="mt-6 flex justify-center">
+            <div className="mt-2 flex justify-center">
               <button
                 onClick={handleGameStart}
                 className="w-3/4 mb-2.5 py-2 bg-green-600 border-2 border-opacity-0 border-white hover:border-opacity-100 hover:-translate-y-1 hover:-translate-x-0.5 text-white rounded-md hover:shadow-floating hover:transition duration-300"
