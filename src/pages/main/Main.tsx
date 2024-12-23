@@ -55,12 +55,13 @@ const Main = () => {
   const title: string = '🐹 Welcome 🐭\n Click Meee!!!';
 
   useEffect(() => {
+    resetGameState();
+    resetUserState();
+    resetGameReadyState();
+
     const webSocketManager = WebSocketManager.getInstance();
     if (webSocketManager.isConnected()) {
       webSocketManager.disconnect();
-      resetGameState();
-      resetUserState();
-      resetGameReadyState();
     }
   }, []);
 
