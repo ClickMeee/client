@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import IndividualChart from '../../components/chart/IndividualChart';
 import TeamChart from '../../components/chart/TeamChart';
-import TeamRank from '../../components/Rank/TeamRank';
+import TeamRank from '../../components/rank/TeamRank';
 import WebSocketManager from '../../services/WebSocketManager.ts';
 import { useRecoilValue } from "recoil";
 import { RoomDataProps } from "../../types/RoomData.type.ts";
 import { gameState } from "../../recoil/atoms/gameState.ts";
-import IndividualRank from "../../components/Rank/IndividualRank.tsx";
+import IndividualRank from "../../components/rank/IndividualRank.tsx";
 import { useNavigate } from "react-router-dom";
 
 const Game = () => {
