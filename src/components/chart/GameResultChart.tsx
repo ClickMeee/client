@@ -138,23 +138,41 @@ const GameResultChart: React.FC = () => {
         position: "top" as const,
       },
       title: {
-        display: true,
+        display: false,
         text: "Animated Bar Chart with Game Data",
       },
     },
     scales: {
       x: {
         title: {
-          display: true,
+          display: false,
           text: game?.gameType === 'FREE_FOR_ALL' ? "Players" : "Teams",
         },
+        ticks: {
+          display: false // X축의 값 숨기기
+        },
+        grid: {
+          display: false // X축의 그리드 선 숨기기
+        },
+        border: {
+          display: false // X축 선 숨기기
+        }
       },
       y: {
         beginAtZero: true,
         title: {
-          display: true,
+          display: false,
           text: "Scores",
         },
+        ticks: {
+          display: false // Y축의 값 숨기기
+        },
+        grid: {
+          display: false // Y축의 그리드 선 숨기기
+        },
+        border: {
+          display: false // Y축 선 숨기기
+        }
       },
     },
   };
