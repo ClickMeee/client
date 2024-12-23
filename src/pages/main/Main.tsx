@@ -4,9 +4,9 @@ import { useResetRecoilState } from 'recoil';
 import { gameState } from '../../recoil/atoms/gameState.ts';
 import { userState } from '../../recoil/atoms/userState.ts';
 import { gameReadyState } from '../../recoil/atoms/gameReadyState.ts';
-import WebSocketManager from "../../services/WebSocketManager.ts";
-import CurrentUserCount from "../../components/user-count/CurrentUserCount.tsx";
-import MainButton from "./components/MainButton.tsx";
+import WebSocketManager from '../../services/WebSocketManager.ts';
+import CurrentUserCount from '../../components/user-count/CurrentUserCount.tsx';
+import MainButton from './components/MainButton.tsx';
 
 const Main = () => {
   // 이스터에그
@@ -33,6 +33,8 @@ const Main = () => {
   const resetGameReadyState = useResetRecoilState(gameReadyState);
 
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [isVisibleTitle, setIsVisibleTitle] = useState<boolean>(false);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -54,12 +56,27 @@ const Main = () => {
 
   useEffect(() => {
     const webSocketManager = WebSocketManager.getInstance();
-    if(webSocketManager.isConnected()){
+    if (webSocketManager.isConnected()) {
       webSocketManager.disconnect();
       resetGameState();
       resetUserState();
       resetGameReadyState();
     }
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsVisibleTitle(true);
+    }, 500)
+
+    setTimeout(() => {
+      setIsVisibleTitle(false);
+    }, 1400)
+
+    setTimeout(() => {
+      setIsVisible(true);
+    }, 1700);
+
   }, []);
 
   const handleNavigatePage = (path: string) => {
@@ -68,32 +85,36 @@ const Main = () => {
 
   return (
     <>
-      <CurrentUserCount />
-      <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
-        <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
-          <div className="text-center whitespace-pre-wrap md:text-4xl mb-10 text-2xl sm:text-3xl xl:text-5xl">
-            {title}
+      <div
+        className={`z-[-1] fixed text-9xl left-1/2 top-1/2 transition-all transform -translate-x-1/2 -translate-y-1/2 duration-[1500ms] ${isVisibleTitle ? 'opacity-100' : 'opacity-0'}`}
+      >
+        Click Meee
+      </div>
+      <div className={`transition-all duration-[1500ms] ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <CurrentUserCount />
+        <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
+          <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
+            <div className="text-center whitespace-pre-wrap md:text-4xl mb-10 text-2xl sm:text-3xl xl:text-5xl">
+              {title}
+            </div>
+            <MainButton
+              text={'📚 방 목록'}
+              onClickFunction={() => handleNavigatePage('/room-list')}
+            />
+            <MainButton
+              text={'🎊 방 생성'}
+              onClickFunction={() => handleNavigatePage('/game-setting')}
+            />
+            <MainButton
+              text={'🚪 방 코드 입장'}
+              onClickFunction={() => handleNavigatePage('/enter')}
+            />
+            <MainButton
+              text={isFullscreen ? '🌕 전체화면 종료' : '☀️ 전체화면'}
+              onClickFunction={toggleFullscreen}
+            />
+            <MainButton text={'🆘 도움말'} onClickFunction={() => handleNavigatePage('/help')} />
           </div>
-          <MainButton
-            text={'📚 방 목록'}
-            onClickFunction={() => handleNavigatePage('/room-list')}
-          />
-          <MainButton
-            text={'🎊 방 생성'}
-            onClickFunction={() => handleNavigatePage('/game-setting')}
-          />
-          <MainButton
-            text={'🚪 방 코드 입장'}
-            onClickFunction={() => handleNavigatePage('/enter')}
-          />
-          <MainButton
-            text={isFullscreen ? '🌕 전체화면 종료' : '☀️ 전체화면'}
-            onClickFunction={toggleFullscreen}
-          />
-          <MainButton
-            text={'🆘 도움말'}
-            onClickFunction={() => handleNavigatePage('/help')}
-          />
         </div>
       </div>
     </>
