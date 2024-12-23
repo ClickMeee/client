@@ -129,7 +129,7 @@ export default function GameReady() {
 
       setUser((prev) => ({ ...prev, nickname: nicknameInput }));
       setIsConnected(true);
-    } catch (error: any) {
+    } catch (error) {
       showMessage('방 입장에 실패했습니다.');
       console.error(error.message);
     }
@@ -138,8 +138,8 @@ export default function GameReady() {
   const handleTeamChange = (targetTeamName: string) => {
     console.log(`팀 이동: ${targetTeamName}`);
 
-    let currentTeam = getCurrentTeam();
-    let currentTeamName = getCurrentTeamName(currentTeam);
+    const currentTeam = getCurrentTeam();
+    const currentTeamName = getCurrentTeamName(currentTeam);
 
     webSocketManager.moveTeamRequest(targetTeamName, currentTeamName || '');
   };
@@ -218,7 +218,8 @@ export default function GameReady() {
                 <div className="flex justify-center">
                   <p className="text-2xl mb-4">
                     🙋 총 참가자 수:{' '}
-                    {game?.teams.reduce((total, team) => total + team.users.length, 0) || 0}
+                    {game?.teams.reduce((total, team) => total + team.users.length, 0) || 0} /
+                    {game?.teams.reduce((total, team) => total + team.maxUserCount, 0)}
                   </p>
                 </div>
                 <div className="text-center flex flex-row justify-around">
