@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { ReadCurrentUserCount } from '../../api/ReadCurrentUserCount.ts';
 import { useResetRecoilState } from 'recoil';
 import { gameState } from '../../recoil/atoms/gameState.ts';
 import { userState } from '../../recoil/atoms/userState.ts';
 import { gameReadyState } from '../../recoil/atoms/gameReadyState.ts';
 import WebSocketManager from "../../services/WebSocketManager.ts";
+import CurrentUserCount from "../../components/user-count/CurrentUserCount.tsx";
 
 const Main = () => {
   // 이스터에그
@@ -26,7 +26,6 @@ const Main = () => {
 
   console.log(easterEgg);
   const navigate = useNavigate();
-  const [userCount, setUserCount] = useState<number | null>(null);
 
   const resetGameState = useResetRecoilState(gameState);
   const resetUserState = useResetRecoilState(userState);
@@ -50,10 +49,6 @@ const Main = () => {
     }
   };
 
-  const fetchCurrentUserCount = async () => {
-    setUserCount(await ReadCurrentUserCount());
-  };
-
   const title: string = '🐹 Welcome 🐭\n Click Meee!!!';
 
   useEffect(() => {
@@ -64,13 +59,6 @@ const Main = () => {
       resetUserState();
       resetGameReadyState();
     }
-
-    fetchCurrentUserCount();
-    const polling = setInterval(fetchCurrentUserCount, 5000);
-
-    return () => {
-      clearInterval(polling);
-    };
   }, []);
 
   const handleNavigatePage = (path: string) => {
@@ -79,14 +67,7 @@ const Main = () => {
 
   return (
     <>
-      <span className="w-1/7 transition-all fixed hidden lg:block">
-        <div
-          className={`bg-gray-700 m-10 mt-6 text-white p-5 rounded-xl shadow-floating opacity-${userCount !== null ? 100 : 0}`}
-        >
-          🐥 현재 접속자 수 : {userCount}
-        </div>
-      </span>
-
+      <CurrentUserCount/>
       <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
           <div className="text-center whitespace-pre-wrap md:text-4xl mb-10 text-2xl sm:text-3xl xl:text-5xl">
