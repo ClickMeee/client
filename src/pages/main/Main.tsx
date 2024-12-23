@@ -6,6 +6,7 @@ import { userState } from '../../recoil/atoms/userState.ts';
 import { gameReadyState } from '../../recoil/atoms/gameReadyState.ts';
 import WebSocketManager from "../../services/WebSocketManager.ts";
 import CurrentUserCount from "../../components/user-count/CurrentUserCount.tsx";
+import MainButton from "./components/MainButton.tsx";
 
 const Main = () => {
   // 이스터에그
@@ -67,43 +68,32 @@ const Main = () => {
 
   return (
     <>
-      <CurrentUserCount/>
+      <CurrentUserCount />
       <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">
           <div className="text-center whitespace-pre-wrap md:text-4xl mb-10 text-2xl sm:text-3xl xl:text-5xl">
             {title}
           </div>
-          <button
-            onClick={() => handleNavigatePage('/room-list')}
-            className="basic-button text-xl text-center mb-5"
-          >
-            📚 방 목록
-          </button>
-          <button
-            onClick={() => handleNavigatePage('/game-setting')}
-            className="basic-button text-xl text-center mb-5"
-          >
-            🎊 방 생성
-          </button>
-          <button
-            onClick={() => handleNavigatePage('/enter')}
-            className="basic-button text-xl text-center mb-5"
-          >
-            🚪 방 코드 입장
-          </button>
-
-          {/* 모바일에서는 전체화면 버튼을 노출 X  */}
-          {!/Mobi/i.test(window.navigator.userAgent) ? (
-            <button onClick={toggleFullscreen} className="basic-button text-xl text-center mb-5">
-              {isFullscreen ? '🌕 전체화면 종료' : '☀️ 전체화면'}
-            </button>) : <></>
-          }
-          <button
-            onClick={() => handleNavigatePage('/help')}
-            className="basic-button text-xl text-center mb-5"
-          >
-            🆘 도움말
-          </button>
+          <MainButton
+            text={'📚 방 목록'}
+            onClickFunction={() => handleNavigatePage('/room-list')}
+          />
+          <MainButton
+            text={'🎊 방 생성'}
+            onClickFunction={() => handleNavigatePage('/game-setting')}
+          />
+          <MainButton
+            text={'🚪 방 코드 입장'}
+            onClickFunction={() => handleNavigatePage('/enter')}
+          />
+          <MainButton
+            text={isFullscreen ? '🌕 전체화면 종료' : '☀️ 전체화면'}
+            onClickFunction={toggleFullscreen}
+          />
+          <MainButton
+            text={'🆘 도움말'}
+            onClickFunction={() => handleNavigatePage('/help')}
+          />
         </div>
       </div>
     </>
