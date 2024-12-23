@@ -1,8 +1,8 @@
 import { Client, IFrame, IMessage } from '@stomp/stompjs';
 import { NavigateFunction } from 'react-router-dom';
 import SockJS from 'sockjs-client';
-import { RoomDataProps } from "../types/RoomData.type.ts";
-import { GameStateDataProps } from "../types/GameStateData.type.ts";
+import { RoomDataProps } from '../types/RoomData.type.ts';
+import { GameStateDataProps } from '../types/GameStateData.type.ts';
 
 type GameStateUpdater = (state: RoomDataProps) => void;
 type GameReadyUpdater = (state: GameStateDataProps) => void;
@@ -26,11 +26,11 @@ class WebSocketManager {
   private roomId!: string;
   private nickname!: string;
   private updateGameState!: GameStateUpdater;
-  private updateGameReadyState!: GameReadyUpdater
-  private navigate!: NavigateFunction
-  private showMessage!: ShowMessageFunction
-  private showRoomChiefLeaveMessage!: ShowRoomChiefLeaveMessageFunction
-  private showResultMessage!: ShowResultMessageFunction
+  private updateGameReadyState!: GameReadyUpdater;
+  private navigate!: NavigateFunction;
+  private showMessage!: ShowMessageFunction;
+  private showRoomChiefLeaveMessage!: ShowRoomChiefLeaveMessageFunction;
+  private showResultMessage!: ShowResultMessageFunction;
 
   init(params: WebSocketManagerParams) {
     this.roomId = params.roomId;
@@ -42,8 +42,7 @@ class WebSocketManager {
     this.showRoomChiefLeaveMessage = params.showRoomChiefLeaveMessage;
   }
 
-  public static getInstance(
-  ): WebSocketManager{
+  public static getInstance(): WebSocketManager {
     if (!WebSocketManager.instance) {
       WebSocketManager.instance = new WebSocketManager();
     }
@@ -88,55 +87,57 @@ class WebSocketManager {
     });
   }
 
+  isConnected(): boolean {
+    return this.client !== null && this.client.connected;
+  }
+
   // stomp 메세지 데이터 처리 함수
   processData(message: any): void {
     switch (message.type) {
       case 'ROOM':
-          console.log(`${message.type} 처리`);
-          this.updateGameState(message.data);
-
+        console.log(`${message.type} 처리`);
+        this.updateGameState(message.data);
         break;
 
       case 'GAME_READY':
-          console.log(`${message.type} 처리`);
-          this.updateGameReadyState(message.data);
+        console.log(`${message.type} 처리`);
+        this.updateGameReadyState(message.data);
 
-          // 플레이어 준비 요청
-          this.playerReadyRequest();
+        // 플레이어 준비 요청
+        this.playerReadyRequest();
         break;
 
       case 'GAME_START':
-          console.log(`${message.type} 처리`);
-          this.updateGameReadyState(message.data);
+        console.log(`${message.type} 처리`);
+        this.updateGameReadyState(message.data);
 
-          // game 사이트로 이동
-            this.navigate(`/game/${this.roomId}`);
+        // game 사이트로 이동
+        this.navigate(`/game/${this.roomId}`);
         break;
 
       case 'GAME_PROGRESS':
-          console.log(`${message.type} 처리`);
-          this.updateGameState(message.data);
+        console.log(`${message.type} 처리`);
+        this.updateGameState(message.data);
         break;
 
       case 'ROOM_LEAVE':
-          console.log(`${message.type} 처리`);
-          this.updateGameState(message.data.data);
-          this.showMessage(`${message.data.target}님이 나갔습니다.`);
-
+        console.log(`${message.type} 처리`);
+        this.updateGameState(message.data.data);
+        this.showMessage(`${message.data.target}님이 나갔습니다.`);
         break;
 
       case 'ROOM_ENTER':
-          this.showMessage(`${message.data.target}님이 입장하였습니다.`);
+        this.showMessage(`${message.data.target}님이 입장하였습니다.`);
         break;
 
       case 'GAME_END':
-          console.log(`${message.type} 처리`);
-          this.updateGameState(message.data);
-          this.showResultMessage(true);
+        console.log(`${message.type} 처리`);
+        this.updateGameState(message.data);
+        this.showResultMessage(true);
         break;
 
       case 'ROOM_CHIEF_LEAVE':
-          this.showRoomChiefLeaveMessage(true);
+        this.showRoomChiefLeaveMessage(true);
         break;
 
       default:
@@ -198,8 +199,7 @@ class WebSocketManager {
   startGameRequest() {
     if (this.roomId) {
       this.sendMessage(`/app/start/${this.roomId}`);
-    } else
-      console.error('Room ID is not set');
+    } else console.error('Room ID is not set');
   }
 
   // 플레이어 준비 요청

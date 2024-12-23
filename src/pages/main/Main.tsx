@@ -53,7 +53,7 @@ const Main = () => {
 
   useEffect(() => {
     const webSocketManager = WebSocketManager.getInstance();
-    if(webSocketManager){
+    if(webSocketManager.isConnected()){
       webSocketManager.disconnect();
       resetGameState();
       resetUserState();
