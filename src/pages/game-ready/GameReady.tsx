@@ -239,10 +239,7 @@ export default function GameReady() {
                             key={userIndex}
                             className={`text-white flex p-2 m-1 rounded-lg border-2 ${user.nickname === u.nickname ? 'border-orange-400' : 'border-white'}`}
                           >
-                            <div className="absolute self-center ml-2 text-xs">
-                              {game.roomChief === u.nickname ? '👑' : ''}
-                            </div>
-                            <div className="flex-1 text-center">{u.nickname}</div>
+                            <div className="flex-1 text-center"> {game.roomChief === u.nickname ? '👑' : ''} {u.nickname}</div>
                           </div>
                         ))}
                         {/* 팀 이동 버튼 표시 */}
@@ -256,8 +253,7 @@ export default function GameReady() {
                               className="text-white flex rounded-lg p-2 m-1 border-2 border-dashed border-gray-500 cursor-pointer hover:border-orange-500 hover:bg-gray-800 transition duration-200"
                               onClick={() => handleTeamChange(team.teamName)}
                             >
-                              <div className="absolute self-center ml-2 text-xs">🔄</div>
-                              <div className="flex-1 text-center">팀 이동</div>
+                              <div className="flex-1 text-center"> 🔄 팀 이동</div>
                             </div>
                           )}
                         {/* 빈 공간 표시 */}
