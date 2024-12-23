@@ -127,7 +127,7 @@ export default function GameReady() {
 
       setUser((prev) => ({ ...prev, nickname: nicknameInput }));
       setIsConnected(true);
-    } catch (error) {
+    } catch (error : Error) {
       showMessage('방 입장에 실패했습니다.');
       console.error(error.message);
     }
@@ -231,7 +231,7 @@ export default function GameReady() {
                       }`}
                     >
                       <div className="text-2xl font-semibold">{team.teamName}</div>
-                      <div className="text-sm text-gray-500 mb-2">닉네임</div>
+                      <div className="text-sm text-gray-300 mb-2"> {team.maxUserCount} / {team.users.length}</div>
                       <div className="list-inside">
                         {/* 유저 */}
                         {team.users.map((u, userIndex) => (
