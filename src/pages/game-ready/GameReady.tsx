@@ -77,11 +77,13 @@ export default function GameReady() {
 
   useEffect(() => {
     if (game) {
-      const isReadyAllUser = game.teams.every((team) =>
-        team.users.every((user) =>
-          user.nickname === game.roomChief ? true : user.isReady
-        )
-      );
+      const isReadyAllUser =
+        game.teams.reduce((total, team) => total + team.users.length, 0) >= 2 && // 최소 2명 이상
+        game.teams.every((team) =>
+          team.users.every((user) =>
+            user.nickname === game.roomChief ? true : user.isReady
+          )
+        );
 
       if(isReadyAllUser){
         setIsGameButtonAble(true);
