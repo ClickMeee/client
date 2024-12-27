@@ -22,6 +22,22 @@ const GameResultChart: React.FC = () => {
   const chartRef = useRef<any>(null);
   const [isChartReached, setIsChartReached] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [scaleValue, setScaleValue] = useState<number>(1);
+
+  useEffect(() => {
+    // 1초마다 값 변경
+    const intervalId = setInterval(() => {
+      setScaleValue((prevValue: number) => {
+        if(prevValue > 2){
+          clearInterval(intervalId);
+        }
+        return prevValue + 0.01;
+      }); // 값 증가
+    }, 10); // 1000ms = 1초
+
+    // 컴포넌트가 언마운트될 때 interval을 정리
+    return () => clearInterval(intervalId);
+  }, []);
 
   // 초기 데이터 상태
   const [currentScores, setCurrentScores] = useState<{ [key: string]: number }>(() => {
@@ -109,8 +125,8 @@ const GameResultChart: React.FC = () => {
     if (allReached && !isChartReached) {
       setIsChartReached(true);
       setModalVisible(true);
-      useFirework(); // firework 실행
-      setTimeout(() => setModalVisible(false), 5000); // 5초 뒤에 모달 숨김
+      useFirework();
+      setTimeout(() => setModalVisible(false), 3000); // 3초 뒤에 모달 숨김
     }
   }, [currentScores, game, isChartReached]);
 
@@ -189,9 +205,11 @@ const GameResultChart: React.FC = () => {
   })();
 
   return (
-    <div className="relative w-full h-96">
-      {isChartReached && useFirework()}
-      <Bar ref={chartRef} data={chartData} options={chartOptions} />
+    <div className="relative w-1/2 h-3/4">
+      <div className={`w-1/2 h-1/2 transform`}
+           style={{ transform: `scale(${scaleValue}) translateY(${scaleValue * 50}px)` }}>
+        <Bar ref={chartRef} data={chartData} options={chartOptions} />
+      </div>
       {modalVisible && (
         <div className="fixed inset-0 flex items-center justify-center z-30">
           <div className="absolute inset-0 bg-gray-500 bg-opacity-50"></div>
