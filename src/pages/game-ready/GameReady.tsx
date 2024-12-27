@@ -136,8 +136,8 @@ export default function GameReady() {
   const handleTeamChange = (targetTeamName: string) => {
     console.log(`팀 이동: ${targetTeamName}`);
 
-    let currentTeam = getCurrentTeam();
-    let currentTeamName = getCurrentTeamName(currentTeam);
+    const currentTeam = getCurrentTeam();
+    const currentTeamName = getCurrentTeamName(currentTeam);
 
     webSocketManager.moveTeamRequest(targetTeamName, currentTeamName || '');
   };
