@@ -96,15 +96,13 @@ class WebSocketManager {
     switch (message.type) {
       case 'ROOM':
         console.log(`${message.type} 처리`);
+        console.log(message);
         this.updateGameState(message.data);
         break;
 
       case 'GAME_READY':
         console.log(`${message.type} 처리`);
         this.updateGameReadyState(message.data);
-
-        // 플레이어 준비 요청
-        this.playerReadyRequest();
         break;
 
       case 'GAME_START':
@@ -203,7 +201,7 @@ class WebSocketManager {
   }
 
   // 플레이어 준비 요청
-  playerReadyRequest() {
+  toggleUserReadyState() {
     if (this.roomId) {
       this.sendMessage(`/app/start/${this.roomId}/${this.nickname}`);
     } else {

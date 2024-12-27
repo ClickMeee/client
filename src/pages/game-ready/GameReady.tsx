@@ -24,7 +24,7 @@ export default function GameReady() {
 
   const [nicknameInput, setNicknameInput] = useState<string>(''); // 닉네임 입력 상태
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
-  const [isGameButtonVisible, setIsGameButtonVisible] = useState<boolean>(false); // 게임 시작 버튼 상태
+  const [isGameButtonAble, setIsGameButtonAble] = useState<boolean>(false); // 게임 시작 버튼 상태
   const [roomChiefModal, setRoomChiefModal] = useState<boolean>(false);
 
   const clipboardRef = useRef<ClipboardJS | null>(null);
@@ -77,13 +77,18 @@ export default function GameReady() {
 
   useEffect(() => {
     if (game) {
-      const isTeamsHaveUsers = game.teams.every((team) => team.users.length > 0);
+      const isReadyAllUser =
+        game.teams.reduce((total, team) => total + team.users.length, 0) >= 2 && // 최소 2명 이상
+        game.teams.every((team) =>
+          team.users.every((user) =>
+            user.nickname === game.roomChief ? true : user.isReady
+          )
+        );
 
-      // 각 팀의 사용자가 한명 이상 이고, 방장인 경우에만 게임 시작 버튼을 보여줌
-      if (isTeamsHaveUsers && user.nickname === game.roomChief) {
-        setIsGameButtonVisible(true);
-      } else {
-        setIsGameButtonVisible(false);
+      if(isReadyAllUser){
+        setIsGameButtonAble(true);
+      } else{
+        setIsGameButtonAble(false);
       }
     }
   }, [game]);
@@ -127,7 +132,7 @@ export default function GameReady() {
 
       setUser((prev) => ({ ...prev, nickname: nicknameInput }));
       setIsConnected(true);
-    } catch (error: any) {
+    } catch (error : Error) {
       showMessage('방 입장에 실패했습니다.');
       console.error(error.message);
     }
@@ -155,6 +160,10 @@ export default function GameReady() {
     webSocketManager.startGameRequest();
   };
 
+  const handleGameReady = () =>{
+    webSocketManager.toggleUserReadyState();
+  }
+
   return (
     <>
       <MessageModal messages={messages} />
@@ -167,6 +176,7 @@ export default function GameReady() {
           </div>
         </div>
       )}
+
       <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
         <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 pt-4 pb-4 pl-2 pr-2 shadow-floating">
           <div className="mt-4 flex justify-center">
@@ -214,7 +224,8 @@ export default function GameReady() {
                 <div className="flex justify-center">
                   <p className="text-2xl mb-4">
                     🙋 총 참가자 수:{' '}
-                    {game?.teams.reduce((total, team) => total + team.users.length, 0) || 0}
+                    {game?.teams.reduce((total, team) => total + team.users.length, 0) || 0} /
+                    {game?.teams.reduce((total, team) => total + team.maxUserCount, 0)}
                   </p>
                 </div>
                 <div className="text-center flex flex-row justify-around">
@@ -230,7 +241,7 @@ export default function GameReady() {
                       }`}
                     >
                       <div className="text-2xl font-semibold">{team.teamName}</div>
-                      <div className="text-sm text-gray-500 mb-2">닉네임</div>
+                      <div className="text-sm text-gray-300 mb-2"> {team.maxUserCount} / {team.users.length}</div>
                       <div className="list-inside">
                         {/* 유저 */}
                         {team.users.map((u, userIndex) => (
@@ -238,25 +249,22 @@ export default function GameReady() {
                             key={userIndex}
                             className={`text-white flex p-2 m-1 rounded-lg border-2 ${user.nickname === u.nickname ? 'border-orange-400' : 'border-white'}`}
                           >
-                            <div className="absolute self-center ml-2 text-xs">
-                              {game.roomChief === u.nickname ? '👑' : ''}
-                            </div>
-                            <div className="flex-1 text-center">{u.nickname}</div>
+                            <div
+                              className="flex-1 text-center"> {game.roomChief === u.nickname ? '👑' : ''} {u.nickname}</div>
                           </div>
                         ))}
                         {/* 팀 이동 버튼 표시 */}
                         {!game?.teams.some(
-                          (t) =>
-                            t.users.some((u) => u.nickname === user.nickname) &&
-                            t.teamName === team.teamName
-                        ) &&
+                            (t) =>
+                              t.users.some((u) => u.nickname === user.nickname) &&
+                              t.teamName === team.teamName
+                          ) &&
                           team.users.length < team.maxUserCount && (
                             <div
                               className="text-white flex rounded-lg p-2 m-1 border-2 border-dashed border-gray-500 cursor-pointer hover:border-orange-500 hover:bg-gray-800 transition duration-200"
                               onClick={() => handleTeamChange(team.teamName)}
                             >
-                              <div className="absolute self-center ml-2 text-xs">🔄</div>
-                              <div className="flex-1 text-center">팀 이동</div>
+                              <div className="flex-1 text-center"> 🔄 팀 이동</div>
                             </div>
                           )}
                         {/* 빈 공간 표시 */}
@@ -266,10 +274,10 @@ export default function GameReady() {
                               {
                                 length:
                                   team.maxUserCount -
-                                    team.users.length -
-                                    (team.teamName !== (getCurrentTeamName(getCurrentTeam()) || '')
-                                      ? 1
-                                      : 0) >
+                                  team.users.length -
+                                  (team.teamName !== (getCurrentTeamName(getCurrentTeam()) || '')
+                                    ? 1
+                                    : 0) >
                                   5
                                     ? 5
                                     : 0,
@@ -293,19 +301,26 @@ export default function GameReady() {
                     </div>
                   ))}
                 </div>
+                <div className="mt-2 flex justify-center">
+                  {user.nickname === game?.roomChief ? <button
+                    onClick={handleGameStart}
+                    disabled={!isGameButtonAble}
+                    className={`w-3/4 mb-2.5 py-2 ${isGameButtonAble ? '' : 'opacity-50'} bg-green-600 border-2 border-opacity-0 border-white hover:border-opacity-100 hover:-translate-y-1 hover:-translate-x-0.5 text-white rounded-md hover:shadow-floating hover:transition duration-300`}
+                  >
+                    게임 시작
+                  </button> : <button
+                    onClick={handleGameReady}
+                    className={`w-3/4 mb-2.5 py-2 bg-green-600 border-2 border-opacity-0 border-white hover:border-opacity-100 hover:-translate-y-1 hover:-translate-x-0.5 text-white rounded-md hover:shadow-floating hover:transition duration-300`}
+                  >
+                    {game?.teams.some(team =>
+                      team.users.some(teamUser => teamUser.nickname === user.nickname && teamUser.isReady)
+                    ) ? '게임 준비 해제' : '게임 준비하기'}
+                  </button>
+                  }
+                </div>
               </>
             )}
           </div>
-          {isGameButtonVisible && (
-            <div className="mt-2 flex justify-center">
-              <button
-                onClick={handleGameStart}
-                className="w-3/4 mb-2.5 py-2 bg-green-600 border-2 border-opacity-0 border-white hover:border-opacity-100 hover:-translate-y-1 hover:-translate-x-0.5 text-white rounded-md hover:shadow-floating hover:transition duration-300"
-              >
-                게임 시작
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </>
