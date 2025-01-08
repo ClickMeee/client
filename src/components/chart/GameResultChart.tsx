@@ -135,7 +135,10 @@ const GameResultChart: React.FC = () => {
   })();
 
   return (
-    <div className={`w-full h-full flex flex-col justify-around items-center ${isChartReached ? "bg-gray-600 " : "bg-white"} `}>
+    <div
+      className={`w-full h-full flex flex-col justify-around items-center ${isChartReached ? "bg-white " : "bg-white"} `}>
+      <div className='absolute w-full h-full top-16 bg-black opacity-70'>
+      </div>
       <div>
         <span className={'text-3xl text-white opacity-90'}>{`${isChartReached ? `우승 : ${winnerLabel}` : ""}`}</span>
       </div>
@@ -153,9 +156,9 @@ const GameResultChart: React.FC = () => {
             {key ===
               Object.keys(currentHeights).find(
                 (k) => currentHeights[k] === Math.max(...Object.values(currentHeights))
-              ) && isChartReached && (
+              ) && isChartReached ? (
                 <div
-                  className="absolute w-[200%] h-[120%] opacity-70 z-[50]"
+                  className="absolute w-[400%] h-[120%] opacity-70 z-[50]"
                   style={{
                     background: 'radial-gradient(circle at center, rgba(255, 255, 255, 1.0) 0%, rgba(255, 255, 255, 0.0) 70%, transparent 100%)',
                     clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)',
@@ -164,14 +167,17 @@ const GameResultChart: React.FC = () => {
                     transform: 'translateX(-50%)',
                     filter: 'blur(10px)',
                   }}
-                ></div>
-              )}
+                ></div>)
+              : (<div className='h-full bg-black opacity-70 rounded-t-md'>
+              </div>)
+            }
             <span className="absolute top-0 mt-2 text-sm block mb-1 w-full  ">{key}</span>
             <span
               className="absolute bottom-[-20px] text-sm text-white block w-full">{isChartReached ? `${scores[key]}` : ''}</span>
           </div>
         ))}
       </div>
+
     </div>
   );
 };
