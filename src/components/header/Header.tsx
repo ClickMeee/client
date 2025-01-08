@@ -10,7 +10,7 @@ export default function Header() {
   }
 
   return (
-    <header className="p-3 bg-white shadow-custom-bottom sticky">
+    <header className="p-3 bg-white shadow-custom-bottom sticky h-16">
       <div className="justify-center flex items-center gap-2 ">
         <FontAwesomeIcon
           className="relative z-0 mb-1"
