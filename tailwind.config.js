@@ -8,14 +8,19 @@ export default {
         'custom-strong-bottom': '0 8px 15px rgba(0, 0, 0, 0.2)', // 더 강한 하단 그림자
         'floating': '0 10px 15px rgba(0, 0, 0, 0.1), 10px 8px 5px rgba(0, 0, 0, 0.5)',
       },
-
       animation: {
         'move-bg': 'moveBackground 5s linear infinite', // 사용자 정의 애니메이션
+        'lightBeam': 'lightBeam 2s',
       },
       keyframes: {
         moveBackground: {
           '0%': { transform: 'translate(0, 0)' },
           '100%': { transform: 'translate(-60px, -60px)' },
+        },
+        lightBeam: {
+          '0%': { transform: 'translateY(-100%)', opacity: '0' },
+          '50%': { opacity: '0.5' },
+          '100%': { transform: 'translateY(100%)', opacity: '0' },
         },
       },
 

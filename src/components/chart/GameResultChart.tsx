@@ -1,65 +1,35 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import React, { useEffect, useState } from "react";
 import useFirework from "../../hooks/useFirework.ts";
 import { useRecoilValue } from "recoil";
 import { RoomDataProps } from "../../types/RoomData.type.ts";
 import { gameState } from "../../recoil/atoms/gameState.ts";
 
-// Chart.js 모듈 등록
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
 const GameResultChart: React.FC = () => {
   const game = useRecoilValue<RoomDataProps | null>(gameState);
-  const chartRef = useRef<any>(null);
+
   const [isChartReached, setIsChartReached] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [scaleValue, setScaleValue] = useState<number>(1);
-
-  useEffect(() => {
-    // 1초마다 값 변경
-    const intervalId = setInterval(() => {
-      setScaleValue((prevValue: number) => {
-        if(prevValue > 2){
-          clearInterval(intervalId);
-        }
-        return prevValue + 0.01;
-      }); // 값 증가
-    }, 10); // 1000ms = 1초
-
-    // 컴포넌트가 언마운트될 때 interval을 정리
-    return () => clearInterval(intervalId);
-  }, []);
-
-  // 초기 데이터 상태
-  const [currentScores, setCurrentScores] = useState<{ [key: string]: number }>(() => {
+  const [scaleValues, setScaleValues] = useState<{ [key: string]: number }>({});
+  const [currentHeights, setCurrentHeights] = useState<{ [key: string]: number }>(() => {
     if (!game) return {};
-    const initialScores: { [key: string]: number } = {};
-    if (game.gameType === 'FREE_FOR_ALL') {
+    const initialHeights: { [key: string]: number } = {};
+    if (game.gameType === "FREE_FOR_ALL") {
       game.teams[0].users.forEach((user) => {
-        initialScores[user.nickname] = 0; // 초기값은 0
+        initialHeights[user.nickname] = 0;
       });
     } else {
       game.teams.forEach((team) => {
-        initialScores[team.teamName] = 0; // 초기값은 0
+        initialHeights[team.teamName] = 0;
       });
     }
-    return initialScores;
+    return initialHeights;
   });
 
   useEffect(() => {
     if (!game) return;
 
-    const finalScores = (() => {
-      if (game.gameType === 'FREE_FOR_ALL') {
+    const scores = (() => {
+      if (game.gameType === "FREE_FOR_ALL") {
         return game.teams[0].users.reduce<{ [key: string]: number }>((acc, user) => {
           acc[user.nickname] = user.clickCount;
           return acc;
@@ -72,130 +42,75 @@ const GameResultChart: React.FC = () => {
       }
     })();
 
-    const interval = setInterval(() => {
-      setCurrentScores((prevScores) => {
-        let hasUpdated = false;
+    const maxScore = Math.max(...Object.values(scores));
+    const percentScores = Object.keys(scores).reduce<{ [key: string]: number }>((acc, key) => {
+      acc[key] = (scores[key] / maxScore) * 100;
+      return acc;
+    }, {});
 
-        const updatedScores = Object.keys(finalScores).reduce((acc, key) => {
-          const currentValue = prevScores[key] || 0;
-          const targetValue = finalScores[key];
+    setScaleValues(
+      Object.keys(percentScores).reduce<{ [key: string]: number }>((acc, key) => {
+        acc[key] = 1; // 초기 scale 값을 1로 설정
+        return acc;
+      }, {})
+    );
+
+    let remainingKeys = Object.keys(percentScores).sort((a, b) => percentScores[a] - percentScores[b]);
+    const intervalTime = 50;
+    const maxTime = 3000;
+    const totalSteps = maxTime / intervalTime;
+    const stepHeight = 100 / totalSteps;
+
+    const interval = setInterval(() => {
+      setCurrentHeights((prevHeights) => {
+        let hasUpdated = false;
+        const updatedHeights = { ...prevHeights };
+
+        remainingKeys.forEach((key) => {
+          const currentValue = prevHeights[key] || 0;
+          const targetValue = percentScores[key];
 
           if (currentValue < targetValue) {
             hasUpdated = true;
-            acc[key] = Math.min(currentValue + 1, targetValue); // 값 1씩 증가
-          } else {
-            acc[key] = currentValue; // 값 유지
+            updatedHeights[key] = Math.min(currentValue + stepHeight, targetValue);
           }
+        });
 
-          return acc;
-        }, {} as { [key: string]: number });
+        remainingKeys = remainingKeys.filter((key) => updatedHeights[key] < percentScores[key]);
 
         if (!hasUpdated) {
-          clearInterval(interval); // 모든 값이 목표에 도달하면 타이머 정지
+          clearInterval(interval);
+          setIsChartReached(true);
+          setModalVisible(true);
+          useFirework();
+          setTimeout(() => setModalVisible(false), 3000);
+
+          let zoomCount = 0;
+          const zoomInterval = setInterval(() => {
+            setScaleValues((prev) => {
+              const updatedScales = { ...prev };
+              Object.keys(updatedScales).forEach((key) => {
+                if (percentScores[key] === 100) {
+                  updatedScales[key] = updatedScales[key] === 1 ? 1.03 : 1;
+                }
+              });
+              return updatedScales;
+            });
+            zoomCount++;
+            if (zoomCount >= 6) clearInterval(zoomInterval);
+          }, 450);
         }
 
-        return updatedScores;
+        return updatedHeights;
       });
-    }, 50); // 업데이트 속도 (50ms)
+    }, intervalTime);
 
-    return () => clearInterval(interval); // 컴포넌트 언마운트 시 정리
+    return () => clearInterval(interval);
   }, [game]);
-
-  useEffect(() => {
-    if (!game) return;
-
-    const finalScores = (() => {
-      if (game.gameType === 'FREE_FOR_ALL') {
-        return game.teams[0].users.reduce<{ [key: string]: number }>((acc, user) => {
-          acc[user.nickname] = user.clickCount;
-          return acc;
-        }, {});
-      } else {
-        return game.teams.reduce<{ [key: string]: number }>((acc, team) => {
-          acc[team.teamName] = team.teamScore;
-          return acc;
-        }, {});
-      }
-    })();
-
-    const allReached = Object.keys(finalScores).every(
-      (key) => currentScores[key] === finalScores[key]
-    );
-
-    if (allReached && !isChartReached) {
-      setIsChartReached(true);
-      setModalVisible(true);
-      useFirework();
-      setTimeout(() => setModalVisible(false), 3000); // 3초 뒤에 모달 숨김
-    }
-  }, [currentScores, game, isChartReached]);
-
-  const chartData = {
-    labels:
-      game?.gameType === 'FREE_FOR_ALL'
-        ? game.teams[0].users.map((user) => user.nickname)
-        : game?.teams.map((team) => team.teamName) || [], // X축 레이블
-    datasets: [
-      {
-        label: "Scores",
-        data: Object.values(currentScores), // 현재 값
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-        borderColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top" as const,
-      },
-      title: {
-        display: false,
-        text: "Animated Bar Chart with Game Data",
-      },
-    },
-    scales: {
-      x: {
-        title: {
-          display: false,
-          text: game?.gameType === 'FREE_FOR_ALL' ? "Players" : "Teams",
-        },
-        ticks: {
-          display: false // X축의 값 숨기기
-        },
-        grid: {
-          display: false // X축의 그리드 선 숨기기
-        },
-        border: {
-          display: false // X축 선 숨기기
-        }
-      },
-      y: {
-        beginAtZero: true,
-        title: {
-          display: false,
-          text: "Scores",
-        },
-        ticks: {
-          display: false // Y축의 값 숨기기
-        },
-        grid: {
-          display: false // Y축의 그리드 선 숨기기
-        },
-        border: {
-          display: false // Y축 선 숨기기
-        }
-      },
-    },
-  };
 
   const winnerLabel = (() => {
     if (!game) return "";
-    if (game.gameType === 'FREE_FOR_ALL') {
+    if (game.gameType === "FREE_FOR_ALL") {
       const topPlayer = game.teams[0].users.reduce((prev, curr) => (curr.clickCount > prev.clickCount ? curr : prev));
       return topPlayer.nickname;
     } else {
@@ -204,20 +119,59 @@ const GameResultChart: React.FC = () => {
     }
   })();
 
+  const scores = (() => {
+    if (!game) return {};
+    if (game.gameType === "FREE_FOR_ALL") {
+      return game.teams[0].users.reduce<{ [key: string]: number }>((acc, user) => {
+        acc[user.nickname] = user.clickCount;
+        return acc;
+      }, {});
+    } else {
+      return game.teams.reduce<{ [key: string]: number }>((acc, team) => {
+        acc[team.teamName] = team.teamScore;
+        return acc;
+      }, {});
+    }
+  })();
+
   return (
-    <div className="relative w-1/2 h-3/4">
-      <div className={`w-1/2 h-1/2 transform`}
-           style={{ transform: `scale(${scaleValue}) translateY(${scaleValue * 50}px)` }}>
-        <Bar ref={chartRef} data={chartData} options={chartOptions} />
+    <div className={`w-full h-full flex flex-col justify-around items-center ${isChartReached ? "bg-gray-600 " : "bg-white"} `}>
+      <div>
+        <span className={'text-3xl text-white opacity-90'}>{`${isChartReached ? `우승 : ${winnerLabel}` : ""}`}</span>
       </div>
-      {modalVisible && (
-        <div className="fixed inset-0 flex items-center justify-center z-30">
-          <div className="absolute inset-0 bg-gray-500 bg-opacity-50"></div>
-          <div className="bg-white p-4 rounded-lg shadow-lg text-center z-40">
-            <h1 className="text-2xl font-bold">우승 : {winnerLabel}</h1>
+      <div className="w-3/4 h-96 flex justify-around items-end z-[30]">
+        {Object.entries(currentHeights).map(([key, value]) => (
+          <div
+            key={key}
+            className={`w-1/6 text-center bg-blue-300 text-black rounded-t-md z-[30]`}
+            style={{
+              height: `${value}%`,
+              transition: 'height 0.05s ease-in-out, transform 0.3s ease-in-out',
+              transform: scaleValues[key] ? `scale(${scaleValues[key]})` : undefined,
+            }}
+          >
+            {key ===
+              Object.keys(currentHeights).find(
+                (k) => currentHeights[k] === Math.max(...Object.values(currentHeights))
+              ) && isChartReached && (
+                <div
+                  className="absolute w-[200%] h-[120%] opacity-70 z-[50]"
+                  style={{
+                    background: 'radial-gradient(circle at center, rgba(255, 255, 255, 1.0) 0%, rgba(255, 255, 255, 0.0) 70%, transparent 100%)',
+                    clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)',
+                    top: '-20%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    filter: 'blur(10px)',
+                  }}
+                ></div>
+              )}
+            <span className="absolute top-0 mt-2 text-sm block mb-1 w-full  ">{key}</span>
+            <span
+              className="absolute bottom-[-20px] text-sm text-white block w-full">{isChartReached ? `${scores[key]}` : ''}</span>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 };
