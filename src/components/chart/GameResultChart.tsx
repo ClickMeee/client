@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import useFirework from "../../hooks/useFirework.ts";
-import { useRecoilValue } from "recoil";
-import { RoomDataProps } from "../../types/RoomData.type.ts";
-import { gameState } from "../../recoil/atoms/gameState.ts";
+import React, { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import useFirework from '../../hooks/useFirework.ts';
+import { gameState } from '../../recoil/atoms/gameState.ts';
+import { RoomDataProps } from '../../types/RoomData.type.ts';
+import DetailRank from '../rank/DetailRank.tsx';
 
 const GameResultChart: React.FC = () => {
   const game = useRecoilValue<RoomDataProps | null>(gameState);
@@ -13,7 +14,7 @@ const GameResultChart: React.FC = () => {
   const [currentHeights, setCurrentHeights] = useState<{ [key: string]: number }>(() => {
     if (!game) return {};
     const initialHeights: { [key: string]: number } = {};
-    if (game.gameType === "FREE_FOR_ALL") {
+    if (game.gameType === 'FREE_FOR_ALL') {
       game.teams[0].users.forEach((user) => {
         initialHeights[user.nickname] = 0;
       });
@@ -29,7 +30,7 @@ const GameResultChart: React.FC = () => {
     if (!game) return;
 
     const scores = (() => {
-      if (game.gameType === "FREE_FOR_ALL") {
+      if (game.gameType === 'FREE_FOR_ALL') {
         return game.teams[0].users.reduce<{ [key: string]: number }>((acc, user) => {
           acc[user.nickname] = user.clickCount;
           return acc;
@@ -55,7 +56,9 @@ const GameResultChart: React.FC = () => {
       }, {})
     );
 
-    let remainingKeys = Object.keys(percentScores).sort((a, b) => percentScores[a] - percentScores[b]);
+    let remainingKeys = Object.keys(percentScores).sort(
+      (a, b) => percentScores[a] - percentScores[b]
+    );
     const intervalTime = 50;
     const maxTime = 3000;
     const totalSteps = maxTime / intervalTime;
@@ -109,19 +112,23 @@ const GameResultChart: React.FC = () => {
   }, [game]);
 
   const winnerLabel = (() => {
-    if (!game) return "";
-    if (game.gameType === "FREE_FOR_ALL") {
-      const topPlayer = game.teams[0].users.reduce((prev, curr) => (curr.clickCount > prev.clickCount ? curr : prev));
+    if (!game) return '';
+    if (game.gameType === 'FREE_FOR_ALL') {
+      const topPlayer = game.teams[0].users.reduce((prev, curr) =>
+        curr.clickCount > prev.clickCount ? curr : prev
+      );
       return topPlayer.nickname;
     } else {
-      const topTeam = game.teams.reduce((prev, curr) => (curr.teamScore > prev.teamScore ? curr : prev));
+      const topTeam = game.teams.reduce((prev, curr) =>
+        curr.teamScore > prev.teamScore ? curr : prev
+      );
       return topTeam.teamName;
     }
   })();
 
   const scores = (() => {
     if (!game) return {};
-    if (game.gameType === "FREE_FOR_ALL") {
+    if (game.gameType === 'FREE_FOR_ALL') {
       return game.teams[0].users.reduce<{ [key: string]: number }>((acc, user) => {
         acc[user.nickname] = user.clickCount;
         return acc;
@@ -135,11 +142,15 @@ const GameResultChart: React.FC = () => {
   })();
 
   return (
-    <div className={`w-full h-full flex flex-col justify-around items-center ${isChartReached ? "bg-gray-600 " : "bg-white"} `}>
+    <div
+      className={`w-full h-full flex flex-col justify-around items-center p-3 ${isChartReached ? 'bg-gray-600 ' : 'bg-white'} `}
+    >
       <div>
-        <span className={'text-3xl text-white opacity-90'}>{`${isChartReached ? `우승 : ${winnerLabel}` : ""}`}</span>
+        <span
+          className={'text-3xl text-white opacity-90'}
+        >{`${isChartReached ? `우승 : ${winnerLabel}` : ''}`}</span>
       </div>
-      <div className="w-3/4 h-96 flex justify-around items-end z-[30]">
+      <div className="w-3/4 h-96 flex justify-around items-end z-[30] mt-4">
         {Object.entries(currentHeights).map(([key, value]) => (
           <div
             key={key}
@@ -153,11 +164,13 @@ const GameResultChart: React.FC = () => {
             {key ===
               Object.keys(currentHeights).find(
                 (k) => currentHeights[k] === Math.max(...Object.values(currentHeights))
-              ) && isChartReached && (
+              ) &&
+              isChartReached && (
                 <div
                   className="absolute w-[200%] h-[120%] opacity-70 z-[50]"
                   style={{
-                    background: 'radial-gradient(circle at center, rgba(255, 255, 255, 1.0) 0%, rgba(255, 255, 255, 0.0) 70%, transparent 100%)',
+                    background:
+                      'radial-gradient(circle at center, rgba(255, 255, 255, 1.0) 0%, rgba(255, 255, 255, 0.0) 70%, transparent 100%)',
                     clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)',
                     top: '-20%',
                     left: '50%',
@@ -167,11 +180,13 @@ const GameResultChart: React.FC = () => {
                 ></div>
               )}
             <span className="absolute top-0 mt-2 text-sm block mb-1 w-full  ">{key}</span>
-            <span
-              className="absolute bottom-[-20px] text-sm text-white block w-full">{isChartReached ? `${scores[key]}` : ''}</span>
+            <span className="absolute bottom-[-20px] text-sm text-white block w-full">
+              {isChartReached ? `${scores[key]}` : ''}
+            </span>
           </div>
         ))}
       </div>
+      <DetailRank />
     </div>
   );
 };
