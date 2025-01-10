@@ -24,8 +24,6 @@ const Main = () => {
     | \\__/\\| || || (__ |   <  | |  | ||  __/|  __/|  __/|_||_||_|
      \\____/|_||_| \\___||_|\\_\\ \\_|  |_/ \\___| \\___| \\___|(_)(_)(_)
 `;
-
-  console.log(easterEgg);
   const navigate = useNavigate();
 
   const resetGameState = useResetRecoilState(gameState);
@@ -55,6 +53,7 @@ const Main = () => {
   const title: string = '🐹 Welcome 🐭\n Click Meee!!!';
 
   useEffect(() => {
+    console.log(easterEgg);
     resetGameState();
     resetUserState();
     resetGameReadyState();
@@ -63,21 +62,18 @@ const Main = () => {
     if (webSocketManager.isConnected()) {
       webSocketManager.disconnect();
     }
-  }, []);
 
-  useEffect(() => {
     setTimeout(() => {
       setIsVisibleTitle(true);
-    }, 100)
+    }, 100);
 
     setTimeout(() => {
       setIsVisibleTitle(false);
-    }, 400)
+    }, 400);
 
     setTimeout(() => {
       setIsVisible(true);
     }, 600);
-
   }, []);
 
   const handleNavigatePage = (path: string) => {
