@@ -25,10 +25,15 @@ export default function GameResult() {
   return (
     <>
       <MessageModal messages={messages} />
-      <div className="w-full h-full justify-center flex items-center">
-        <div className="bg-white rounded-3xl shadow-2xl w-10/12 flex flex-col justify-center overflow-hidden">
+      <div className="w-full h-full flex flex-col justify-center items-center">
+        <div className="bg-white rounded-3xl shadow-2xl w-11/12 flex justify-center overflow-hidden">
           <GameResultChart />
           <DetailRank />
+        </div>
+        <div className={'p-4'}>
+          <button onClick={() => navigate('/')}>
+            홈페이지로 가기
+          </button>
         </div>
       </div>
     </>

@@ -146,10 +146,10 @@ const GameResultChart: React.FC = () => {
   })();
 
   return (
-    <div className={`w-full h-full flex flex-col justify-around items-center bg-white`}>
-      <div
-        className={`absolute w-full h-full ${modalVisible ? 'top-16 bg-black opacity-70' : ''} `}
-      ></div>
+    <div
+      className={`w-full h-full flex flex-col justify-around items-center bg-white`}>
+      <div className={`absolute w-full h-full ${modalVisible ? 'top-16 bg-black opacity-70' : 'hidden'} `}>
+      </div>
       <div>
         <span
           className={`text-3xl ${modalVisible ? 'text-white' : 'text-black'}  opacity-90`}
