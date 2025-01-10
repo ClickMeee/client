@@ -25,7 +25,11 @@ export default function GameResult() {
   return (
     <>
       <MessageModal messages={messages} />
-      <GameResultChart />
+      <div className="w-full h-full justify-center flex items-center">
+        <div className="bg-white rounded-3xl shadow-2xl w-10/12 h-5/6 flex justify-center overflow-hidden">
+          <GameResultChart />
+        </div>
+      </div>
     </>
   );
 }
