@@ -3,29 +3,32 @@ import { gameState } from '../../recoil/atoms/gameState';
 import { userState } from '../../recoil/atoms/userState';
 import { RoomClientProps } from '../../types/RoomClient.type.ts';
 import { RoomDataProps } from '../../types/RoomData.type.ts';
+import { useMemo } from 'react';
 
 export default function DetailRank() {
-  const game = useRecoilValue<RoomDataProps | null>(gameState); // 게임 상태
-  const user = useRecoilValue<RoomClientProps>(userState); // 사용자 상태
+  const game = useRecoilValue<RoomDataProps | null>(gameState);
+  const user = useRecoilValue<RoomClientProps>(userState);
 
-  // 모든 팀의 유저를 단일 배열로 변환 및 클릭 수 기준 내림차순 정렬
-  const rankedUsers = game?.teams
-    .flatMap((team) =>
-      team.users.map((teamUser) => ({
-        nickname: teamUser.nickname,
-        clickCount: teamUser.clickCount,
-        isCurrentUser: teamUser.nickname === user.nickname,
-        teamName: team.teamName,
-      }))
-    )
-    .sort((a, b) => b.clickCount - a.clickCount);
+  const rankedUsers = useMemo(() => {
+    if (!game) return [];
+    return game.teams
+      .flatMap((team) =>
+        team.users.map((teamUser) => ({
+          nickname: teamUser.nickname,
+          clickCount: teamUser.clickCount,
+          isCurrentUser: teamUser.nickname === user.nickname,
+          teamName: team.teamName,
+        }))
+      )
+      .sort((a, b) => b.clickCount - a.clickCount);
+  }, [game, user.nickname]);
 
   return (
     <div className="w-full flex flex-col p-4 mt-10">
       <h2 className="text-xl font-semibold text-orange-500 mb-4 text-center">🏆 랭킹</h2>
 
       <ul className="space-y-3">
-        {rankedUsers?.map((user, index) => (
+        {rankedUsers.map((user, index) => (
           <li
             key={index}
             className={`flex justify-between items-center px-4 py-2 rounded-lg
