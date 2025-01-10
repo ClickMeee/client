@@ -1,11 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { gameState } from "../../recoil/atoms/gameState";
-import { userState } from "../../recoil/atoms/userState";
-import { Line } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
-import { RoomDataProps } from "../../types/RoomData.type.ts";
-import { RoomClientProps } from "../../types/RoomClient.type.ts";
+import React, { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { gameState } from '../../recoil/atoms/gameState';
+import { userState } from '../../recoil/atoms/userState';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { RoomDataProps } from '../../types/RoomData.type.ts';
+import { RoomClientProps } from '../../types/RoomClient.type.ts';
 
 // Chart.js 모듈 등록
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -19,7 +28,7 @@ const IndividualChart: React.FC = () => {
   const nickname = user.nickname;
 
   useEffect(() => {
-    if (game?.currentTime !== undefined) {
+    if (game?.currentTime !== undefined && game?.currentTime !== 0) {
       // 사용자가 속한 팀과 사용자 데이터 검색
       const user = game.teams
         .flatMap((team) => team.users)
@@ -42,8 +51,8 @@ const IndividualChart: React.FC = () => {
       {
         label: `My Click Count`,
         data: userScores,
-        borderColor: "rgba(54, 162, 235, 1)",
-        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
         tension: 0.4,
       },
     ],
@@ -55,7 +64,7 @@ const IndividualChart: React.FC = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "top" as const,
+        position: 'top' as const,
       },
       title: {
         display: true,
@@ -66,14 +75,14 @@ const IndividualChart: React.FC = () => {
       x: {
         title: {
           display: true,
-          text: "Time (s)",
+          text: 'Time (s)',
         },
       },
       y: {
         beginAtZero: true,
         title: {
           display: true,
-          text: "Click Count",
+          text: 'Click Count',
         },
       },
     },

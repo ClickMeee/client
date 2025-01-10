@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { gameState } from "../../recoil/atoms/gameState";
-import { Line } from "react-chartjs-2";
+import React, { useEffect, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { gameState } from '../../recoil/atoms/gameState';
+import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,8 +11,8 @@ import {
   Title,
   Tooltip,
   Legend,
-} from "chart.js";
-import { RoomDataProps } from "../../types/RoomData.type.ts";
+} from 'chart.js';
+import { RoomDataProps } from '../../types/RoomData.type.ts';
 
 // Chart.js 모듈 등록
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -23,33 +23,36 @@ const TeamChart: React.FC = () => {
   const [teamScores, setTeamScores] = useState<{ [key: string]: number[] }>({}); // 팀 점수 저장
 
   useEffect(() => {
-    if (game?.currentTime !== undefined && game?.teams) {
+    if (game?.currentTime !== undefined && game?.currentTime !== 0 && game?.teams) {
       // X축 레이블에 현재 시간을 추가
       setTimeLabels((prev) => [...prev, `${game.currentTime}s`]);
 
-      // 게임 타입별로 다르게 처리
+      // 게임 타입별로 점수 계산 및 업데이트
       if (game?.gameType === 'FREE_FOR_ALL') {
-        const updatedScores = { ...teamScores };
-        // team.users에서 각 사용자의 클릭 수 합산
-        game.teams[0].users.forEach((user) => {
-          if (!updatedScores[user.nickname]) {
-            updatedScores[user.nickname] = [];
-          }
-          updatedScores[user.nickname].push(user.clickCount);
+        setTeamScores((prevScores) => {
+          const updatedScores = { ...prevScores };
+          game.teams[0].users.forEach((user) => {
+            if (!updatedScores[user.nickname]) {
+              updatedScores[user.nickname] = []; // 새로운 유저 초기화
+            }
+            // 이전 값 유지하며 새로운 값 추가
+            updatedScores[user.nickname] = [...updatedScores[user.nickname], user.clickCount];
+          });
+          return updatedScores;
         });
-        setTeamScores(updatedScores);
-      } else{
-        // 팀별 클릭 수 합산
-        const updatedScores = { ...teamScores };
-        game.teams.forEach((team) => {
-          const totalClicks = team.teamScore
-          if (!updatedScores[team.teamName]) {
-            updatedScores[team.teamName] = [];
-          }
-          updatedScores[team.teamName].push(totalClicks);
+      } else {
+        setTeamScores((prevScores) => {
+          const updatedScores = { ...prevScores };
+          game.teams.forEach((team) => {
+            const totalClicks = team.teamScore;
+            if (!updatedScores[team.teamName]) {
+              updatedScores[team.teamName] = []; // 새로운 팀 초기화
+            }
+            // 이전 값 유지하며 새로운 값 추가
+            updatedScores[team.teamName] = [...updatedScores[team.teamName], totalClicks];
+          });
+          return updatedScores;
         });
-
-        setTeamScores(updatedScores);
       }
     }
   }, [game?.currentTime]); // currentTime
@@ -72,25 +75,25 @@ const TeamChart: React.FC = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "top" as const,
+        position: 'top' as const,
       },
       title: {
         display: true,
-        text: "Click Score Chart",
+        text: 'Click Score Chart',
       },
     },
     scales: {
       x: {
         title: {
           display: true,
-          text: "Time (s)",
+          text: 'Time (s)',
         },
       },
       y: {
         beginAtZero: true,
         title: {
           display: true,
-          text: "Team Click Score",
+          text: 'Team Click Score',
         },
       },
     },
