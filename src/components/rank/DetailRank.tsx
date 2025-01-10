@@ -39,7 +39,7 @@ export default function DetailRank() {
                    ? 'bg-gray-500 bg-opacity-30'
                    : user.teamName === 'RED'
                      ? 'bg-red-500 bg-opacity-85'
-                     : 'bg-blue-500 opacity-85'
+                     : 'bg-blue-500 bg-opacity-85'
                }
               `}
           >
