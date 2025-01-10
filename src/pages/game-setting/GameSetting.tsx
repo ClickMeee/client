@@ -5,7 +5,6 @@ import { createRoom } from '../../api/CreateRoom';
 import MessageModal from '../../components/modal/MessageModal.tsx';
 import useMessages from '../../hooks/useMessage';
 import { userState } from '../../recoil/atoms/userState';
-import messageModal from "../../components/modal/MessageModal.tsx";
 
 const GameSetting = () => {
   const resetUserState = useResetRecoilState(userState);
@@ -24,7 +23,7 @@ const GameSetting = () => {
 
   useEffect(() => {
     resetUserState();
-    console.log('Recoil userState 초기화 완료');
+    // console.log('Recoil userState 초기화 완료');
   }, []);
 
   useEffect(() => {
@@ -53,23 +52,28 @@ const GameSetting = () => {
       return;
     }
 
-    if(clickCountScale < 1){
+    if (clickCountScale < 1) {
       showMessage('클릭 배율은 1보다 큰 값을 작성해 주세요');
       return;
     }
 
     try {
-      const createdRoomId = await createRoom(gameType, inputNickname, gameTime, maxUserCount, clickCountScale);
-      console.log('Room created with ID:', createdRoomId);
+      const createdRoomId = await createRoom(
+        gameType,
+        inputNickname,
+        gameTime,
+        maxUserCount,
+        clickCountScale
+      );
+      // console.log('Room created with ID:', createdRoomId);
 
       // Recoil(userState) 상태에 roomId 업데이트
       setUser((prev) => ({ ...prev, nickname: inputNickname, roomId: createdRoomId }));
-    } catch (error: any) {
-      console.error('Error creating room:', error.message);
+    } catch {
+      // console.error('Error creating room:', error.message);
       showMessage('방 생성에 실패했습니다.');
     }
   };
-
 
   return (
     <>
@@ -103,7 +107,15 @@ const GameSetting = () => {
                   id={type}
                   value={type}
                   checked={gameType === type}
-                  onChange={() => setGameType(type as any)}
+                  onChange={(e) =>
+                    setGameType(
+                      e.target.value as
+                        | 'ONE_TO_ONE'
+                        | 'ONE_TO_MANY'
+                        | 'TEAM_VS_TEAM'
+                        | 'FREE_FOR_ALL'
+                    )
+                  }
                   className="mr-2 "
                 />
                 <label htmlFor={type} className="text-lg  hover:text-orange-500">

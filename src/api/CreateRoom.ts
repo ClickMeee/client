@@ -1,5 +1,6 @@
 import { CreateRoomGenerator, CreateRoomProps } from '../types/CreateRoom.type';
 import axiosInstance from './axiosInstance.ts';
+import { AxiosError } from 'axios';
 
 interface CreateRoomResponse {
   roomId: string; // 서버에서 반환하는 roomId 타입
@@ -13,7 +14,7 @@ const buildRequestBody = (
   nickname: string,
   gameTime: number,
   maxUserCount: number,
-  clickCountScale: number,
+  clickCountScale: number
 ): CreateRoomProps => {
   if (gameType === 'ONE_TO_ONE') {
     return CreateRoomGenerator.makeRoom(
@@ -63,18 +64,29 @@ export const createRoom = async (
   nickname: string, // 닉네임
   gameTime: number, // 게임 시간
   maxUserCount: number, // 최대 사용자 수
-  clickCountScale: number, // 클릭 배율
+  clickCountScale: number // 클릭 배율
 ): Promise<string> => {
   try {
-    const requestBody = buildRequestBody(gameType, nickname, gameTime, maxUserCount, clickCountScale);
+    const requestBody = buildRequestBody(
+      gameType,
+      nickname,
+      gameTime,
+      maxUserCount,
+      clickCountScale
+    );
 
     const response = await axiosInstance.post<CreateRoomResponse>('/api/room', requestBody);
 
-    console.log('Room created successfully:', response.data);
+    // console.log('Room created successfully:', response.data);
     return response.data.roomId; // 서버에서 반환된 roomId를 사용
-  } catch (error: any) {
-    const errorMessage = error.response?.data?.message || 'Room creation failed';
-    console.error('Failed to create room:', errorMessage);
-    throw new Error(errorMessage);
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.message || 'Room creation failed';
+      console.error('Failed to create room:', errorMessage);
+      throw new Error(errorMessage);
+    } else {
+      console.error('Unexpected error:', error);
+      throw new Error('Unexpected error occurred');
+    }
   }
 };

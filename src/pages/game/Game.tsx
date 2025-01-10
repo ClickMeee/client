@@ -3,11 +3,11 @@ import IndividualChart from '../../components/chart/IndividualChart';
 import TeamChart from '../../components/chart/TeamChart';
 import TeamRank from '../../components/rank/TeamRank';
 import WebSocketManager from '../../services/WebSocketManager.ts';
-import { useRecoilValue } from "recoil";
-import { RoomDataProps } from "../../types/RoomData.type.ts";
-import { gameState } from "../../recoil/atoms/gameState.ts";
-import IndividualRank from "../../components/rank/IndividualRank.tsx";
-import { useNavigate } from "react-router-dom";
+import { useRecoilValue } from 'recoil';
+import { RoomDataProps } from '../../types/RoomData.type.ts';
+import { gameState } from '../../recoil/atoms/gameState.ts';
+import IndividualRank from '../../components/rank/IndividualRank.tsx';
+import { useNavigate } from 'react-router-dom';
 
 const Game = () => {
   const navigate = useNavigate();
@@ -49,8 +49,8 @@ const Game = () => {
       setMoveMessage(false);
     };
 
-    let interval = setInterval(handleCountdown, second);
-    let i = setInterval(handleMove, halfSecond);
+    const interval = setInterval(handleCountdown, second);
+    const i = setInterval(handleMove, halfSecond);
 
     return () => {
       clearInterval(interval);
@@ -110,14 +110,18 @@ const Game = () => {
           {/* 차트 표시 div */}
           <div className="flex gap-4 w-full h-full">
             <div className="flex-[3] h-full hidden md:block">
-              <TeamChart/>
+              <TeamChart />
             </div>
             <div className="flex flex-col flex-[2] gap-4">
               <div className="flex-1 h-1/4 hidden md:block md:h-1/2">
                 <IndividualChart />
               </div>
               <div className="flex-1 h-3/4 p-4 md:h-1/2">
-                {game?.gameType === "FREE_FOR_ALL" ? <IndividualRank/> : <TeamRank resultModal={false} /> }
+                {game?.gameType === 'FREE_FOR_ALL' ? (
+                  <IndividualRank />
+                ) : (
+                  <TeamRank resultModal={false} />
+                )}
               </div>
             </div>
           </div>

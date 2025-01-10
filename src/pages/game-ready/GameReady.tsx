@@ -1,7 +1,7 @@
 import ClipboardJS from 'clipboard';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { CheckNicknameDuplicate } from '../../api/CheckEnterableRoom.ts';
 import MessageModal from '../../components/modal/MessageModal.tsx';
 import useMessages from '../../hooks/useMessage.ts';
@@ -20,7 +20,7 @@ export default function GameReady() {
 
   const [user, setUser] = useRecoilState<RoomClientProps>(userState);
   const [game, setGame] = useRecoilState<RoomDataProps | null>(gameState);
-  const [gameReady, setGameReady] = useRecoilState<GameStateDataProps>(gameReadyState);
+  const setGameReady = useSetRecoilState<GameStateDataProps>(gameReadyState);
 
   const [nicknameInput, setNicknameInput] = useState<string>(''); // 닉네임 입력 상태
   const [isConnected, setIsConnected] = useState<boolean>(false); // WebSocket 연결 상태
@@ -48,7 +48,7 @@ export default function GameReady() {
     }));
 
     if (!user.nickname || !user.roomId) {
-      console.log('nickname이나 roomId가 없습니다.');
+      // console.log('nickname이나 roomId가 없습니다.');
       return;
     }
 
@@ -130,14 +130,14 @@ export default function GameReady() {
 
       setUser((prev) => ({ ...prev, nickname: nicknameInput }));
       setIsConnected(true);
-    } catch (error: Error) {
+    } catch {
       showMessage('방 입장에 실패했습니다.');
-      console.error(error.message);
+      // console.error(error.message);
     }
   };
 
   const handleTeamChange = (targetTeamName: string) => {
-    console.log(`팀 이동: ${targetTeamName}`);
+    // console.log(`팀 이동: ${targetTeamName}`);
 
     const currentTeam = getCurrentTeam();
     const currentTeamName = getCurrentTeamName(currentTeam);
@@ -158,7 +158,7 @@ export default function GameReady() {
       showMessage('플레이어가 모두 준비되지 않았습니다.');
       return;
     } else {
-      console.log('게임 시작 요청을 보냅니다.');
+      // console.log('게임 시작 요청을 보냅니다.');
       webSocketManager.startGameRequest();
     }
   };

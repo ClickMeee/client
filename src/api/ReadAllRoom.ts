@@ -6,7 +6,7 @@ export const ReadAllRoom = async (): Promise<RoomListDataProps[]> => {
     const response = await axiosInstance.get(`/api/room`);
     const rooms: RoomListDataProps[] = response.data;
     return rooms;
-  } catch (error) {
+  } catch {
     // todo : modal로 변경하여 방이 없다고 말할 것
     return [];
   }

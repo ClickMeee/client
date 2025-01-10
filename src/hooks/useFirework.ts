@@ -1,11 +1,12 @@
+// @ts-expect-error: "canvas-confetti"가 외부 라이브러리라 타입 선언이 없지만 동작은 안전합니다.
 import confetti from 'canvas-confetti';
 
-const useFirework= () => {
+const useFirework = () => {
   const duration = 4000;
   const animationEnd = Date.now() + duration;
   const defaults = { startVelocity: 25, spread: 360, ticks: 50, zIndex: 100 };
 
-  function randomInRange(min:number, max:number) {
+  function randomInRange(min: number, max: number) {
     return Math.random() * (max - min) + min;
   }
 
@@ -20,16 +21,16 @@ const useFirework= () => {
     confetti(
       Object.assign({}, defaults, {
         particleCount,
-        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
       })
     );
     confetti(
       Object.assign({}, defaults, {
         particleCount,
-        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
       })
     );
   }, 100);
-}
+};
 
 export default useFirework;

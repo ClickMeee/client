@@ -9,9 +9,7 @@
     }
   ],
   "compilerOptions": {
-    "types": ["vite/client"], //설정없이 import.meta.env 사용 시 TS error 발생
-      "noUnusedLocals": false, // 사용되지 않는 지역 변수 경고 무시
-    "noUnusedParameters": false, // 사용되지 않는 함수 매개변수 경고 무시
-    "strict": true, // 전체적인 엄격 모드 활성화 (원하는 경우)
+    "types": ["vite/client"],
+    "strict": true,
   }
 }

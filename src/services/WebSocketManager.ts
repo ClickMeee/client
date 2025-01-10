@@ -1,8 +1,21 @@
-import { Client, IFrame, IMessage } from '@stomp/stompjs';
+import { Client, IMessage } from '@stomp/stompjs';
 import { NavigateFunction } from 'react-router-dom';
 import SockJS from 'sockjs-client';
 import { RoomDataProps } from '../types/RoomData.type.ts';
 import { GameStateDataProps } from '../types/GameStateData.type.ts';
+
+interface RoomEnterRequestBody {
+  roomId: string;
+  nickname: string;
+}
+
+interface MoveTeamRequestBody {
+  nickname: string;
+  targetTeamName: string;
+  currentTeamName: string;
+}
+
+type BodyType = null | RoomEnterRequestBody | MoveTeamRequestBody;
 
 type GameStateUpdater = (state: RoomDataProps) => void;
 type GameReadyUpdater = (state: GameStateDataProps) => void;
@@ -52,17 +65,17 @@ class WebSocketManager {
   // 웹 소켓 연결
   connect(): Promise<void> {
     if (this.client && this.client.connected) {
-      console.log('WebSocket is already connected.');
+      // console.log('WebSocket is already connected.');
       return Promise.resolve(); // 이미 연결되어 있으면 바로 성공 처리
     }
 
     return new Promise((resolve, reject) => {
       this.client = new Client({
         webSocketFactory: () => new SockJS(import.meta.env.VITE_API_URL + '/api/ws/connect'),
-        debug: (str: string) => console.log(`[STOMP Debug] ${str}`),
+        // debug: (str: string) => console.log(`[STOMP Debug] ${str}`),
         reconnectDelay: 5000,
-        onConnect: (frame: IFrame) => {
-          console.log('WebSocket connected:', frame);
+        onConnect: () => {
+          // console.log('WebSocket connected:', frame);
 
           // 방 정보 구독
           this.subscribe(`/topic/room/${this.roomId}`, (message) => {
@@ -73,17 +86,17 @@ class WebSocketManager {
           this.roomEnterRequest();
           resolve(); // 연결 성공 시 프라미스 해결
         },
-        onStompError: (error: any) => {
+        onStompError: (error) => {
           console.error('WebSocket STOMP Error:', error);
           reject(new Error('WebSocket STOMP Error')); // 에러 발생 시 프라미스 거부
         },
         onDisconnect: () => {
-          console.log('WebSocket disconnected.');
+          // console.log('WebSocket disconnected.');
         },
       });
 
       this.client.activate();
-      console.log('WebSocket Client activated.');
+      // console.log('WebSocket Client activated.');
     });
   }
 
@@ -92,21 +105,22 @@ class WebSocketManager {
   }
 
   // stomp 메세지 데이터 처리 함수
-  processData(message: any): void {
+  // @ts-expect-error: 다양한 message 타입이 있지만 사용하는데 문제 없음
+  processData(message): void {
     switch (message.type) {
       case 'ROOM':
-        console.log(`${message.type} 처리`);
-        console.log(message);
+        // console.log(`${message.type} 처리`);
+        // console.log(message);
         this.updateGameState(message.data);
         break;
 
       case 'GAME_READY':
-        console.log(`${message.type} 처리`);
+        // console.log(`${message.type} 처리`);
         this.updateGameReadyState(message.data);
         break;
 
       case 'GAME_START':
-        console.log(`${message.type} 처리`);
+        // console.log(`${message.type} 처리`);
         this.updateGameReadyState(message.data);
 
         // game 사이트로 이동
@@ -114,12 +128,12 @@ class WebSocketManager {
         break;
 
       case 'GAME_PROGRESS':
-        console.log(`${message.type} 처리`);
+        // console.log(`${message.type} 처리`);
         this.updateGameState(message.data);
         break;
 
       case 'ROOM_LEAVE':
-        console.log(`${message.type} 처리`);
+        // console.log(`${message.type} 처리`);
         this.updateGameState(message.data.data);
         this.showMessage(`${message.data.target}님이 나갔습니다.`);
         break;
@@ -129,7 +143,7 @@ class WebSocketManager {
         break;
 
       case 'GAME_END':
-        console.log(`${message.type} 처리`);
+        // console.log(`${message.type} 처리`);
         this.updateGameState(message.data);
         this.showResultMessage(true);
         break;
@@ -139,16 +153,16 @@ class WebSocketManager {
         break;
 
       default:
-        console.log(`다른 type${message.type} ${message.data.message}`);
+      // console.log(`다른 type${message.type} ${message.data.message}`);
     }
   }
 
-  setShowResultMessage(showResultMessage: (state: any) => void): void {
+  setShowResultMessage(showResultMessage: (isGameEnded: boolean) => void): void {
     this.showResultMessage = showResultMessage;
   }
 
   // 메시지 전송 메소드
-  sendMessage(destination: string, body: Object = ''): void {
+  sendMessage(destination: string, body: BodyType): void {
     if (!this.client || !this.client.connected) {
       console.error('Cannot send message: WebSocket is not connected.');
       return;
@@ -157,16 +171,16 @@ class WebSocketManager {
     try {
       this.client.publish({
         destination,
-        body: typeof body === 'string' ? body : JSON.stringify(body),
+        body: JSON.stringify(body),
       });
-      console.log(`Message sent to ${destination}:`, body);
-    } catch (error) {
-      console.error('Failed to send message:', error);
+      // console.log(`Message sent to ${destination}:`, body);
+    } catch {
+      // console.error('Failed to send message:', error);
     }
   }
 
   // stomp 프로토콜 구독
-  subscribe(destination: string, callback: (message: any) => void): void {
+  subscribe(destination: string, callback: (message: IMessage) => void): void {
     if (!this.client || !this.client.connected) {
       console.error(`Cannot subscribe to ${destination}: WebSocket is not connected`);
       return;
@@ -177,7 +191,7 @@ class WebSocketManager {
       callback(parsedBody);
     });
 
-    console.log(`Subscribed to ${destination}`); // 후에 삭제
+    // console.log(`Subscribed to ${destination}`);
   }
 
   roomEnterRequest() {
@@ -196,14 +210,14 @@ class WebSocketManager {
   // 방장 게임 시작 요청
   startGameRequest() {
     if (this.roomId) {
-      this.sendMessage(`/app/start/${this.roomId}`);
+      this.sendMessage(`/app/start/${this.roomId}`, null);
     } else console.error('Room ID is not set');
   }
 
   // 플레이어 준비 요청
   toggleUserReadyState() {
     if (this.roomId) {
-      this.sendMessage(`/app/start/${this.roomId}/${this.nickname}`);
+      this.sendMessage(`/app/start/${this.roomId}/${this.nickname}`, null);
     } else {
       console.error('Room ID is not set');
     }
@@ -212,7 +226,7 @@ class WebSocketManager {
   // 클릭 이벤트 전송
   sendClickEvent() {
     if (this.roomId) {
-      this.sendMessage(`/app/click/${this.roomId}/${this.nickname}`);
+      this.sendMessage(`/app/click/${this.roomId}/${this.nickname}`, null);
     } else {
       console.error('Room ID is not set');
     }
@@ -237,11 +251,11 @@ class WebSocketManager {
   disconnect(): void {
     if (this.client) {
       if (this.client.connected) {
-        console.log('Disconnecting WebSocket...');
+        // console.log('Disconnecting WebSocket...');
       }
       this.client.deactivate();
       this.client = null;
-      console.log('WebSocket disconnected.');
+      // console.log('WebSocket disconnected.');
     } else {
       console.warn('WebSocket is already disconnected.');
     }
