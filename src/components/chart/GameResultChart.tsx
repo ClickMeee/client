@@ -7,6 +7,7 @@ import { RoomDataProps } from '../../types/RoomData.type.ts';
 const GameResultChart: React.FC = () => {
   const game = useRecoilValue<RoomDataProps | null>(gameState);
 
+  const [scores, setScores] = useState<{ [key: string]: number }>({});
   const [isChartReached, setIsChartReached] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [isChartColor, setIsChartColor] = useState<boolean>(true);
@@ -29,7 +30,7 @@ const GameResultChart: React.FC = () => {
   useEffect(() => {
     if (!game) return;
 
-    const scores = (() => {
+    const calculatedScores = (() => {
       if (game.gameType === 'FREE_FOR_ALL') {
         return game.teams[0].users.reduce<{ [key: string]: number }>((acc, user) => {
           acc[user.nickname] = user.clickCount;
@@ -43,15 +44,20 @@ const GameResultChart: React.FC = () => {
       }
     })();
 
-    const maxScore = Math.max(...Object.values(scores));
-    const percentScores = Object.keys(scores).reduce<{ [key: string]: number }>((acc, key) => {
-      acc[key] = (scores[key] / maxScore) * 100;
-      return acc;
-    }, {});
+    setScores(calculatedScores);
+
+    const maxScore = Math.max(...Object.values(calculatedScores));
+    const percentScores = Object.keys(calculatedScores).reduce<{ [key: string]: number }>(
+      (acc, key) => {
+        acc[key] = (calculatedScores[key] / maxScore) * 100;
+        return acc;
+      },
+      {}
+    );
 
     setScaleValues(
       Object.keys(percentScores).reduce<{ [key: string]: number }>((acc, key) => {
-        acc[key] = 1; // 초기 scale 값을 1로 설정
+        acc[key] = 1;
         return acc;
       }, {})
     );
@@ -130,36 +136,21 @@ const GameResultChart: React.FC = () => {
     }
   })();
 
-  const scores = (() => {
-    if (!game) return {};
-    if (game.gameType === 'FREE_FOR_ALL') {
-      return game.teams[0].users.reduce<{ [key: string]: number }>((acc, user) => {
-        acc[user.nickname] = user.clickCount;
-        return acc;
-      }, {});
-    } else {
-      return game.teams.reduce<{ [key: string]: number }>((acc, team) => {
-        acc[team.teamName] = team.teamScore;
-        return acc;
-      }, {});
-    }
-  })();
-
   return (
-    <div
-      className={`w-full h-full flex flex-col justify-around items-center bg-white`}>
-      <div className={`absolute w-full h-full ${modalVisible ? 'top-16 bg-black opacity-70' : 'hidden'} `}>
-      </div>
-      <div>
+    <div className={`w-full h-full flex flex-col justify-around items-center bg-white`}>
+      <div
+        className={`absolute w-full h-full ${modalVisible ? 'top-16 bg-black opacity-70' : 'hidden'} `}
+      ></div>
+      <div className={'p-6'}>
         <span
-          className={`text-3xl ${modalVisible ? 'text-white' : 'text-black'}  opacity-90`}
-        >{`${isChartReached ? `우승 : ${winnerLabel}` : ''}`}</span>
+          className={`text-3xl ${modalVisible ? 'text-white' : 'text-gray-800'}  opacity-90`}
+        >{`${isChartReached ? `승리 : ${winnerLabel}` : ''}`}</span>
       </div>
       <div className="w-3/4 h-96 flex justify-around items-end z-[30]">
         {Object.entries(currentHeights).map(([key, value]) => (
           <div
             key={key}
-            className={`w-1/6 text-center bg-blue-300 text-black rounded-t-md z-[30]`}
+            className={`w-1/6 text-center bg-orange-400 text-black rounded-t-md z-[30] shadow-xl`}
             style={{
               height: `${value}%`,
               transition: 'height 0.05s ease-in-out, transform 0.3s ease-in-out',
@@ -187,10 +178,10 @@ const GameResultChart: React.FC = () => {
                 className={`${isChartColor ? '' : 'h-full bg-black opacity-70 rounded-t-md'}`}
               ></div>
             )}
-            <span className="absolute top-0 mt-2 text-sm block mb-1 w-full  ">
+            <span className="absolute top-[-20px] text-sm block mb-1 w-full  ">
               {isChartReached ? `${scores[key]}` : ''}
             </span>
-            <span className="absolute bottom-[-28px] text-md text-black block w-full">{key}</span>
+            <span className={`absolute bottom-[-28px] text-md text-black block w-full`}>{key}</span>
           </div>
         ))}
       </div>
