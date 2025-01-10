@@ -3,11 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
-
   const navigate = useNavigate();
   const handleNavigatePage = (path: string) => {
-        navigate(path);
-  }
+    navigate(path);
+  };
 
   return (
     <header className="p-3 bg-white shadow-custom-bottom sticky h-16">
@@ -19,7 +18,12 @@ export default function Header() {
           size="lg"
           style={{ color: '#ff9500' }}
         />
-        <span onClick={() => handleNavigatePage('/')} className="relative z-10 text-black text-3xl cursor-pointer">Click Meee</span>
+        <span
+          onClick={() => handleNavigatePage('/')}
+          className="relative z-10 text-black text-3xl cursor-pointer"
+        >
+          Click Meee
+        </span>
       </div>
     </header>
   );

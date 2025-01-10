@@ -1,21 +1,21 @@
-import { useRecoilValue } from "recoil";
-import { gameState} from "../../recoil/atoms/gameState";
-import { userState } from "../../recoil/atoms/userState";
-import { RoomDataProps } from "../../types/RoomData.type.ts";
-import { RoomClientProps } from "../../types/RoomClient.type.ts";
-import React from "react";
+import { useRecoilValue } from 'recoil';
+import { gameState } from '../../recoil/atoms/gameState';
+import { userState } from '../../recoil/atoms/userState';
+import { RoomDataProps } from '../../types/RoomData.type.ts';
+import { RoomClientProps } from '../../types/RoomClient.type.ts';
+import React from 'react';
 
 type TeamRankProps = {
   resultModal: boolean;
 };
 
-const TeamRank: React.FC<TeamRankProps> = ({resultModal})=> {
+const TeamRank: React.FC<TeamRankProps> = ({ resultModal }) => {
   const game = useRecoilValue<RoomDataProps | null>(gameState); // 게임 상태
   const user = useRecoilValue<RoomClientProps>(userState); // 사용자 상태
 
-  const userTeamName = game?.teams.find((team) =>
-    team.users.some((teamUser) => teamUser.nickname === user.nickname)
-  )?.teamName || "No Team";
+  const userTeamName =
+    game?.teams.find((team) => team.users.some((teamUser) => teamUser.nickname === user.nickname))
+      ?.teamName || 'No Team';
 
   // 모든 팀의 클릭 수 합계 계산 및 내림차순 정렬
   const rankedTeams = game?.teams
@@ -24,7 +24,8 @@ const TeamRank: React.FC<TeamRankProps> = ({resultModal})=> {
       totalClicks: team.teamScore,
       isUserTeam: team.teamName === userTeamName,
     }))
-    .sort((a, b) => b.totalClicks - a.totalClicks).slice(0, 3);
+    .sort((a, b) => b.totalClicks - a.totalClicks)
+    .slice(0, 3);
 
   return (
     <div
@@ -47,7 +48,7 @@ const TeamRank: React.FC<TeamRankProps> = ({resultModal})=> {
               {index === 0 && '🥇 '}
               {index === 1 && '🥈 '}
               {index === 2 && '🥉 '}
-               {team.teamName}
+              {team.teamName}
             </span>
             <span className="text-lg">{team.totalClicks} clicks</span>
           </li>
@@ -55,6 +56,6 @@ const TeamRank: React.FC<TeamRankProps> = ({resultModal})=> {
       </ul>
     </div>
   );
-}
+};
 
 export default TeamRank;

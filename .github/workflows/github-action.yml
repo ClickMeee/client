@@ -24,7 +24,7 @@ jobs:
       - name: Set up Node.js 22
         uses: actions/setup-node@v2
         with:
-          node-version: '22' 
+          node-version: '22'
 
       # 3. Install dependencies
       - name: Install dependencies
@@ -33,7 +33,7 @@ jobs:
       # 4. Build the project with Vite
       - name: Build with Vite
         run: npx vite build
-        
+
       # 5. SCP the build files to the remote server
       - name: SCP build files to remote server
         uses: appleboy/scp-action@v0.1.0

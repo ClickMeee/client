@@ -1,12 +1,12 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import GameReady from '../pages/game-ready/GameReady.tsx';
 import GameSetting from '../pages/game-setting/GameSetting.tsx';
-import Game from "../pages/game/Game.tsx";
-import Main from "../pages/main/Main.tsx"
+import Game from '../pages/game/Game.tsx';
+import Main from '../pages/main/Main.tsx';
 import EnterRoomByCode from '../pages/enter/EnterRoomByCode.tsx';
 import RoomList from '../pages/room-list/RoomList.tsx';
-import Help from "../pages/help/Help.tsx";
-import GameResult from "../pages/game-result/GameResult.tsx";
+import Help from '../pages/help/Help.tsx';
+import GameResult from '../pages/game-result/GameResult.tsx';
 
 export default function Router() {
   return (

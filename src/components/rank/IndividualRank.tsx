@@ -1,8 +1,8 @@
-import { useRecoilValue } from "recoil";
-import { gameState } from "../../recoil/atoms/gameState";
-import { userState } from "../../recoil/atoms/userState";
-import { RoomDataProps } from "../../types/RoomData.type.ts";
-import { RoomClientProps } from "../../types/RoomClient.type.ts";
+import { useRecoilValue } from 'recoil';
+import { gameState } from '../../recoil/atoms/gameState';
+import { userState } from '../../recoil/atoms/userState';
+import { RoomDataProps } from '../../types/RoomData.type.ts';
+import { RoomClientProps } from '../../types/RoomClient.type.ts';
 
 export default function IndividualRank() {
   const game = useRecoilValue<RoomDataProps | null>(gameState); // 게임 상태
@@ -22,9 +22,7 @@ export default function IndividualRank() {
 
   return (
     <div className="w-full flex flex-col rounded-lg p-4 border-2 border-orange-300">
-      <h2 className="text-xl font-semibold text-orange-500 mb-4 text-center">
-        🏆 개인 랭킹
-      </h2>
+      <h2 className="text-xl font-semibold text-orange-500 mb-4 text-center">🏆 개인 랭킹</h2>
 
       <ul className="space-y-3">
         {rankedUsers?.map((user, index) => (
@@ -32,16 +30,17 @@ export default function IndividualRank() {
             key={index}
             className={`flex justify-between items-center px-4 py-2 rounded-lg
               ${
-              user.isCurrentUser
-                ? " text-black font-bold border-2 border-orange-500 shadow-lg bg-orange-500"
-                : " text-gray-600 border-2 border-gray-300 shadow-sm"
-            }`}
+                user.isCurrentUser
+                  ? ' text-black font-bold border-2 border-orange-500 shadow-lg bg-orange-500'
+                  : ' text-gray-600 border-2 border-gray-300 shadow-sm'
+              }`}
           >
             <span className="text-lg">
               {index === 0 && '🥇 '}
               {index === 1 && '🥈 '}
               {index === 2 && '🥉 '}
-              {user.nickname}</span>
+              {user.nickname}
+            </span>
             <span className="text-lg">{user.clickCount} clicks</span>
           </li>
         ))}

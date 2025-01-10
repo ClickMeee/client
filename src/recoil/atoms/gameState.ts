@@ -1,7 +1,7 @@
-import {atom} from 'recoil';
-import { RoomDataProps } from "../../types/RoomData.type.ts";
+import { atom } from 'recoil';
+import { RoomDataProps } from '../../types/RoomData.type.ts';
 
 export const gameState = atom<RoomDataProps | null>({
-  key : 'gameState',
+  key: 'gameState',
   default: null,
 });

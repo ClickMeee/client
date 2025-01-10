@@ -1,5 +1,5 @@
 import { atom } from 'recoil';
-import { GameStateDataProps } from "../../types/GameStateData.type.ts";
+import { GameStateDataProps } from '../../types/GameStateData.type.ts';
 
 export const gameReadyState = atom<GameStateDataProps>({
   key: 'gameReadyState',

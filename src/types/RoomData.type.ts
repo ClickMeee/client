@@ -9,7 +9,7 @@ export type Team = {
 export type User = {
   nickname: string; // 사용자 닉네임
   clickCount: number; // 클릭 수
-  isReady : boolean;
+  isReady: boolean;
 };
 
 export type GameType = 'ONE_TO_ONE' | 'ONE_TO_MANY' | 'TEAM_VS_TEAM' | 'FREE_FOR_ALL'; // 게임 유형

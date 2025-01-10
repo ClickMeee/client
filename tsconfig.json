@@ -9,7 +9,9 @@
     }
   ],
   "compilerOptions": {
-    "types": ["vite/client"],
-    "strict": true,
+    "types": [
+      "vite/client"
+    ],
+    "strict": true
   }
 }
