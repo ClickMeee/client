@@ -68,15 +68,15 @@ const Main = () => {
   useEffect(() => {
     setTimeout(() => {
       setIsVisibleTitle(true);
-    }, 500)
+    }, 100)
 
     setTimeout(() => {
       setIsVisibleTitle(false);
-    }, 1400)
+    }, 400)
 
     setTimeout(() => {
       setIsVisible(true);
-    }, 1700);
+    }, 600);
 
   }, []);
 
@@ -87,11 +87,11 @@ const Main = () => {
   return (
     <>
       <div
-        className={`z-[-1] fixed text-9xl left-1/2 top-1/2 transition-all transform -translate-x-1/2 -translate-y-1/2 duration-[1500ms] ${isVisibleTitle ? 'opacity-100' : 'opacity-0'}`}
+        className={`z-[-1] fixed text-9xl text-orange-500 left-1/2 top-1/2 transition-all transform -translate-x-1/2 -translate-y-1/2 duration-[400ms] ${isVisibleTitle ? 'opacity-100' : 'opacity-0'}`}
       >
         Click Meee
       </div>
-      <div className={`transition-all duration-[1500ms] ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`transition-all duration-[400ms] ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
         <CurrentUserCount />
         <div className="flex z-10 flex-col justify-center items-center mt-10 md-10 bg-slate-50 bg-opacity-0 text-white p-6">
           <div className="bg-gray-700 rounded-xl max-w-100 w-2/5 min-w-80 h-5/6 p-10 shadow-floating">

@@ -32,14 +32,14 @@ export default function DetailRank() {
               ${
                 user.isCurrentUser
                   ? ' text-black font-bold border-4 border-orange-500 shadow-sm'
-                  : ' text-white bg- shadow-sm'
+                  : ' text-white shadow-sm'
               }
                ${
                  game?.gameType === 'FREE_FOR_ALL'
-                   ? 'bg-gray-500 bg-opacity-50'
+                   ? 'bg-gray-500 bg-opacity-30'
                    : user.teamName === 'RED'
-                     ? 'bg-red-500'
-                     : 'bg-blue-500'
+                     ? 'bg-red-500 bg-opacity-85'
+                     : 'bg-blue-500 opacity-85'
                }
               `}
           >
