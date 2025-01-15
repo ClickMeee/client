@@ -67,10 +67,6 @@ const RoomList = () => {
     };
   }, []);
 
-  useEffect(() => {
-    console.log(roomList);
-  }, [roomList]);
-
   return (
     <>
       <MessageModal messages={messages} />
