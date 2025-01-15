@@ -4,9 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const navigate = useNavigate();
-  const handleNavigatePage = (path: string) => {
-    navigate(path);
-  };
 
   return (
     <header className="p-3 bg-white shadow-custom-bottom sticky h-16">
@@ -19,7 +16,7 @@ export default function Header() {
           style={{ color: '#ff9500' }}
         />
         <span
-          onClick={() => handleNavigatePage('/')}
+          onClick={() => navigate('/', { replace: true })}
           className="relative z-10 text-black text-3xl cursor-pointer"
         >
           Click Meee
