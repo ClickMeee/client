@@ -42,11 +42,6 @@ export default function GameReady() {
   }, [roomChiefModal, navigate]);
 
   useEffect(() => {
-    setUser((prev: RoomClientProps) => ({
-      ...prev,
-      roomId: urlRoomId, // urlRoomId 값을 user 상태의 roomId에 갱신
-    }));
-
     if (!user.nickname || !user.roomId) {
       // console.log('nickname이나 roomId가 없습니다.');
       return;

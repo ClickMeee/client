@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState, useResetRecoilState } from 'recoil';
+import { useResetRecoilState, useSetRecoilState } from 'recoil';
 import { createRoom } from '../../api/CreateRoom';
 import MessageModal from '../../components/modal/MessageModal.tsx';
 import useMessages from '../../hooks/useMessage';
 import { userState } from '../../recoil/atoms/userState';
+import WebSocketManager from '../../services/WebSocketManager.ts';
+import { gameState } from '../../recoil/atoms/gameState.ts';
 
 const GameSetting = () => {
-  const resetUserState = useResetRecoilState(userState);
   const navigate = useNavigate();
   const [inputNickname, setInputNickname] = useState<string>('');
   const [gameTime, setGameTime] = useState<number>(10);
@@ -19,20 +20,19 @@ const GameSetting = () => {
 
   const { messages, showMessage } = useMessages();
 
-  const [user, setUser] = useRecoilState(userState);
+  const setUser = useSetRecoilState(userState);
+  const resetUserState = useResetRecoilState(userState);
+  const resetGameState = useResetRecoilState(gameState);
 
   useEffect(() => {
     resetUserState();
+    resetGameState();
+    const webSocketManager = WebSocketManager.getInstance();
+    if (webSocketManager.isConnected()) {
+      webSocketManager.disconnect();
+    }
     // console.log('Recoil userState 초기화 완료');
   }, []);
-
-  useEffect(() => {
-    const roomId = user.roomId;
-    if (roomId !== null) {
-      // GameReady 페이지로 이동
-      navigate(`/game-ready/${roomId}`);
-    }
-  }, [user.nickname]);
 
   useEffect(() => {
     // 게임 유형이 변경될 때, maxUserCount 초기화
@@ -69,6 +69,10 @@ const GameSetting = () => {
 
       // Recoil(userState) 상태에 roomId 업데이트
       setUser((prev) => ({ ...prev, nickname: inputNickname, roomId: createdRoomId }));
+
+      if (createdRoomId !== null) {
+        navigate(`/game-ready/${createdRoomId}`);
+      }
     } catch {
       // console.error('Error creating room:', error.message);
       showMessage('방 생성에 실패했습니다.');
