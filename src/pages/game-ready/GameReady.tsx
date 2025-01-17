@@ -87,6 +87,7 @@ export default function GameReady() {
   }, [game]);
 
   useEffect(() => {
+    setUser((prev) => ({ ...prev, roomId: urlRoomId }));
     // ClipboardJS 객체 초기화 (한 번만 실행)
     clipboardRef.current = new ClipboardJS('.copy-button');
 
